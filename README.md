@@ -52,7 +52,9 @@ Put the provider keys for the engines you use (`ANTHROPIC_API_KEY`, `OPENAI_API_
 workspace says "Setup required" and never shows sample work. Engines and their qualified
 capabilities: [`packages/nodeagent-engines/qualification/`](packages/nodeagent-engines/qualification/).
 The keyless scripted room at `/?mode=memory` exists only as the isolated test harness that
-immutable CI drives — it is never the product.
+immutable CI drives — it is never the product. A build with `VITE_CONVEX_URL` ignores
+`?mode=memory` unless it was built with `VITE_NODEROOM_HARNESS=1` (`test:product:memory` and the
+Playwright webServer set it), so production cannot be switched to it by URL.
 
 > **Benchmark claims come ONLY from the generated Proof Release block below and the
 > live board** ([`docs/eval/PROOFLOOP_BENCHMARK_BOARD.md`](docs/eval/PROOFLOOP_BENCHMARK_BOARD.md)).

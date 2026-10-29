@@ -45,6 +45,8 @@ const RAW_CAP = 4000;
 const MAX_TRACKED = 2000;
 const DELTA_FLUSH_CHARS = 400;
 const DEFAULT_MAX_TURNS = 40;
+/** The SDK's own compaction default (agents-core sandbox Compaction, StaticCompactionPolicy 240000). */
+const DEFAULT_COMPACT_TOKENS = 240_000;
 const SESSION_ID = /^oas_[0-9a-f-]{36}$/;
 
 const MAIN_RULES = [
@@ -70,7 +72,7 @@ const CAPABILITIES: Record<Capability, CapabilityEntry> = {
   resume: { status: "NATIVE", note: "SDK Session interface, file-backed under stateDir; nativeSessionId = session id" },
   subagents: { status: "NATIVE", note: "Agent.asTool (spawn_helper); parallel function calls run concurrently" },
   childEventIdentity: { status: "NATIVE", note: "asTool onStream toolCall.callId = helperId on every child event" },
-  compaction: { status: "NATIVE", note: "modelSettings.contextManagement compactThreshold = spec.context.autoCompactTokens; compaction_item_created" },
+  compaction: { status: "NATIVE", note: `modelSettings.contextManagement compactThreshold = context.autoCompactTokens (default ${DEFAULT_COMPACT_TOKENS}); compaction_item_created` },
   toolSearch: { status: "NATIVE", note: "toolSearchTool() + deferLoading for non-alwaysLoad Node tools; tool_search_called/_output_created" },
   skillLoad: { status: "APP-IMPLEMENTED", note: "Node search_skills/load_skill tools; SDK local shell skills need the UnixLocal sandbox (throws on win32)" },
   skillRefresh: { status: "UNTESTED", note: "no native skill cache; Node skill tools read disk per call" },
@@ -463,6 +465,7 @@ export function createOpenAIAgentsAdapter(deps: OpenAIAgentsAdapterDeps = {}): E
     defaultModel: DEFAULT_MODEL,
     defaultHelperModel: DEFAULT_HELPER_MODEL,
     models: MODELS,
+    defaults: { maxTurns: DEFAULT_MAX_TURNS, autoCompactTokens: DEFAULT_COMPACT_TOKENS },
     capabilities:
       version === QUALIFIED_SDK_VERSION
         ? CAPABILITIES
@@ -606,10 +609,10 @@ async function runOnce(
     }
   };
 
-  const modelSettings: ModelSettings = { parallelToolCalls: true };
-  if (spec.context.autoCompactTokens) {
-    modelSettings.contextManagement = [{ type: "compaction", compactThreshold: spec.context.autoCompactTokens }];
-  }
+  const modelSettings: ModelSettings = {
+    parallelToolCalls: true,
+    contextManagement: [{ type: "compaction", compactThreshold: spec.context.autoCompactTokens ?? DEFAULT_COMPACT_TOKENS }],
+  };
   const main = new Agent({ name: "main", instructions: MAIN_RULES, model, tools: [...toolSet(), helper], modelSettings });
   const runner = new Runner({ modelProvider: provider, tracingDisabled: true, workflowName: "nodeagent" });
 

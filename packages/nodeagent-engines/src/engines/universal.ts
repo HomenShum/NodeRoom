@@ -806,6 +806,7 @@ export function createUniversalAdapter(deps: UniversalDeps = {}): EngineAdapter 
       defaultHelperModel: "google:gemini-3.5-flash-lite",
       models: MODELS,
       capabilities,
+      defaults: { maxTurns: DEFAULT_MAX_TURNS, autoCompactTokens: DEFAULT_COMPACT_TOKENS },
     };
   };
 

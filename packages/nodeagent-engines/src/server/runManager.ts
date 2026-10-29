@@ -266,8 +266,8 @@ export class RunManager {
     }
     if (typeof req.prompt !== "string" || !req.prompt.trim()) throw new HttpError(400, "prompt must be a non-empty string");
     if (req.prompt.length > MAX_PROMPT_CHARS) throw new HttpError(400, `prompt exceeds ${MAX_PROMPT_CHARS} characters`);
-    // Operator defaults (NODE_AGENT_DEFAULT_*) apply when a request omits a limit; the
-    // effective values are stored on the run record, so they are always disclosed.
+    // A request's limits, else operator defaults (NODE_AGENT_DEFAULT_*), else the engine's own
+    // fallbacks (descriptor.defaults, below). The effective values are stored on the run record.
     const env = process.env;
     const budget = {
       maxUsd: positive(req.budget?.maxUsd ?? numEnv(env.NODE_AGENT_DEFAULT_MAX_USD), "budget.maxUsd"),
@@ -289,6 +289,8 @@ export class RunManager {
     if (this.queue.length >= MAX_QUEUED_RUNS) throw new HttpError(429, `${MAX_QUEUED_RUNS} runs are already queued; wait for one to finish`);
 
     const descriptor = adapter.descriptor();
+    budget.maxTurns ??= descriptor.defaults?.maxTurns;
+    context.autoCompactTokens ??= descriptor.defaults?.autoCompactTokens;
     const model = optString(req.model, "model") ?? descriptor.defaultModel;
     if (!model) throw new HttpError(400, `Engine ${engine} has no default model; pass model`);
     const record: RunRecord = {
@@ -396,15 +398,19 @@ export class RunManager {
       events.push(...page);
       after = page[page.length - 1].seq;
     }
-    const packet = buildHandoffPacket(source, events, snapshot(project.workspaceDir));
+    const packet = buildHandoffPacket(source, events, snapshot(project.workspaceDir), this.rootRun(source).prompt);
+    // Carry the user's limits, not the source engine's fallbacks; the target resolves its own.
+    const d = (await this.opts.registry.load(source.engine).catch(() => undefined))?.descriptor().defaults ?? {};
+    const { maxTurns } = source.budget;
+    const { autoCompactTokens } = source.context;
     const next = await this.createRun(
       {
         projectId: source.projectId,
         engine: req.engine,
         model: req.model,
         prompt: optString(req.prompt, "prompt", MAX_PROMPT_CHARS)?.trim() || DEFAULT_HANDOFF_PROMPT,
-        budget: source.budget,
-        context: source.context,
+        budget: { ...source.budget, maxTurns: maxTurns === d.maxTurns ? undefined : maxTurns },
+        context: { autoCompactTokens: autoCompactTokens === d.autoCompactTokens ? undefined : autoCompactTokens },
       },
       { parentRunId: source.id, relation: "handoff", handoff: packet },
     );
@@ -412,10 +418,16 @@ export class RunManager {
     return next;
   }
 
-  /** The stage of the suggested task this run's root run was started from, if any. */
-  private verifierStage(record: RunRecord, template: TemplateConfig): string | undefined {
+  /** The run a chain of resumes and handoffs started from; its prompt is the user's task. */
+  private rootRun(record: RunRecord): RunRecord {
     let root = record;
     for (let hops = 0; root.parentRunId && hops < 50; hops++) root = this.getRun(root.parentRunId);
+    return root;
+  }
+
+  /** The stage of the suggested task this run's root run was started from, if any. */
+  private verifierStage(record: RunRecord, template: TemplateConfig): string | undefined {
+    const root = this.rootRun(record);
     return template.suggestedTasks?.find((t) => t.prompt.trim() === root.prompt.trim())?.verifierStage;
   }
 

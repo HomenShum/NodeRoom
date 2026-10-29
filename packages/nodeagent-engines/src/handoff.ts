@@ -15,7 +15,8 @@ function cut(text: string, max: number): string {
   return text.length > max ? `${text.slice(0, max)}… [truncated]` : text;
 }
 
-export function buildHandoffPacket(run: RunRecord, events: NodeAgentEvent[], snap: Snapshot): HandoffPacket {
+/** `originalPrompt` is the root run's prompt: a resume or handoff run's own prompt is boilerplate. */
+export function buildHandoffPacket(run: RunRecord, events: NodeAgentEvent[], snap: Snapshot, originalPrompt: string): HandoffPacket {
   const artifacts = [...snap.files]
     .filter(([, f]) => f.sha256)
     .slice(0, MAX_ARTIFACTS)
@@ -68,7 +69,7 @@ export function buildHandoffPacket(run: RunRecord, events: NodeAgentEvent[], sna
     schema: "nodeagent.handoff/v1",
     fromRunId: run.id,
     fromEngine: run.engine,
-    originalPrompt: run.handoff?.originalPrompt ?? run.prompt,
+    originalPrompt,
     goals: run.goals,
     artifacts,
     checks: checks.slice(-MAX_CHECKS),

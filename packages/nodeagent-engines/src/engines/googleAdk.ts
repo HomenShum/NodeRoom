@@ -421,6 +421,7 @@ export function createGoogleAdkAdapter(deps: GoogleAdkAdapterDeps = {}): EngineA
     defaultHelperModel: DEFAULT_HELPER_MODEL,
     models: MODELS,
     capabilities: CAPABILITIES,
+    defaults: { maxTurns: 500, autoCompactTokens: DEFAULT_COMPACT_TOKENS },
   });
   return {
     descriptor,
@@ -668,7 +669,7 @@ function startRun(spec: RunSpec, host: EngineHost, version: string, deps: Google
         userId,
         sessionId,
         newMessage: { role: "user", parts: [{ text }] },
-        runConfig: { streamingMode: StreamingMode.SSE, maxLlmCalls: spec.budget.maxTurns ?? 500 },
+        runConfig: { streamingMode: StreamingMode.SSE, maxLlmCalls: spec.budget.maxTurns ?? 500 /* descriptor.defaults.maxTurns */ },
         abortSignal: signal,
       })) {
         observe(ev);

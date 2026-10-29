@@ -118,20 +118,25 @@ function Unavailable({ apiBase, error, onRetry, compact }: { apiBase: string; er
 
 const newestFirst = <T extends { createdAt: string }>(xs: T[] | undefined): T[] | undefined => xs?.slice().sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 
-type Selection = { projectId?: string; runId?: string; engine?: EngineId; model?: string };
+export type Selection = { projectId?: string; runId?: string; engine?: EngineId; model?: string };
+const SELECTION_KEYS = ["projectId", "runId", "engine", "model"];
 
-/** Per-viewer convenience only; storage may be unavailable (private mode, previews). */
-function readSelection(apiBase: string): Selection {
+/** Per-viewer convenience only (browser localStorage); storage may be unavailable (private mode, previews). */
+export function readSelection(apiBase: string): Selection {
   try {
-    const raw = window.localStorage.getItem(`naw:selection:${apiBase}`);
-    const v = raw ? (JSON.parse(raw) as Selection) : {};
-    return v && typeof v === "object" ? v : {};
+    const v: unknown = JSON.parse(window.localStorage.getItem(`naw:selection:${apiBase}`) ?? "{}");
+    // Only string fields survive: a value from an older schema must not reach model.trim() or the pickers.
+    return v && typeof v === "object" ? Object.fromEntries(Object.entries(v).filter(([k, x]) => SELECTION_KEYS.includes(k) && typeof x === "string")) : {};
   } catch {
     return {};
   }
 }
 
-function writeSelection(apiBase: string, s: Selection): void {
+/** A saved id wins while the loaded list still has it; a stale one falls back to the newest item. */
+export const pickId = (choice: string | undefined, items: Array<{ id: string }> | undefined): string | undefined =>
+  choice && (!items || items.some((x) => x.id === choice)) ? choice : items?.[0]?.id;
+
+export function writeSelection(apiBase: string, s: Selection): void {
   try {
     window.localStorage.setItem(`naw:selection:${apiBase}`, JSON.stringify(s));
   } catch {
@@ -157,7 +162,7 @@ function Workspace(props: NodeAgentWorkspaceProps & { health: HealthResponse; de
   // was newest (another user's) and reset the engine picker (observed in the proof runs).
   const saved = useMemo(() => readSelection(apiBase), [apiBase]);
   const [projectChoice, setProjectChoice] = useState(props.projectId ?? saved.projectId);
-  const projectId = projectChoice && (!projects || projects.some((p) => p.id === projectChoice)) ? projectChoice : projects?.[0]?.id;
+  const projectId = pickId(projectChoice, projects);
   const project = projects?.find((p) => p.id === projectId);
 
   const [pollFast, setPollFast] = useState(false);
@@ -172,7 +177,7 @@ function Workspace(props: NodeAgentWorkspaceProps & { health: HealthResponse; de
   const [runChoice, setRunChoice] = useState<{ projectId?: string; runId: string } | undefined>(
     saved.projectId && saved.runId ? { projectId: saved.projectId, runId: saved.runId } : undefined,
   );
-  const runId = runChoice && runChoice.projectId === projectId ? runChoice.runId : runs?.[0]?.id;
+  const runId = pickId(runChoice?.projectId === projectId ? runChoice?.runId : undefined, runs);
   const run = runs?.find((r) => r.id === runId);
   useEffect(() => setPollFast(Boolean(runs?.some((r) => r.status === "queued" || r.status === "running"))), [runs]);
 

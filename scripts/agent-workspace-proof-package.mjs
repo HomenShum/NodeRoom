@@ -143,7 +143,8 @@ const totalCost = runSummaries.reduce((s, r) => (r.usage?.costUsd == null || s =
 const manifest = {
   schema: "nodeagent.proof-package/v1",
   generatedAt: new Date().toISOString(),
-  source: { gitHead: head, dirtyFiles: dirty, package: `${enginePkg.name}@${enginePkg.version}`, sdkPins: enginePkg.dependencies },
+  // Captured when packaging, not when recording; recording.json may carry the recording-time head.
+  source: { gitHeadAtPackaging: head, dirtyFilesAtPackaging: dirty, gitHeadAtRecording: recording.gitHead ?? null, package: `${enginePkg.name}@${enginePkg.version}`, sdkPins: enginePkg.dependencies },
   recording: { startedAt: recording.recordingStartedAt, endedAt: recording.endedAt, durationSec: duration, rawVideo: "raw-recording.webm", rawVideoMp4: "raw-recording.mp4", speed: "1x unedited", trace: "trace.zip" },
   editedMedia: { highlights: windows.length ? { file: "highlights.mp4", edited: true, windows } : null, timelapse: timelapseFactor ? { file: "timelapse.mp4", speedFactor: timelapseFactor } : null },
   runs: runSummaries,

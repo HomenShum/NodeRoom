@@ -471,7 +471,7 @@ export function buildNodeToolCatalog(opts: { nativeFileTools: boolean }): NodeTo
           .max(20)
           .optional()
           .describe("Needs at least one expect:pass case and one expect:fail counterexample"),
-        allowedTools: z.array(z.string()).max(20).optional(),
+        allowedTools: z.array(z.string()).max(20).optional().describe("Only Read, Grep, Glob, Bash(node:*) or mcp__node__<tool>; anything else is refused"),
       }),
       async execute(args, ctx) {
         return draftSkill(ctx, args);

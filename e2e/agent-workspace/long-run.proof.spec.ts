@@ -145,16 +145,21 @@ async function driveTask(page: Page, request: APIRequestContext, projectId: stri
     if (!reloaded && (run.counters?.helpersStarted ?? 0) > 0 && (run.counters?.toolCalls ?? 0) >= 20) {
       const toolCallsBefore = run.counters.toolCalls;
       await milestone(page, `${label}-before-reload`, `reloading the tab at ${toolCallsBefore} tool calls`, runId);
+      const selectedProject = page.locator("[data-project-id][data-selected]");
+      const selectedRun = page.locator('[data-testid="naw-run-item"][data-selected]');
+      await expect(selectedProject).toHaveAttribute("data-project-id", projectId);
+      await expect(selectedRun).toHaveAttribute("data-run-id", runId);
       await page.reload({ waitUntil: "domcontentloaded" });
       await expect(page.getByTestId("naw-root")).toBeVisible();
-      const item = page.locator(`[data-testid="naw-run-item"][data-run-id="${runId}"]`);
-      if (await item.count()) await item.first().click();
-      await expect(page.getByTestId("naw-timeline")).toBeVisible({ timeout: 60_000 });
-      // The viewer's engine choice and project must survive the reload (regression: both reset).
+      // No click before these: the project, run and engine must come back from the viewer's saved
+      // selection (regression: a reload jumped to the newest project, another user's, and reset the engine).
+      await expect(selectedProject).toHaveAttribute("data-project-id", projectId, { timeout: 60_000 });
+      await expect(selectedRun).toHaveAttribute("data-run-id", runId, { timeout: 60_000 });
       await expect(page.getByTestId("naw-engine-select")).toHaveValue(ENGINE);
+      await expect(page.getByTestId("naw-timeline")).toBeVisible({ timeout: 60_000 });
       const after = await api<RunRecord>(request, `/runs/${runId}`);
       expect(after.counters.toolCalls).toBeGreaterThanOrEqual(toolCallsBefore);
-      await milestone(page, `${label}-after-reload`, `restored from the worker; run still ${after.status} with ${after.counters.toolCalls} tool calls`, runId);
+      await milestone(page, `${label}-after-reload`, `selection restored from this browser, run state from the worker: still ${after.status} with ${after.counters.toolCalls} tool calls`, runId);
       reloaded = true;
     }
 

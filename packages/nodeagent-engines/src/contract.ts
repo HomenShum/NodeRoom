@@ -53,6 +53,8 @@ export interface EngineDescriptor {
   defaultHelperModel?: string;
   models: string[];
   capabilities: Record<Capability, CapabilityEntry>;
+  /** Limits the engine applies when a run leaves them unset. Node resolves them onto the run record so they are disclosed. */
+  defaults?: { maxTurns?: number; autoCompactTokens?: number };
 }
 
 export interface EngineAvailability {

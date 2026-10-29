@@ -40,7 +40,8 @@ const MAX_TRACKED = 2000;
 /** Kept in CODEX_HOME/config.toml: the API key lives in memory only, never auth.json. */
 const EPHEMERAL_AUTH = 'cli_auth_credentials_store = "ephemeral"';
 
-// Statuses are what qualification/codex.json observed on 0.165.0.
+// Statuses are what qualification/codex.json observed on 0.165.0 (fake host, gpt-5.4-mini, since dropped
+// from MODELS), except goals: worker runs on listed models only ever showed Node's update_goals.
 const CAPABILITIES: Record<Capability, CapabilityEntry> = {
   start: { status: "NATIVE", note: "app-server thread/start + turn/start; run.started once the thread id is known" },
   stream: { status: "NATIVE", note: "item/agentMessage/delta -> message.delta (main agent, ~100ms coalesced)" },
@@ -53,9 +54,15 @@ const CAPABILITIES: Record<Capability, CapabilityEntry> = {
     status: "NATIVE",
     note: "dynamicTools deferLoading + Codex tool_search (raw tool_search_call/output) for models in Codex's catalog; others get APP-IMPLEMENTED search_tools/load_tool/call_tool",
   },
-  skillLoad: { status: "NATIVE", note: "Codex skills over <workspace>/.claude/skills (skills/extraRoots/set); a successful SKILL.md read -> skill.loaded" },
+  skillLoad: {
+    status: "NATIVE",
+    note: "discovery is native (skills/extraRoots/set over <workspace>/.claude/skills); skill.loaded is Node's inference from a completed command that read a SKILL.md, not a native load event",
+  },
   skillRefresh: { status: "NATIVE", note: "skills/list forceReload registered as the gateway skill refresher" },
-  goals: { status: "NATIVE", note: "thread goals (create_goal/update_goal) -> thread/goal/updated; turn/plan/updated when the model has a plan tool" },
+  goals: {
+    status: "APP-IMPLEMENTED",
+    note: "Node update_goals (every worker-run goals.updated so far: source node-goals). Native thread goals -> codex:goal seen only in fake-host qualification on gpt-5.4-mini",
+  },
   permissions: { status: "NATIVE", note: "read-only sandbox + approvalPolicy untrusted; command/fileChange approval requests run host.policy" },
   usage: { status: "NATIVE", note: "rawResponse/completed per-response usage (includes compaction and helper threads)" },
   costUsd: { status: "APP-IMPLEMENTED", note: "Codex reports tokens, not USD; priced with the Node price table per thread model" },

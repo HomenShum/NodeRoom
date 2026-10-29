@@ -5,7 +5,7 @@
  * Native tools pass host.policy twice: PreToolUse hook and canUseTool.
  */
 import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, readFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { createSdkMcpServer, query as sdkQuery, tool } from "@anthropic-ai/claude-agent-sdk";
@@ -13,6 +13,7 @@ import type {
   AgentDefinition,
   CanUseTool,
   HookCallback,
+  ModelUsage,
   Options,
   Query,
   SDKMessage,
@@ -78,8 +79,11 @@ const CAPABILITIES: Record<Capability, CapabilityEntry> = {
   skillRefresh: { status: "NATIVE", note: "Query.reloadSkills() registered as the gateway skill refresher" },
   goals: { status: "NATIVE", note: "TodoWrite (CLAUDE_CODE_ENABLE_TASKS=false) input -> goals.updated (claimedBy engine)" },
   permissions: { status: "NATIVE", note: "PreToolUse hook + canUseTool run host.policy.checkNativeTool; deny returned to the model" },
-  usage: { status: "NATIVE", note: "result.modelUsage (main, subagents, compaction)" },
-  costUsd: { status: "NATIVE", note: "result.total_cost_usd (CLI list-price estimate); price table when costBasis is unknown; null when modelUsage is empty" },
+  usage: { status: "NATIVE", note: "result.modelUsage (main, subagents, compaction), minus the session's saved totals on resume (the CLI carries them over)" },
+  costUsd: {
+    status: "NATIVE",
+    note: "result.total_cost_usd (CLI list-price estimate) minus the session's saved total on resume; price table when costBasis is unknown; null when modelUsage is empty or a resumed session has no saved total",
+  },
 };
 
 type QueryFn = (params: { prompt: AsyncIterable<SDKUserMessage>; options: Options }) => Query;
@@ -258,6 +262,43 @@ export function createClaudeAdapter(deps: ClaudeAdapterDeps = {}): EngineAdapter
     start(spec, host) {
       return startRun(spec, host, version, runQuery, deps.onNative);
     },
+  };
+}
+
+type SessionTotals = Pick<SDKResultMessage, "modelUsage" | "total_cost_usd">;
+
+/** Last cumulative result of each native session, under the engine's stateDir. */
+function totalsFile(stateDir: string, session: string): string | undefined {
+  return /^[\w-]{1,128}$/.test(session) ? join(stateDir, "claude-usage", `${session}.json`) : undefined;
+}
+
+function readTotals(file: string | undefined): SessionTotals | undefined {
+  try {
+    return file ? (JSON.parse(readFileSync(file, "utf8")) as SessionTotals) : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function saveTotals(file: string | undefined, r: SessionTotals, log: (m: string) => void): void {
+  if (!file) return;
+  try {
+    mkdirSync(dirname(file), { recursive: true });
+    writeFileSync(file, JSON.stringify({ modelUsage: r.modelUsage, total_cost_usd: r.total_cost_usd }));
+  } catch (err) {
+    log(`claude: could not save session totals: ${errText(err)}`);
+  }
+}
+
+function minus(u: ModelUsage, p: ModelUsage | undefined): ModelUsage {
+  if (!p) return u;
+  return {
+    ...u,
+    inputTokens: u.inputTokens - p.inputTokens,
+    outputTokens: u.outputTokens - p.outputTokens,
+    cacheReadInputTokens: u.cacheReadInputTokens - p.cacheReadInputTokens,
+    cacheCreationInputTokens: u.cacheCreationInputTokens - p.cacheCreationInputTokens,
+    costUSD: u.costUSD - p.costUSD,
   };
 }
 
@@ -462,8 +503,14 @@ function startRun(spec: RunSpec, host: EngineHost, version: string, runQuery: Qu
     return existsSync(file) ? createHash("sha256").update(readFileSync(file)).digest("hex") : undefined;
   };
 
+  // A resumed session's results continue from the totals its transcript saved (SDK modelUsage /
+  // total_cost_usd docs; observed: a resume's first result 152 s in reported 278,610 output tokens,
+  // the parent's 133,764 included). Subtract the session's last saved result so a run reports its own spend.
+  const prior = spec.resume ? readTotals(totalsFile(host.stateDir, spec.resume.nativeSessionId)) : undefined;
   const usageFrom = (r: SDKResultMessage): UsageTotals => {
-    const models = Object.entries(r.modelUsage ?? {});
+    // "when it has them": a result smaller than the saved totals did not carry them over.
+    const base = prior && r.total_cost_usd >= prior.total_cost_usd && Object.entries(prior.modelUsage).every(([m, p]) => (r.modelUsage?.[m]?.outputTokens ?? -1) >= p.outputTokens) ? prior : undefined;
+    const models = Object.entries(r.modelUsage ?? {}).map(([m, u]) => [m, minus(u, base?.modelUsage[m])] as const);
     const t = { inputTokens: 0, outputTokens: 0, cacheReadTokens: 0, cacheWriteTokens: 0 };
     for (const [, u] of models) {
       t.inputTokens += u.inputTokens;
@@ -473,9 +520,11 @@ function startRun(spec: RunSpec, host: EngineHost, version: string, runQuery: Qu
     }
     // An interrupted turn reports total_cost_usd 0 with empty modelUsage after tokens were spent (observed): unknown, not 0.
     if (!models.length) return { ...t, costUsd: null, costSource: "unknown", modelTurns };
+    // A resume with no saved totals (session recorded before Node kept them) cannot split its spend.
+    if (spec.resume && !prior) return { ...t, costUsd: null, costSource: "unknown", modelTurns };
     // costBasis "unknown" means the CLI guessed at another model's rate: not an engine-known cost.
     if (typeof r.total_cost_usd === "number" && models.every(([, u]) => u.costBasis !== "unknown"))
-      return { ...t, costUsd: r.total_cost_usd, costSource: "engine", modelTurns };
+      return { ...t, costUsd: r.total_cost_usd - (base?.total_cost_usd ?? 0), costSource: "engine", modelTurns };
     let sum = 0;
     for (const [model, u] of models) {
       const p = priceUsage(model, {
@@ -682,6 +731,8 @@ function startRun(spec: RunSpec, host: EngineHost, version: string, runQuery: Qu
         lastResult = msg;
         if (msg.subtype === "success") lastMainText = msg.result || lastMainText;
         usage = usageFrom(msg);
+        // An interrupted turn's empty modelUsage is not a total; keep the last real one.
+        if (Object.keys(msg.modelUsage ?? {}).length) saveTotals(totalsFile(host.stateDir, msg.session_id), msg, host.log);
         emit({ type: "usage", totals: usage });
         void pollContext();
         idle = true;

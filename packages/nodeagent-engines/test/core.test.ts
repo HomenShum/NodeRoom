@@ -30,6 +30,8 @@ const { workerData, parentPort } = require("node:worker_threads");
 })().catch((err) => { throw err; });
 `;
 
+const DEEP_TASK = "Run the deep diligence pass over every company and write the memos.";
+
 await runTests();
 
 // ---------------------------------------------------------------------------
@@ -41,7 +43,7 @@ interface FakeAdapter extends EngineAdapter {
   sent: string[];
 }
 
-function fakeAdapter(id: EngineId, script: Script, opts: { missing?: string[]; send?: boolean } = {}): FakeAdapter {
+function fakeAdapter(id: EngineId, script: Script, opts: { missing?: string[]; send?: boolean; defaults?: { maxTurns?: number; autoCompactTokens?: number } } = {}): FakeAdapter {
   const caps = ["start", "stream", "interrupt", "resume", "subagents", "childEventIdentity", "compaction", "toolSearch", "skillLoad", "skillRefresh", "goals", "permissions", "usage", "costUsd"] as Capability[];
   const specs: RunSpec[] = [];
   const sent: string[] = [];
@@ -54,6 +56,7 @@ function fakeAdapter(id: EngineId, script: Script, opts: { missing?: string[]; s
       sdk: { name: "fake", version: "0.0.0" },
       defaultModel: "fake-model",
       models: ["fake-model"],
+      defaults: opts.defaults,
       capabilities: Object.fromEntries(caps.map((c) => [c, { status: "UNTESTED", note: "test fake" }])) as never,
     }),
     availability: async () => ({ ok: !opts.missing?.length, missing: opts.missing ?? [] }),
@@ -98,6 +101,20 @@ if (existsSync(join(ws, "GARBAGE"))) { console.log("not json at all"); process.e
 const ok = existsSync(join(ws, "analysis", "out.md"));
 console.log(JSON.stringify({ checks: [{ id: "out-exists", ok, detail: ok ? "analysis/out.md present" : "analysis/out.md missing" }] }));
 process.exit(ok ? 0 : 1);
+`,
+  );
+  // t2: a suggested deep task whose verifier reports the stage Node asked it to grade (its own
+  // auto-detect would pick the shallow stage, since the workspace has no deep artifacts).
+  mkdirSync(path.join(fx, "t2"), { recursive: true });
+  writeFileSync(
+    path.join(fx, "t2", "template.json"),
+    JSON.stringify({ id: "t2", title: "Deep", description: "Deep pass", verifier: "../verifiers/t2.verify.mjs", suggestedTasks: [{ id: "deep", title: "Deep pass", prompt: DEEP_TASK, verifierStage: "deep" }] }),
+  );
+  writeFileSync(
+    path.join(fx, "verifiers", "t2.verify.mjs"),
+    `const i = process.argv.indexOf("--stage");
+const stage = i > 0 ? process.argv[i + 1] : "auto";
+console.log(JSON.stringify({ checks: [{ id: "stage", ok: stage === "deep", detail: "graded at stage " + stage }] }));
 `,
   );
   return fx;
@@ -430,5 +447,73 @@ async function runTests(): Promise<void> {
     await waitFor(() => m.getRun(run.id).status === "completed", 5000, "completes");
     const res = await m.message(run.id, "too late");
     assert.equal(res.accepted, false);
+  });
+
+  const settled = (m: NodeWorker["manager"], id: string) => waitFor(() => m.getRun(id).verification && m.getRun(id), 10_000, `${id} verified`);
+
+  test("handoff after a resume: the packet's original task is the root run's prompt, never resume or handoff boilerplate", async () => {
+    // Dana starts on Claude, resumes once, then hands to Codex, and Codex hands back to Claude.
+    const claude = fakeAdapter("claude-agent-sdk", async (spec) => done("ok", spec.resume?.nativeSessionId ?? "sess-dana"));
+    const codex = fakeAdapter("codex-app-server", async () => done("ok"));
+    const { m, project } = await boot([claude, codex]);
+    const task = "Clean data/raw.csv and summarize it in analysis/out.md";
+    const root = await m.createRun({ projectId: project.id, engine: "claude-agent-sdk", prompt: task });
+    await settled(m, root.id);
+    const resumed = await m.resume(root.id);
+    assert.match(resumed.prompt, /Continue the task/);
+    await settled(m, resumed.id);
+    const toCodex = await m.handoff(resumed.id, { engine: "codex-app-server" });
+    assert.equal(toCodex.handoff!.fromRunId, resumed.id);
+    assert.equal(toCodex.handoff!.originalPrompt, task, "the packet must carry the task, not the resume prompt");
+    await settled(m, toCodex.id);
+    assert.equal(codex.specs[0].handoff!.originalPrompt, task, "the engine receives the task");
+    const back = await m.handoff(toCodex.id, { engine: "claude-agent-sdk" });
+    assert.equal(back.handoff!.originalPrompt, task, "handoff of a handoff still carries the root task");
+  });
+
+  test("verifier stage: a resumed or handed-off deep task is graded at the deep stage even with no deep artifacts", async () => {
+    const claude = fakeAdapter("claude-agent-sdk", async (spec) => done("ok", spec.resume?.nativeSessionId ?? "sess-deep"));
+    const codex = fakeAdapter("codex-app-server", async () => done("ok"));
+    const { m } = await boot([claude, codex]);
+    const project = m.createProject({ template: "t2", title: "Deep diligence" });
+    const stage = async (id: string) => (await settled(m, id)).verification!.checks[0].detail;
+    const root = await m.createRun({ projectId: project.id, engine: "claude-agent-sdk", prompt: DEEP_TASK });
+    assert.equal(await stage(root.id), "graded at stage deep");
+    const resumed = await m.resume(root.id);
+    assert.equal(await stage(resumed.id), "graded at stage deep", "resume prompt is boilerplate; the root task decides the stage");
+    const handed = await m.handoff(resumed.id, { engine: "codex-app-server" });
+    assert.equal(await stage(handed.id), "graded at stage deep");
+    const adhoc = await m.createRun({ projectId: project.id, engine: "claude-agent-sdk", prompt: "Just list the companies." });
+    assert.equal(await stage(adhoc.id), "graded at stage auto", "a task that is not a suggested deep task gets no --stage");
+  });
+
+  test("engine fallbacks: resolved onto the record and spec; user limits win; a handoff never carries one engine's fallback to another", async () => {
+    const names = ["NODE_AGENT_DEFAULT_MAX_USD", "NODE_AGENT_DEFAULT_MAX_TURNS", "NODE_AGENT_DEFAULT_MAX_WALL_MS", "NODE_AGENT_DEFAULT_AUTOCOMPACT_TOKENS"];
+    const saved = names.map((n) => [n, process.env[n]] as const);
+    for (const n of names) delete process.env[n];
+    try {
+      const openai = fakeAdapter("openai-agents", async () => done(), { defaults: { maxTurns: 40, autoCompactTokens: 240_000 } });
+      const claude = fakeAdapter("claude-agent-sdk", async () => done());
+      const { m, project } = await boot([openai, claude]);
+      const limits = (r: RunRecord) => [r.budget.maxUsd, r.budget.maxTurns, r.context.autoCompactTokens];
+
+      const plain = await m.createRun({ projectId: project.id, engine: "openai-agents", prompt: "x", budget: { maxUsd: 2 } });
+      assert.deepEqual(limits(plain), [2, 40, 240_000], "engine fallbacks are on the record the UI and manifests read");
+      await settled(m, plain.id);
+      assert.deepEqual(limits(m.getRun(plain.id)), [2, 40, 240_000], "and survive the store round trip");
+      assert.deepEqual([openai.specs[0].budget.maxTurns, openai.specs[0].context.autoCompactTokens], [40, 240_000], "the engine runs on the disclosed values");
+
+      const explicit = await m.createRun({ projectId: project.id, engine: "openai-agents", prompt: "y", budget: { maxTurns: 7 }, context: { autoCompactTokens: 90_000 } });
+      assert.deepEqual(limits(explicit), [undefined, 7, 90_000]);
+      await settled(m, explicit.id);
+
+      const toClaude = await m.handoff(plain.id, { engine: "claude-agent-sdk" });
+      assert.deepEqual(limits(toClaude), [2, undefined, undefined], "OpenAI's 40-turn fallback must not cap Claude");
+      await settled(m, toClaude.id);
+      assert.deepEqual(limits(await m.handoff(explicit.id, { engine: "claude-agent-sdk" })), [undefined, 7, 90_000], "user limits carry over");
+      assert.deepEqual(limits(await m.handoff(toClaude.id, { engine: "openai-agents" })), [2, 40, 240_000], "the target applies its own fallbacks");
+    } finally {
+      for (const [n, v] of saved) if (v !== undefined) process.env[n] = v;
+    }
   });
 }

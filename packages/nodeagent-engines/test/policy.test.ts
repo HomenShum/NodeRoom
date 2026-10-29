@@ -4,6 +4,7 @@
  * allow the work and deny every escape with a reason a human can read.
  */
 import assert from "node:assert/strict";
+import { spawnSync } from "node:child_process";
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -117,4 +118,113 @@ test("network and unknown tools are denied with a reason", () => {
   denied("", {}, /no name/);
   denied("Write", {}, /no target path/);
   denied("Bash", {}, /no command/);
+});
+
+/**
+ * Persona: an engine on a diligence pack whose template restricts sources/restricted/**.
+ * It tries to read the restricted deal memo through wildcards, quoting, escapes and
+ * PowerShell grouping. Node must check what the shell will actually run.
+ */
+const deal = path.join(root, "deal");
+for (const [rel, text] of [
+  ["sources/restricted/deal.md", "TOP-SECRET-LINE\n"],
+  ["sources/restricted/a", "TOP-SECRET-LINE\n"],
+  ["sources/public/deal.md", "public line\n"],
+  ["analysis/a.md", "Total: 42\n"],
+  ["report/x.mjs", "console.log('report ok');\n"],
+  [".claude/skills/clean/SKILL.md", "---\nname: clean\n---\n"],
+]) {
+  mkdirSync(path.dirname(path.join(deal, rel)), { recursive: true });
+  writeFileSync(path.join(deal, rel), text);
+}
+const dealPolicy = createPolicy({ workspaceDir: deal, template: { id: "diligence-pack", title: "", description: "", restrictedGlobs: ["sources/restricted/**"], checks: {} } });
+const bashCheck = (command: string) => dealPolicy.checkNativeTool("Bash", { command }, {});
+// Codex on Windows sends PowerShell commands wrapped like this; Claude's PowerShell tool sends the bare string.
+const psCheck = (inner: string) => dealPolicy.checkNativeTool("commandExecution", { command: ["powershell.exe", "-Command", inner], cwd: deal }, {});
+const psToolCheck = (command: string) => dealPolicy.checkNativeTool("PowerShell", { command }, {});
+const run = (exe: string, args: string[]) => {
+  const r = spawnSync(exe, args, { cwd: deal, encoding: "utf8", timeout: 20_000 });
+  return { ok: r.status === 0, out: `${r.stdout ?? ""}${r.stderr ?? ""}` };
+};
+const hasBash = run("bash", ["-c", "echo ok"]).ok;
+const hasPs = process.platform === "win32" && run("powershell.exe", ["-NoProfile", "-Command", "echo ok"]).ok;
+
+const BASH_LEAKS = [
+  "cat sources/*/deal.md",
+  "head sources/r*/deal.md",
+  "grep SECRET sources/*/*",
+  "grep SECRET sources/*/deal.md",
+  "cat sources/{restricted,x}/a",
+  `cat sources/"restricted"/a`,
+  String.raw`cat sources/re\stricted/a`,
+];
+
+test("POSIX wildcards, brace expansion, partial quotes and backslash escapes cannot reach a restricted folder", () => {
+  for (const c of BASH_LEAKS) {
+    const d = bashCheck(c);
+    assert.equal(d.allow, false, `${c} should be denied: ${d.reason}`);
+  }
+  assert.match(bashCheck("cat sources/*/deal.md").reason, /would read restricted paths/);
+  assert.match(bashCheck("cat sources/{restricted,x}/a").reason, /Shell syntax "\{"/);
+  assert.match(bashCheck(`cat sources/"restricted"/a`).reason, /Quotes inside/);
+  assert.match(bashCheck(String.raw`cat sources/re\stricted/a`).reason, /Backslash/);
+});
+
+test("observed in bash: every probe really prints the restricted line, and nothing Node allows ever does", { skip: !hasBash && "no bash on PATH" }, () => {
+  for (const c of BASH_LEAKS) {
+    const r = run("bash", ["-c", c]);
+    assert.match(r.out, /TOP-SECRET-LINE/, `${c} is a real leak`);
+    assert.equal(bashCheck(c).allow, false, `Node allowed ${c}, which printed the restricted line`);
+  }
+  for (const c of ["cat analysis/a.md", `cat "analysis/a.md"`, `grep -n "To.*al" analysis/a.md`, "ls sources", "cat sources/public/*"]) {
+    assert.equal(bashCheck(c).allow, true, `${c} should be allowed: ${bashCheck(c).reason}`);
+    const r = run("bash", ["-c", c]);
+    assert.ok(r.ok && !r.out.includes("TOP-SECRET"), `${c} -> ${r.out}`);
+  }
+});
+
+const PS_LEAKS = [
+  "Get-Content sources/*/deal.md",
+  "Get-Content sources/r*/deal.md",
+  "Select-String -Pattern secret sources/*/*",
+  "Get-Content 'sources/*/deal.md'",
+  "Get-Content -Path:sources/*/deal.md",
+  "Get-Content analysis/a.md,sources/restricted/deal.md",
+];
+
+test("PowerShell wildcards (quoted or not), argument lists, grouping and provider paths are denied", () => {
+  // sources/* only lists folders under Windows PowerShell 5.1, but under other globs it can match a restricted file.
+  for (const c of [...PS_LEAKS, "Select-String -Pattern secret sources/*", "(Get-Content analysis/a.md)"]) {
+    for (const d of [psCheck(c), psToolCheck(c)]) assert.equal(d.allow, false, `${c} should be denied: ${d.reason}`);
+  }
+  // A parenthesised sub-command inside an allowlisted cmdlet's arguments is never checked by name.
+  assert.match(psCheck("Get-Content (Resolve-Path analysis/a.md)").reason, /Shell syntax "\("/);
+  assert.match(psCheck("Get-ChildItem env:").reason, /provider path/);
+  assert.match(psCheck("Get-Content env:PATH").reason, /provider path/);
+});
+
+test("observed in PowerShell: every probe really prints the restricted line, and nothing Node allows ever does", { skip: !hasPs && "no Windows PowerShell" }, () => {
+  for (const c of PS_LEAKS) {
+    assert.match(run("powershell.exe", ["-NoProfile", "-Command", c]).out, /TOP-SECRET-LINE/i, `${c} is a real leak`);
+    assert.equal(psCheck(c).allow, false, `Node allowed ${c}, which printed the restricted line`);
+  }
+  for (const c of [String.raw`Get-ChildItem .claude\skills`, String.raw`Get-Content analysis\a.md`, `Select-String -Pattern "Total:" analysis/a.md`]) {
+    assert.equal(psCheck(c).allow, true, `${c} should be allowed: ${psCheck(c).reason}`);
+    const r = run("powershell.exe", ["-NoProfile", "-Command", c]);
+    assert.ok(r.ok && !r.out.includes("TOP-SECRET"), `${c} -> ${r.out}`);
+  }
+});
+
+test("node runs workspace code only: URL imports and code-evaluating flags are denied, test and script runs still work", () => {
+  for (const c of ["node --test --import data:text/javascript,0", "node --test --import=data:text/javascript,0", "node --test --import file:///etc/x.mjs", "node --test --test-reporter=data:text/javascript,0", "node --test -e 0", "node --test --require ./x.cjs", "node -e 0", "node --import tsx report/x.mjs"]) {
+    const d = bashCheck(c);
+    assert.equal(d.allow, false, `${c} should be denied: ${d.reason}`);
+  }
+  assert.match(bashCheck("node --test --import data:text/javascript,0").reason, /is a URL/);
+  for (const c of ["node --test", "node --test --import tsx test/x.test.ts", "node report/x.mjs", "ls", "cat analysis/a.md", "npm test"]) {
+    assert.equal(bashCheck(c).allow, true, `${c} should be allowed: ${bashCheck(c).reason}`);
+  }
+  assert.equal(psCheck(String.raw`Get-ChildItem .claude\skills`).allow, true);
+  assert.equal(psToolCheck(String.raw`Get-ChildItem .claude\skills`).allow, true);
+  assert.equal(dealPolicy.checkNativeTool("commandExecution", { command: ["cmd", "/c", "type analysis/a.md"] }, {}).allow, false, "cmd.exe rewriting is not modelled");
 });

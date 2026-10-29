@@ -12,12 +12,12 @@ The agent loop itself is the provider's own SDK, so you get each vendor's native
 | Engine id | Runs on | Helpers | Compaction | Tool search | Skills | Goals | Resume | USD cost |
 |---|---|---|---|---|---|---|---|---|
 | `claude-agent-sdk` | `@anthropic-ai/claude-agent-sdk` 0.3.312 | native | native | native | native (load, refresh) | native (TodoWrite) | native session | from engine |
-| `codex-app-server` | `@openai/codex` 0.165.0 (JSON-RPC) | native | native | native | native | native (plan/goal) | native thread | price table |
+| `codex-app-server` | `@openai/codex` 0.165.0 (JSON-RPC) | native | native | native | native discovery (load inferred) | Node tools (native goal seen only in qualification) | native thread | price table |
 | `openai-agents` | `@openai/agents` 0.21.0 | native (agent-as-tool) | native (Responses) | native (`tool_search`) | Node tools | Node tools | native state | price table |
 | `google-adk` | `@google/adk` 2.4.0 | Node (parallel child runners) | native | Node tools | native (SKILL.md) | Node tools | Node snapshot | price table |
 | `nodeagent-universal` | `ai` 6 (Anthropic, OpenAI, Google, OpenRouter) | Node | Node (estimated tokens) | Node | Node | Node | Node | price table |
 
-"Native" means the vendor SDK did it and the event was observed in a real, paid qualification run; "Node" means this package implements it. Evidence per capability: [`qualification/*.json`](qualification/). Unknown cost is shown as unknown, never $0.
+"Native" means the vendor SDK does it; "Node" means this package implements it. The statuses come from real, paid qualification runs in [`qualification/*.json`](qualification/). Those runs used a test host (not the worker) and predate later catalogue and policy fixes. Codex's goal events were seen only there, on a model since removed from its list. Its skill-load events are inferred from reading a `SKILL.md`; discovering the skill is native. What each engine did through the real worker and UI is in `evidence/agent-workspace-20261029/`. Unknown cost is shown as unknown, never as $0.
 
 ## Quick start (about five minutes)
 
@@ -71,7 +71,7 @@ Open the page, create a project from a template, pick an engine and send a task.
 | Artifacts | files the run wrote, with a viewer for tables, notebooks, code | `artifact.written` (hashed by Node) |
 | Developer drawer | raw events, counters with units, usage, permission decisions, the engine's capability matrix | all of the above |
 
-Reloading the page restores the same project, run and engine from the worker; runs never depend on the browser staying open.
+Runs live in the worker and never depend on the browser staying open; a reload replays the run's events from the worker and restores the viewer's project, run and engine choice from the browser's storage.
 
 ## Configuration
 
@@ -88,10 +88,16 @@ Reloading the page restores the same project, run and engine from the worker; ru
 
 - Each run works in its own project folder. Node checks every native file and shell call at execution time: paths must stay inside the folder, template-restricted paths can't be read or written, `.claude/` `.codex/` `.agents/` are Node-only, shell is one allow-listed command (POSIX or the PowerShell read-only equivalents), and network tools are denied.
 - Engines get exactly the credentials Node hands them, in a clean environment with an isolated config directory (never your personal `~/.claude` or `~/.codex`).
-- A new skill must pass validation (metadata, secret scan, no network/process APIs) and its own example **and** counterexample tests before Node activates it; only Node writes active skills.
+- A new skill must pass validation (metadata, secret scan, a scan for network/process APIs) and its own example **and** counterexample tests before Node activates it; only Node writes active skills.
 - "Done" is never the agent's word: templates can ship an independent verifier that runs after the engine stops, outside its context.
 
-This is a single-tenant developer worker: it binds to localhost and has no user accounts. Put it behind your own auth before exposing it.
+Know the ceilings:
+
+- **Code the agent runs is not sandboxed.** Allowed commands such as `node <workspace script>` and `npm test` run code the agent wrote, as your OS user with full disk and network access. Path and restricted-file rules cover file tools and shell reads, not that code. The same applies to a template's checks and to the independent verifier, which runs the agent's own tests. Use a container or VM when that matters.
+- **The skill scan is advisory.** It catches literal secrets and obvious network or process calls. It is not a security boundary.
+- **Any page on localhost can call the worker.** It binds to 127.0.0.1, checks `Origin` and `Host` against DNS rebinding, and has no user accounts.
+
+Put it behind your own auth, and an OS-level sandbox, before anyone else uses it.
 
 ## Templates and verifiers
 

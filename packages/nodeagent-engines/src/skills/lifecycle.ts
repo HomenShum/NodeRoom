@@ -37,6 +37,13 @@ const SCRIPT_RULES: Array<[string, RegExp]> = [
 
 const ALLOWED_TOOLS = new Set(["Read", "Grep", "Glob", "Bash(node:*)"]);
 const NODE_MCP_TOOL = /^mcp__node__[a-z0-9_]+$/;
+const badTool = (t: string) => !ALLOWED_TOOLS.has(t) && !NODE_MCP_TOOL.test(t);
+const toolProblem = (t: string) => `allowed-tools entry ${JSON.stringify(t)} is outside [${[...ALLOWED_TOOLS].join(", ")}, mcp__node__*]`;
+/**
+ * Every frontmatter line must be a one-line name/description/allowed-tools value, a "- item" or a comment.
+ * Engines parse full YAML, so any other line (an injected key, a block scalar, a continuation) is something validation never checked.
+ */
+const FRONT_LINE = /^(?:(?:name|description|allowed-tools):(?:[ \t].*)?|[ \t]+-[ \t]+\S.*|[ \t]*(?:#.*)?)$/;
 
 export interface SkillTestCase {
   label: string;
@@ -135,6 +142,10 @@ export function draftSkill(ctx: NodeToolContext, input: DraftInput): NodeToolRes
   const { name } = input;
   const dir = draftDirOf(ctx, name);
   if (!dir) return reject(ctx, name, "draft", `name must match ${SKILL_NAME} and stay inside ${DRAFTS_DIR}/`);
+  // allowedTools is written into SKILL.md frontmatter verbatim, so it is checked before anything is written.
+  const bad = input.allowedTools?.find(badTool);
+  if (bad !== undefined) return reject(ctx, name, "draft", toolProblem(bad));
+  if (/[\r\n]/.test(input.description)) return reject(ctx, name, "draft", "description must be one line");
   const files = input.files ?? [];
   const seen = new Set<string>();
   const targets: Array<{ abs: string; content: string }> = [];
@@ -177,16 +188,19 @@ export function validateDraftDir(dir: string, dirName: string): string[] {
   const problems: string[] = [];
   const mdPath = path.join(dir, "SKILL.md");
   if (!existsSync(mdPath)) return ["SKILL.md is missing"];
-  const fm = parseFrontmatter(readFileSync(mdPath, "utf8"));
+  const md = readFileSync(mdPath, "utf8");
+  const fm = parseFrontmatter(md);
   if (!fm) return ["SKILL.md has no YAML frontmatter"];
+  const block = /^---\r?\n([\s\S]*?)\r?\n---/.exec(md.replace(/^\uFEFF/, ""))?.[1] ?? "";
+  for (const line of block.split(/\r?\n/)) {
+    if (!FRONT_LINE.test(line)) problems.push(`frontmatter line ${JSON.stringify(line.slice(0, 80))} is not a one-line name, description or allowed-tools value`);
+  }
   const { name, description, allowedTools } = fm.meta;
   if (!name || !SKILL_NAME.test(name)) problems.push(`frontmatter name must match ${SKILL_NAME}`);
   else if (name !== dirName) problems.push(`frontmatter name "${name}" does not match directory "${dirName}"`);
   const dl = description?.length ?? 0;
   if (dl < 20 || dl > 1024) problems.push(`description must be 20..1024 chars (got ${dl})`);
-  for (const t of allowedTools ?? []) {
-    if (!ALLOWED_TOOLS.has(t) && !NODE_MCP_TOOL.test(t)) problems.push(`allowed-tools entry "${t}" is outside [${[...ALLOWED_TOOLS].join(", ")}, mcp__node__*]`);
-  }
+  for (const t of allowedTools ?? []) if (badTool(t)) problems.push(toolProblem(t));
   const files = listFiles(dir);
   let total = 0;
   for (const rel of files) {

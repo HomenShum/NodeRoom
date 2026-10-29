@@ -52,7 +52,7 @@ export function LeftRail(props: {
         <ul className="naw-list">
           {projects?.map((p) => (
             <li key={p.id}>
-              <button type="button" className="naw-list-btn" aria-current={p.id === props.projectId || undefined} onClick={() => props.onProject(p.id)} data-project-id={p.id}>
+              <button type="button" className="naw-list-btn" aria-current={p.id === props.projectId || undefined} data-selected={p.id === props.projectId || undefined} onClick={() => props.onProject(p.id)} data-project-id={p.id}>
                 <span className="naw-ellipsis">{p.title}</span>
                 <span className="naw-muted naw-small">{p.template}</span>
               </button>
@@ -76,6 +76,7 @@ export function LeftRail(props: {
                   data-run-id={r.id}
                   data-status={r.status}
                   aria-current={r.id === props.runId || undefined}
+                  data-selected={r.id === props.runId || undefined}
                   onClick={() => props.onRun(r.id)}
                 >
                   <span className="naw-ellipsis">{r.prompt.split("\n")[0] || "(empty prompt)"}</span>

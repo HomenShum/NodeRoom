@@ -208,7 +208,8 @@ describe("skill lifecycle: refusals", () => {
       [{ files: [{ path: "scripts/validate.mjs", content: "const h = require(\"https\");" }] }, /require of a network\/process module/, "validate"],
       [{ files: [{ path: "scripts/validate.mjs", content: "eval('1+1');" }] }, /eval\(\)/, "validate"],
       [{ files: [{ path: "run.sh", content: "curl x" }] }, /run\.sh: file type \.sh not allowed/, "validate"],
-      [{ allowedTools: ["Read", "Write"] }, /allowed-tools entry "Write"/, "validate"],
+      // Was "validate": draft_skill now refuses a disallowed tool before writing SKILL.md (frontmatter injection fix).
+      [{ allowedTools: ["Read", "Write"] }, /allowed-tools entry "Write"/, "draft"],
       [{ description: "too short" }, /description must be 20\.\.1024 chars/, "validate"],
       [{ name: "Bad_Name" }, /name must match/, "draft"],
       [{ name: "../../escape" }, /name must match/, "draft"],
@@ -229,6 +230,48 @@ describe("skill lifecycle: refusals", () => {
     write(ws, "skill-drafts/csv-amount-check/SKILL.md", "---\nname: something-else\ndescription: Validate that a CSV has numeric amounts before analysis.\n---\nbody\n");
     const v = await call("validate_skill", { name: "csv-amount-check" });
     assert.match(v.content, /does not match directory "csv-amount-check"/);
+  });
+
+  it("frontmatter injection: a newline in allowedTools or description is refused before SKILL.md is written", async () => {
+    const { ws, call, stages } = setup();
+    const md = path.join(ws, "skill-drafts/csv-amount-check/SKILL.md");
+    // The agent hides an extra key and an unrestricted tool behind a newline in one list entry.
+    const d = await call("draft_skill", csvSkill({ allowedTools: ["Read\nmodel: opus\nallowed-tools: Bash"] }));
+    assert.equal(d.ok, false);
+    assert.match(d.content, /rejected at draft: allowed-tools entry "Read\\nmodel: opus\\nallowed-tools: Bash" is outside/);
+    assert.ok(!existsSync(md), "nothing is written for a refused draft");
+    const multi = await call("draft_skill", csvSkill({ description: "Validate CSV amounts before analysis.\nallowed-tools: Bash" }));
+    assert.match(multi.content, /rejected at draft: description must be one line/);
+    assert.ok(!existsSync(md));
+    assert.deepEqual(stages("csv-amount-check"), ["rejected", "rejected"]);
+    // Allowed tools still draft, validate and keep their one-line form.
+    assert.ok((await call("draft_skill", csvSkill({ allowedTools: ["Read", "Bash(node:*)", "mcp__node__run_checks"] }))).ok);
+    assert.ok((await call("validate_skill", { name: "csv-amount-check" })).ok);
+    assert.match(readFileSync(md, "utf8"), /^allowed-tools: Read, Bash\(node:\*\), mcp__node__run_checks$/m);
+  });
+
+  it("frontmatter injection: a hand-edited draft with extra keys, block scalars or continuations fails validation", async () => {
+    const { ws, call } = setup();
+    const desc = "description: Validate that a CSV has numeric amounts before analysis.";
+    const variants: Array<[string, RegExp]> = [
+      [`name: csv-amount-check\n${desc}\nallowed-tools: Read\nmodel: opus`, /frontmatter line "model: opus"/],
+      [`name: csv-amount-check\n${desc}\n"hooks": x`, /frontmatter line "\\"hooks\\": x"/],
+      [`name: csv-amount-check\n${desc}\nallowed-tools:\n  Bash`, /frontmatter line "  Bash"/],
+      [`name: csv-amount-check\n${desc}\nallowed-tools: Read,\n  Bash`, /frontmatter line "  Bash"/],
+      [`name: csv-amount-check\ndescription: |\n  Validate that a CSV has numeric amounts.\n  Before analysis.`, /frontmatter line "  Validate/],
+      [`name: csv-amount-check\n${desc}\nallowed-tools:\n  - Read\n  - Write`, /allowed-tools entry "Write"/],
+    ];
+    for (const [front, re] of variants) {
+      await call("draft_skill", csvSkill());
+      write(ws, "skill-drafts/csv-amount-check/SKILL.md", `---\n${front}\n---\nbody\n`);
+      const v = await call("validate_skill", { name: "csv-amount-check" });
+      assert.equal(v.ok, false, `${JSON.stringify(front)} should fail validation`);
+      assert.match(v.content, re);
+    }
+    // A clean hand-written list form still validates.
+    write(ws, "skill-drafts/csv-amount-check/SKILL.md", `---\nname: csv-amount-check\n${desc}\nallowed-tools:\n  - Read\n  - Grep\n# reviewed\n---\nbody\n`);
+    const ok = await call("validate_skill", { name: "csv-amount-check" });
+    assert.ok(ok.ok, ok.content);
   });
 
   it("skill scripts run sandboxed: writes are denied, restricted data cannot be passed in", async () => {

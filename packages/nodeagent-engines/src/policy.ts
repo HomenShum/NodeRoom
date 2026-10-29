@@ -44,10 +44,17 @@ const POWERSHELL_READ = new Map([
   ["get-location", "pwd"],
 ]);
 const CONTENT_COMMANDS = new Set(["cat", "head", "tail", "wc", "grep"]);
-const GLOB_CHARS = /[*?[]]/;
+const GLOB_CHARS = /[*?[\]]/;
 const FIND_DENIED = new Set(["-exec", "-execdir", "-ok", "-okdir", "-delete", "-fprint", "-fprint0", "-fprintf", "-fls"]);
-const SHELL_WRAPPERS = new Set(["bash", "sh", "zsh", "pwsh", "powershell", "cmd"]);
-const META_CHARS = /[;&|<>`$\r\n]/;
+/** cmd.exe is not a wrapper: its ^ and % rewriting is not modelled, so it falls through to the allowlist and is denied. */
+const SHELL_WRAPPERS = new Set(["bash", "sh", "zsh", "pwsh", "powershell"]);
+const CHAIN_CHARS = /[;&|<>`$\r\n]/;
+/** Syntax the shell rewrites after Node reads the words: grouping, brace/% expansion, smart quotes, non-space blanks. */
+const REWRITE_CHARS = /[(){}%\u2018-\u201F]|[^\S \t]/;
+const WORD = /(?:"[^"]*"|'[^']*'|[^\s"'])+/g;
+/** Two+ letters before ":" is a URL scheme (data:, file:, node:); one letter is a drive. */
+const URL_SCHEME = /^[a-z][a-z0-9+.-]+:/i;
+const PATTERN_FLAG = /^(?:-e|--regexp|-patt[a-z]*)(?:=|$)/i;
 
 const allow = (reason: string): PolicyDecision => ({ allow: true, reason });
 const deny = (reason: string): PolicyDecision => ({ allow: false, reason });
@@ -102,10 +109,18 @@ function collectPaths(input: Record<string, unknown>): string[] {
   return out;
 }
 
-function tokenize(command: string): string[] {
-  const out: string[] = [];
-  for (const m of command.matchAll(/"([^"]*)"|'([^']*)'|(\S+)/g)) out.push(m[1] ?? m[2] ?? m[3]);
-  return out;
+/** Shell words as the shell splits them. A word is quoted whole or not at all; quoted[i] marks a literal word. */
+function shellWords(command: string): { tokens: string[]; quoted: boolean[]; bad?: string } {
+  const tokens: string[] = [];
+  const quoted: boolean[] = [];
+  for (const [w] of command.matchAll(WORD)) {
+    const q = /^"([^"]*)"$|^'([^']*)'$/.exec(w);
+    if (!q && /["']/.test(w)) return { tokens, quoted, bad: `Quotes inside ${w} are not allowed; quote a whole argument or none of it.` };
+    tokens.push(q ? (q[1] ?? q[2]) : w);
+    quoted.push(!!q);
+  }
+  if (command.replace(WORD, "").trim()) return { tokens, quoted, bad: "Unbalanced quote; quote a whole argument or none of it." };
+  return { tokens, quoted };
 }
 
 function looksLikePath(t: string): boolean {
@@ -160,7 +175,7 @@ export function createPolicy(opts: PolicyOptions): PolicyGate {
     return allow(`${name} targets stay inside the workspace`);
   }
 
-  function checkShell(input: Record<string, unknown>): PolicyDecision {
+  function checkShell(input: Record<string, unknown>, toolKey: string): PolicyDecision {
     let cwd = ws;
     const cwdArg = str(input.cwd) ?? str(input.workdir);
     if (cwdArg) {
@@ -168,75 +183,92 @@ export function createPolicy(opts: PolicyOptions): PolicyGate {
       if (!d.allow) return deny(`Working directory: ${d.reason}`);
       cwd = path.join(ws, d.rel ?? "");
     }
-    let tokens: string[];
     let raw: string;
+    // Claude's PowerShell tool and "powershell -Command" run PowerShell; everything else is judged as a POSIX shell (Claude's Bash is Git Bash).
+    let ps = toolKey === "powershell";
     const command = input.command ?? input.cmd;
     if (Array.isArray(command) && command.every((c) => typeof c === "string")) {
       const argv = command as string[];
       const exe = path.basename(argv[0] ?? "").toLowerCase().replace(/\.exe$/, "");
       if (SHELL_WRAPPERS.has(exe)) {
-        const i = argv.findIndex((a, n) => n > 0 && /^(?:-[a-z]*c|-command|\/c|\/k)$/i.test(a));
+        const i = argv.findIndex((a, n) => n > 0 && /^(?:-[a-z]*c|-command)$/i.test(a));
         if (i < 0 || !argv[i + 1]) return deny(`Unrecognized ${exe} invocation; run one simple command.`);
         raw = argv.slice(i + 1).join(" ");
-        tokens = tokenize(raw);
-      } else {
-        raw = argv.join(" ");
-        tokens = argv;
-      }
-    } else if (typeof command === "string") {
-      raw = command;
-      tokens = tokenize(command);
-    } else return deny("Shell call has no command string Node can check.");
+        ps = exe === "pwsh" || exe === "powershell";
+      } else raw = argv.join(" ");
+    } else if (typeof command === "string") raw = command;
+    else return deny("Shell call has no command string Node can check.");
 
+    const words = shellWords(raw);
+    if (words.bad) return deny(words.bad);
+    const { quoted } = words;
+    // PowerShell: "\" separates paths and -Name:value binds a value; normalize so paths are checked as PowerShell reads them.
+    const tokens = ps ? words.tokens.map((t) => t.replace(/\\/g, "/").replace(/^(-[a-z]+):/i, "$1=")) : words.tokens;
     const lowered = tokens.map((t) => path.basename(t).toLowerCase().replace(/\.(?:exe|cmd|ps1)$/, ""));
     const net = lowered.find((t) => NETWORK_COMMANDS.has(t));
     if (net) return deny(`Network command "${net}" is not allowed; the workspace runs offline.`);
-    const meta = raw.match(META_CHARS);
+    const meta = raw.match(CHAIN_CHARS);
     if (meta) return deny(`Shell metacharacter "${meta[0] === "\n" ? "\\n" : meta[0]}" is not allowed; run one simple command without chaining, pipes, redirects or substitution.`);
     if (tokens.length === 0) return deny("Empty shell command.");
 
     const cmd = POWERSHELL_READ.get(lowered[0]) ?? lowered[0];
     if (looksLikePath(tokens[0])) return deny(`Run commands by name, not by path ("${tokens[0]}").`);
     const args = tokens.slice(1);
-    const pathArgs: string[] = [];
+    /** [path, quoted]: a quoted word is literal to a POSIX shell, but PowerShell cmdlets still expand its wildcards. */
+    const pathArgs: Array<[string, boolean]> = [];
+    const add = (p: string, i: number) => pathArgs.push([p, quoted[i + 1]]);
     const flagValue = (t: string) => (t.includes("=") ? t.slice(t.indexOf("=") + 1) : undefined);
 
+    if (cmd === "node" || cmd === "npm") {
+      const url = args.find((a) => URL_SCHEME.test(flagValue(a) ?? a));
+      if (url) return deny(`${cmd} argument "${url}" is a URL; only workspace files may run.`);
+    }
     if (cmd === "node") {
       if (args[0] === "--test") {
         for (let i = 1; i < args.length; i++) {
           const a = args[i];
           if (a.startsWith("-")) {
             if (a === "--import") {
-              if (args[i + 1] && looksLikePath(args[i + 1])) pathArgs.push(args[i + 1]);
+              if (args[i + 1] && looksLikePath(args[i + 1])) add(args[i + 1], i + 1);
               i++;
             } else if (!/^--(?:test|experimental-test)[a-z-]*(?:=|$)/.test(a) && !a.startsWith("--import=")) {
               return deny(`node flag "${a}" is not allowed with --test.`);
             }
             const v = flagValue(a);
-            if (v && looksLikePath(v)) pathArgs.push(v);
-          } else pathArgs.push(a);
+            if (v && looksLikePath(v)) add(v, i);
+          } else add(a, i);
         }
       } else {
         const script = args[0];
         if (!script || script.startsWith("-")) return deny(`Only "node --test ..." or "node <workspace script>.mjs|.js" are allowed (flags like "${script ?? ""}" are not).`);
         if (!/\.(?:mjs|cjs|js)$/i.test(script)) return deny(`node may only run a workspace .mjs/.js script, not "${script}".`);
-        pathArgs.push(script, ...args.slice(1).filter((a) => looksLikePath(a) || looksLikePath(flagValue(a) ?? "")).map((a) => flagValue(a) ?? a));
+        add(script, 0);
+        args.forEach((a, i) => {
+          if (i > 0 && (looksLikePath(a) || looksLikePath(flagValue(a) ?? ""))) add(flagValue(a) ?? a, i);
+        });
       }
     } else if (cmd === "npm") {
       const ok = (args[0] === "test" || (args[0] === "run" && args[1] === "test"));
-      const rest = args.slice(args[0] === "run" ? 2 : 1);
+      const from = args[0] === "run" ? 2 : 1;
+      const rest = args.slice(from);
       if (!ok || (rest.length > 0 && rest[0] !== "--")) return deny(`Only "npm test" is allowed, not "npm ${args.join(" ")}".`);
-      pathArgs.push(...rest.slice(1).filter(looksLikePath));
+      rest.forEach((a, i) => {
+        if (i > 0 && looksLikePath(a)) add(a, from + i);
+      });
     } else if (SIMPLE_COMMANDS.has(cmd)) {
       if (cmd === "find") {
         const bad = args.find((a) => FIND_DENIED.has(a));
         if (bad) return deny(`find ${bad} runs or writes files; only listing is allowed.`);
       }
-      for (const a of args) {
+      // grep's pattern is the -e/-Pattern value or its first operand; every other content operand is a file.
+      const pf = args.findIndex((a) => PATTERN_FLAG.test(a));
+      const patternAt = cmd !== "grep" ? -1 : pf < 0 ? args.findIndex((a) => !a.startsWith("-")) : args[pf].includes("=") ? -1 : pf + 1;
+      for (let i = 0; i < args.length; i++) {
+        const a = args[i];
         if (a.startsWith("-")) {
           const v = flagValue(a);
-          if (v && looksLikePath(v)) pathArgs.push(v);
-        } else if (looksLikePath(a) || cmd === "cat" || cmd === "head" || cmd === "tail" || cmd === "wc") pathArgs.push(a);
+          if (v && (ps ? !PATTERN_FLAG.test(a) : looksLikePath(v))) add(v, i);
+        } else if (i === patternAt ? looksLikePath(a) : ps || CONTENT_COMMANDS.has(cmd) || looksLikePath(a)) add(a, i);
       }
       if (cmd === "grep" && restricted.length) {
         const recursive = args.some((a) => /^-[a-zA-Z]*[rR]/.test(a) || a === "--recursive" || a === "--dereference-recursive");
@@ -255,8 +287,17 @@ export function createPolicy(opts: PolicyOptions): PolicyGate {
       return deny(`Command "${tokens[0]}" is not on Node's allowlist (node --test, node <script>.mjs, npm test, ls, cat, head, tail, wc, grep, find, pwd, echo, or their PowerShell equivalents Get-ChildItem, Get-Content, Select-String, Get-Location).`);
     }
 
-    for (const p of pathArgs) {
-      if (GLOB_CHARS.test(p)) {
+    const rewrite = raw.match(REWRITE_CHARS);
+    if (rewrite) return deny(`Shell syntax ${JSON.stringify(rewrite[0])} is not allowed: the shell would rewrite the command after Node checked it.`);
+    if (!ps && raw.includes("\\")) return deny(`Backslash in "${raw}" is a shell escape here; use forward slashes in paths.`);
+    const list = ps && tokens.find((t, i) => !quoted[i] && t.includes(","));
+    if (list) return deny(`"${list}" is a PowerShell argument list; pass one path per argument.`);
+    // A POSIX shell expands every unquoted wildcard word, whatever argument it is.
+    if (!ps) tokens.forEach((t, i) => i > 0 && !quoted[i] && GLOB_CHARS.test(t) && pathArgs.push([t, false]));
+
+    for (const [p, q] of pathArgs) {
+      if (ps && /:/.test(p.replace(/^[a-z]:(?=\/|$)/i, ""))) return deny(`"${p}" is a PowerShell provider path (env:, variable:, HKLM:); only workspace files are allowed.`);
+      if (GLOB_CHARS.test(p) && (ps || !q)) {
         // A wildcard can expand into restricted folders; content commands may only glob
         // under a directory that contains no restricted paths. Listing names is fine.
         const d = checkPath(staticGlobPrefix(p) || ".", "read", cwd);
@@ -296,7 +337,7 @@ export function createPolicy(opts: PolicyOptions): PolicyGate {
         case "write":
           return checkFiles(args, "write", name);
         case "shell":
-          return checkShell(args);
+          return checkShell(args, key(name));
         default:
           return deny(`Unknown tool "${name}": Node denies tools it cannot classify.`);
       }

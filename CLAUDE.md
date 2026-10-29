@@ -25,8 +25,11 @@
   `packages/nodeagent-engines/qualification/*.json`; check them before claiming an
   engine can do something.
 - The keyless scripted room (`?mode=memory`) exists only as the isolated test
-  harness that immutable CI (`prod:gate`, design-gate, proofloop suites) drives. It
-  is never the product: do not route users to it, demo it, or build features on it.
+  harness that immutable CI (`prod:gate`, design-gate, proofloop suites) drives. A
+  build without `VITE_CONVEX_URL` (CI) runs only that room; a build with it ignores
+  `?mode=memory` unless it was built with `VITE_NODEROOM_HARNESS=1` (set only by
+  `test:product:memory` and the Playwright webServer), so production never reaches it.
+  It is never the product: do not route users to it, demo it, or build features on it.
 
 ## The two canonical gates
 
