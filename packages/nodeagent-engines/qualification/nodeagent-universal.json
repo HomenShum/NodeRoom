@@ -1,0 +1,167 @@
+{
+  "engine": "nodeagent-universal",
+  "sdk": "ai",
+  "sdkVersion": "6.0.280",
+  "model": "google:gemini-3.5-flash",
+  "helperModel": "google:gemini-3.5-flash-lite",
+  "ranAt": "2026-10-29T12:46:03.985Z",
+  "wallMs": 23178,
+  "costUsd": null,
+  "spendUpperBoundUsd": 0.0581,
+  "cumulativeSpendUpperBoundUsd": 0.1767,
+  "runs": [
+    {
+      "run": "main",
+      "status": "completed",
+      "ms": 18844,
+      "usage": {
+        "inputTokens": 17601,
+        "outputTokens": 1655,
+        "cacheReadTokens": 0,
+        "cacheWriteTokens": 0,
+        "costUsd": null,
+        "costSource": "unknown",
+        "modelTurns": 12
+      },
+      "nativeSessionId": "qual-main-1793277963986"
+    },
+    {
+      "run": "interrupt",
+      "status": "interrupted",
+      "error": "qualification interrupt after first tool result",
+      "ms": 1246,
+      "usage": {
+        "inputTokens": 832,
+        "outputTokens": 40,
+        "cacheReadTokens": 0,
+        "cacheWriteTokens": 0,
+        "costUsd": 0.00035,
+        "costSource": "price-table",
+        "modelTurns": 1
+      },
+      "nativeSessionId": "qual-intr-1793277963986"
+    },
+    {
+      "run": "resume",
+      "status": "completed",
+      "ms": 3009,
+      "usage": {
+        "inputTokens": 6407,
+        "outputTokens": 290,
+        "cacheReadTokens": 0,
+        "cacheWriteTokens": 0,
+        "costUsd": 0.002647,
+        "costSource": "price-table",
+        "modelTurns": 5
+      },
+      "nativeSessionId": "qual-intr-1793277963986"
+    }
+  ],
+  "eventCounts": {
+    "main": {
+      "run.started": 1,
+      "tool.call": 10,
+      "tool.result": 10,
+      "goals.updated": 2,
+      "usage": 7,
+      "context.usage": 7,
+      "skill.loaded": 1,
+      "tool.search": 1,
+      "tool.loaded": 1,
+      "helper.started": 2,
+      "helper.progress": 2,
+      "message": 3,
+      "helper.completed": 2,
+      "run.status": 2,
+      "context.compacted": 1,
+      "message.delta": 2
+    },
+    "interrupt": {
+      "run.started": 1,
+      "tool.call": 1,
+      "tool.result": 1,
+      "usage": 1,
+      "context.usage": 1
+    },
+    "resume": {
+      "run.started": 1,
+      "tool.call": 6,
+      "goals.updated": 3,
+      "tool.result": 6,
+      "tool.search": 1,
+      "usage": 5,
+      "context.usage": 5,
+      "tool.loaded": 1,
+      "message.delta": 2,
+      "message": 1
+    }
+  },
+  "capabilities": {
+    "start": {
+      "status": "APP-IMPLEMENTED",
+      "evidence": "run 1 run.started x1 (nativeSessionId=qual-main-1793277963986), outcome completed, 12 model requests"
+    },
+    "stream": {
+      "status": "NATIVE",
+      "evidence": "run 1 message.delta x2 from ai streamText text-delta"
+    },
+    "interrupt": {
+      "status": "APP-IMPLEMENTED",
+      "evidence": "run 2 handle.interrupt() after first tool.result -> outcome interrupted (qualification interrupt after first tool result); resolved 31ms after the call"
+    },
+    "resume": {
+      "status": "APP-IMPLEMENTED",
+      "evidence": "run 3 resume.nativeSessionId=qual-intr-1793277963986 -> run.started.nativeSessionId=qual-intr-1793277963986, session step 1 -> 6, outcome completed: \"The word count in `docs/beta.txt` is 38.\""
+    },
+    "subagents": {
+      "status": "APP-IMPLEMENTED",
+      "evidence": "run 1 helper.started x2 (model google:gemini-3.5-flash-lite), 2 started before the first helper.completed (concurrent), helper.progress x2, helper.completed statuses: completed,completed"
+    },
+    "childEventIdentity": {
+      "status": "APP-IMPLEMENTED",
+      "evidence": "run 1 2 tool.call events carry agentId = a helperId (word_count)"
+    },
+    "compaction": {
+      "status": "APP-IMPLEMENTED",
+      "evidence": "run 1 context.compacted x1 trigger=auto, preTokens->postTokens 1242->1040 (chars/4 estimate; threshold lowered to 1200 via spec.context.autoCompactTokens)"
+    },
+    "toolSearch": {
+      "status": "APP-IMPLEMENTED",
+      "evidence": "run 1 tool.search(via node) x1, tool.loaded x1 [word_count], 2 calls to loaded tools after the load"
+    },
+    "skillLoad": {
+      "status": "APP-IMPLEMENTED",
+      "evidence": "run 1 skill.loaded x1 (word-stats) via Node load_skill"
+    },
+    "skillRefresh": {
+      "status": "UNTESTED",
+      "evidence": "not exercised: no skill was activated mid-run; the adapter re-lists the skills dir on every request instead of caching"
+    },
+    "goals": {
+      "status": "APP-IMPLEMENTED",
+      "evidence": "run 1 goals.updated x2 via Node update_goals; final statuses done,done,done"
+    },
+    "permissions": {
+      "status": "APP-IMPLEMENTED",
+      "evidence": "run 1 10 tool.call events: all Node gateway tools except 2 adapter delegate calls; the engine has no native side-effecting tools to gate (permission.decision x0)"
+    },
+    "usage": {
+      "status": "NATIVE",
+      "evidence": "run 1 provider usage: in=17601 out=1655 cacheRead=0 over 12 requests; usage events x7"
+    },
+    "costUsd": {
+      "status": "APP-IMPLEMENTED",
+      "evidence": "runs 2-3 (google:gemini-3.5-flash-lite, priced) costUsd 0.00035 + 0.002647 from price-table; run 1 costUsd null (google:gemini-3.5-flash has no verified price, so null, not 0)"
+    }
+  },
+  "notes": [
+    "Compaction knob: spec.context.autoCompactTokens=1200 (default 120000); tokens are chars/4 estimates over system+messages, tool schemas excluded.",
+    "Run 1 model google:gemini-3.5-flash, helpers google:gemini-3.5-flash-lite; runs 2-3 google:gemini-3.5-flash-lite so a priced model exercises costUsd.",
+    "tool.call/tool.result paired by callId: run1=true run2=true run3=true.",
+    "Run 1 final text: \"docs/alpha.txt: 35\\ndocs/beta.txt: 38\\ntotal: 73\"",
+    "Run 2 run.started nativeSessionId=qual-intr-1793277963986; interrupted with 1 tool calls.",
+    "ai@6.0.280 rejects the installed @ai-sdk/* 4.x providers (LanguageModelV4) with UnsupportedModelVersionError; the adapter bridges v4->v3 (asV3).",
+    "Spend guard: upper-bound estimate $0.0581 this invocation, $0.1767 cumulative (unpriced tokens at $2/$12 per M); cap $0.5.",
+    "Workspace: ~\\AppData\\Local\\Temp\\nodeagent-qual\\universal-1793277963986"
+  ]
+}

@@ -223,12 +223,32 @@ export default defineConfig(({ command, mode }) => {
         "@engine": fileURLToPath(new URL("./src/engine", import.meta.url)),
         "@ui": fileURLToPath(new URL("./src/ui", import.meta.url)),
         "@agents": fileURLToPath(new URL("./src/agents", import.meta.url)),
+        "@nodeagent-engines/react": fileURLToPath(new URL("./packages/nodeagent-engines/src/react/index.ts", import.meta.url)),
         "@nodeagent": fileURLToPath(new URL("./src/nodeagent", import.meta.url)),
       },
     },
     server: {
       port: 5260,
       open: false,
+      proxy: {
+        // Node agent worker (npm run agent:worker). SSE-safe: no buffering, no timeout on the event stream.
+        "/agent-api": {
+          target: `http://127.0.0.1:${environment.NODE_AGENT_WORKER_PORT || 4317}`,
+          changeOrigin: true,
+          // "/agent-api/api/x" (apiBase + worker route, as the UI and proof spec call it) and "/agent-api/x" both reach "/api/x".
+          rewrite: (path: string) => path.replace(/^\/agent-api(?:\/api)?(?=\/|$)/, "/api"),
+          timeout: 0,
+          proxyTimeout: 0,
+          configure(proxy) {
+            proxy.on("proxyRes", (res) => {
+              if (String(res.headers["content-type"] ?? "").includes("text/event-stream")) {
+                res.headers["cache-control"] = "no-cache, no-transform";
+                res.headers["x-accel-buffering"] = "no";
+              }
+            });
+          },
+        },
+      },
       watch: {
         ignored: [
           "**/.tmp/**",

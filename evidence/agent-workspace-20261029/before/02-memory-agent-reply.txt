@@ -1,0 +1,206 @@
+N
+NodeRoom · Q3 diligence
+SFT-RFT
+H
+P
+GQ
+◆
+5 live
+Room Binder
+9
+PINNED
+2
+Q3 variance
+Agent wiki
+RECENT
+6
+Capture Notebook
+Diligence memo
+Open questions / workplan
+Risk / opportunity wall
+Agent wiki
+Today's Brief
+SHEETS
+3
+Room sheets
+3
+Company research
+Q3 variance
+Runway / milestones
+DOCS
+6
+Boards
+1
+Risk / opportunity wall
+Knowledge
+1
+Agent wiki
+Notes & memos
+4
+Capture Notebook
+Diligence memo
+Open questions / workplan
+Today's Brief
+Upload file
+REVIEW & PROOF
+2
+Review queue
+Permissions
+PEOPLE & AGENTS
+4 LIVE
+H
+Homen
+Host
+P
+Priya
+Finance lead
+GQ
+guest · quokka
+Member
+◆
+Room NodeAgent
+Public agent · working · rc_neuronova__status:rc_nimbusnova__status
+Home
+Q3 variance
+Company research
++3
+Artifacts
+NodeBook
+Investigation
+Run trace
+Export XLSX
+Shared
+Q3 variance
+versionedSync
+v1
+	ACCOUNT	Q2	Q3	VARIANCE	NOTE
+1	Revenue	$10,000	$12,400	
+add
+	
+note
+
+2	COGS	$4,000	$5,100	
+add
+	
+note
+
+3	Gross profit	$6,000	$7,300	
+add
+	
+note
+
+4	OpEx	$2,200	$2,650	
+add
+	
+note
+
+5	Net income	$3,800	$4,650	
+add
+	
+note
+
+6					
+7					
+8					
+9					
+10					
+11					
+12					
+13					
+14					
+15					
+16					
+17					
+18					
+19					
+20					
+21					
+22					
+23					
+24					
+Undo
+click a Variance or Note cell to edit by hand
+Room trace
+· 27 events
+Entity graph
+Room chat
+9
+Room
+Private
+TODAY
+H
+Homen
+1:00
+
+Can the room reconcile Q3 variance against the NetSuite close before the board read?
+
+Copy
+Edit
+H
+Homen
+1:00
+@nodeagent reconcile Q3 revenue and COGS variance
+Copy
+Edit
+N
+Room NodeAgent
+agent
+1:01
+Researched 2 companies with structured fields · 2 sources
+v1 -> v1
+Complete
+Copy
+P
+Priya
+1:03
+
+The +27.5% on COGS is volume, not price - noting it on the row so it survives the sync.
+
+Copy
+GQ
+guest · quokka
+1:04
+
+anon - quokka joined as guest · view + chat
+
+Copy
+N
+Room NodeAgent
+agent
+1:06
+Researched 3 companies with structured fields · 2 sources
+v1 -> v1
+Complete
+Copy
+H
+Homen
+1:08
+
+Good. Draft the reconciliation memo and clip the variance exhibit for the board read.
+
+Copy
+Edit
+H
+Homen
+1:09
+@nodeagent compare these startups, build a cited table and a notebook, and add an export feature with tests
+Copy
+Edit
+N
+Room NodeAgent
+agent
+1:09
+
+Report written under “Agent notes” — evidence-tagged bullets are clean, the unverified runway claim is flagged needs_review for a human check.
+
+Copy
+@nodeagent diligence CardioNova
+@nodeagent runway gaps
+Intake
+Evidence
+Draft
+Review
+Export
+Room NodeAgent ·
+reconciled Q3 variance · v42
+Live graph · 11

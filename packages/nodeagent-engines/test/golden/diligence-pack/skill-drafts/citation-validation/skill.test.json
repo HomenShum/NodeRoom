@@ -1,0 +1,31 @@
+{
+  "cases": [
+    {
+      "label": "example table with correct citations passes",
+      "args": [
+        "validate-citations.mjs",
+        "--root=skill-drafts/citation-validation/examples",
+        "skill-drafts/citation-validation/examples/good-table.md"
+      ],
+      "expect": "pass"
+    },
+    {
+      "label": "counterexample: cited line does not contain the number",
+      "args": [
+        "validate-citations.mjs",
+        "--root=skill-drafts/citation-validation/examples",
+        "skill-drafts/citation-validation/examples/wrong-number.md"
+      ],
+      "expect": "fail"
+    },
+    {
+      "label": "counterexample: cited line is out of range",
+      "args": [
+        "validate-citations.mjs",
+        "--root=skill-drafts/citation-validation/examples",
+        "skill-drafts/citation-validation/examples/out-of-range.md"
+      ],
+      "expect": "fail"
+    }
+  ]
+}

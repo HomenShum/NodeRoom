@@ -1,0 +1,49 @@
+/* NodeRoom theme for the shared NodeAgentWorkspace: map --naw-* onto the app tokens
+   from src/app/styles.css. Terracotta accent = agent provenance / selection;
+   --success is used for success only; warning tokens mark "needs review". */
+.nr-agent-workspace {
+  height: 100vh;
+  height: 100dvh;
+  background: var(--bg-app);
+  color: var(--text-primary);
+}
+.nr-agent-workspace .naw-root {
+  --naw-bg: var(--bg-app);
+  --naw-surface: var(--bg-primary);
+  --naw-surface-2: var(--bg-secondary);
+  --naw-hover: var(--bg-hover);
+  --naw-text: var(--text-primary);
+  --naw-text-2: var(--text-secondary);
+  --naw-muted: var(--text-muted);
+  --naw-border: var(--border-color);
+  --naw-border-strong: var(--border-strong);
+  --naw-accent: var(--accent-primary);
+  --naw-accent-ink: var(--accent-ink);
+  --naw-accent-tint: var(--accent-tint);
+  --naw-accent-solid: var(--accent-solid);
+  --naw-success: var(--success);
+  --naw-warning-ink: var(--warning-ink);
+  --naw-warning-tint: var(--warning-tint);
+  --naw-warning-border: var(--warning-border);
+  --naw-danger: var(--danger-ink);
+  --naw-danger-tint: var(--danger-tint);
+  --naw-danger-border: var(--danger-border);
+  --naw-font: var(--font-ui);
+  --naw-mono: var(--font-mono);
+  --naw-radius: var(--r);
+  --naw-focus: var(--accent-primary);
+}
+.nr-aw-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 14px;
+  text-decoration: none;
+}
+@media (max-width: 759px) {
+  .nr-aw-brand > span:last-child {
+    display: none;
+  }
+}

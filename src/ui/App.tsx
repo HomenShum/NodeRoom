@@ -16,6 +16,8 @@ const RoomTour = lazy(() => import("../landing/roomTour/RoomTour").then((m) => (
 // surface with its own css/svg bundle; keep it off every other route's first
 // paint (same precedent as RoomTour above).
 const PublicRoomPage = lazy(() => import("../alwayson/PublicRoomPage").then((m) => ({ default: m.PublicRoomPage })));
+// Lazy: #workspace — the shared Node agent workspace (worker-backed, no room store or Convex).
+const AgentWorkspaceRoute = lazy(() => import("./workspace/AgentWorkspaceRoute").then((m) => ({ default: m.AgentWorkspaceRoute })));
 import { EngineStoreProvider, ConvexStoreProvider, HAS_CONVEX } from "../app/store";
 import { createFreshRoom, enterBankerToolBenchRoomAsHost, enterDemoRoomAsHost, enterHackwithBayRoomAsHost, enterScaleDemoRoomAsHost, enterSmbLendingDeploymentRoomAsHost, enterUpScaleXRoomAsHost } from "../app/roomStore";
 import type { Actor } from "../engine/types";
@@ -80,6 +82,14 @@ export function App() {
     return (
       <Suspense fallback={<div style={{ padding: 24, fontFamily: "system-ui", color: "#888" }}>Loading workspace...</div>}>
         <MobileRoot key={hash} />
+      </Suspense>
+    );
+  }
+
+  if (hash === "#workspace" || hash === "#/workspace") {
+    return (
+      <Suspense fallback={<div style={{ padding: 24, fontFamily: "var(--font-ui)", color: "var(--text-muted)" }}>Loading agent workspace…</div>}>
+        <AgentWorkspaceRoute />
       </Suspense>
     );
   }

@@ -13,6 +13,7 @@
     "preview": "vite preview --port 5260 --strictPort",
     "demo": "tsx demo/runRoomDemo.ts",
     "demo:agent": "tsx demo/runAgent.ts",
+    "agent:worker": "tsx packages/nodeagent-engines/src/server/bin.ts",
     "demo:public-gold:check": "tsx scripts/validate-public-gold-demo.ts",
     "eval": "tsx evals/runEval.ts",
     "eval:real": "tsx evals/runEval.ts --real",
