@@ -177,3 +177,27 @@ describe("agentJobRunner.runFreeAutoJobSlice (a claimed job with no modelPolicy:
     expect(seen[0].url).toContain("/models/gemini-3.6-flash:");
   });
 });
+
+describe("agentJobRunner.runFreeAutoJobSlice (a claimed job saved with a model id the catalog no longer knows, SPEC A.0.6 / A.0.10)", () => {
+  it("finishes the slice as failed with the model error instead of stranding the claim until the lease expires", async () => {
+    const setup = await setupRoom();
+    const { t, roomId, artifactId, proof } = setup;
+    const created = await t.mutation(api.agentJobs.createOrReuse, {
+      roomId, artifactId, requester: proof, goal: "Say hello.", entrypoint: "public_ask" as const, scope: "public_room" as const,
+      modelPolicy: "gemini-3.8-flash", idempotencyKey: "wire-retired-model", approvalPolicy: "auto_commit_safe" as const,
+      evidencePolicy: "public_only" as const, autoAllow: true,
+    });
+    // The row was saved before the refresh, when anthropic/claude-sonnet-4 was the top_paid default; admission would refuse it today.
+    await t.run((ctx) => ctx.db.patch(created.jobId, { modelPolicy: "anthropic/claude-sonnet-4" }));
+    const { runFreeAutoJobSlice } = await import("../convex/agentJobRunner");
+    installFakeTransport();
+    await (runFreeAutoJobSlice as any)._handler(ctxFor(t), { jobId: created.jobId });
+    expect(seen).toHaveLength(0); // an unknown id never reaches the wire
+    const detail = await t.query(api.agentJobs.detail, { jobId: created.jobId, requester: proof });
+    expect(detail?.job.status).toBe("failed");
+    expect(String(detail?.job.error)).toContain("anthropic/claude-sonnet-4");
+    expect(String(detail?.job.error)).not.toContain("job_lease_expired");
+    const lease = await t.run(async (ctx) => (await ctx.db.get(created.jobId)) as any);
+    expect(lease?.leaseId).toBe(""); // finishSlice released the lease; a stranded claim would still hold its leaseId
+  });
+});

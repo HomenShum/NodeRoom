@@ -22,11 +22,12 @@ import { nodeMemInjectionEnabled, nodeMemRecordingEnabled, nodeMemRoomConfigEnab
 import { configuredConvexModelFallbacks, convexModel as agentModel, convexPriceRequest, convexPriceRun as priceRun } from "../src/nodeagent/models/convexModel";
 import { qualityFailoverRetryAt } from "../src/nodeagent/models/qualityFailover";
 import { authorizedModelForFramePhase } from "../src/nodeagent/models/phaseModel";
+import { UnknownModelError } from "../src/nodeagent/models/modelCatalog";
 import { buildResearchContext, buildCompanyDeepDiveContext } from "../src/nodeagent/core/worldModel";
 import { compactMessages } from "../src/nodeagent/core/contextCompactor";
 import { appendProofloopRepairMessage, proofloopSupervisorDecision } from "../src/nodeagent/core/proofloopSupervisor";
 import { tryRunHmdaUnderwritingBenchmark } from "../src/nodeagent/core/hmdaUnderwritingExecutor";
-import type { AgentMessage, AgentModelRouteState, AgentResult, AgentTraceEvent, ToolCall, RoomTools } from "../src/nodeagent/core/types";
+import type { AgentMessage, AgentModel, AgentModelRouteState, AgentResult, AgentTraceEvent, ToolCall, RoomTools } from "../src/nodeagent/core/types";
 import type { AgentStreamEventDraft } from "../src/nodeagent/core/stream";
 import { ELEMENT_SCOPED_WRITE_TOOL_ALLOWLIST, type EvidenceState, type FrameDelta, type ReasoningFrame, type ReasoningFrameStatus } from "../src/nodeagent/core/reasoningFrames";
 import type { Actor } from "../src/engine/types";
@@ -541,11 +542,25 @@ export const runFreeAutoJobSlice = internalAction({
         env: process.env,
       }).ok);
     };
-    const model = agentModel(resolvedModelPolicy, {
-      entrypoint,
-      fallbackModelIds: fallbackModelsForRoute(resolvedModelPolicy),
-      routeState: routeStateFromCursor(claimed.cursor),
-    });
+    // A row saved before the refresh can name an id the catalog no longer knows (SPEC A.0.6). Building its model must not
+    // throw outside the try below: the claim would keep its lease until expireClaimedSlice (A.0.10). The refusal is
+    // deferred to the try, where it finishes the slice as a failed, non-retryable route with the real reason.
+    let modelBuildBlock: Error | undefined;
+    const buildModel = (modelId: string): AgentModel => {
+      try {
+        return agentModel(modelId, {
+          entrypoint,
+          fallbackModelIds: fallbackModelsForRoute(modelId),
+          routeState: routeStateFromCursor(claimed.cursor),
+        });
+      } catch (error) {
+        if (!(error instanceof UnknownModelError)) throw error;
+        const blocked = new Error(`provider_route_blocked:unknown_model_id ${error.message}`);
+        modelBuildBlock ??= blocked;
+        return { name: modelId, next: async () => { throw blocked; } };
+      }
+    };
+    const model = buildModel(resolvedModelPolicy);
     const isDeepDiveChild = claimed.activeReasoningFrame?.facet === "deep_dive";
     const contextMaxChars = envNumber(
       "FREE_AUTO_JOB_CONTEXT_MAX_CHARS",
@@ -575,11 +590,7 @@ export const runFreeAutoJobSlice = internalAction({
       }).ok)
       : resolvedModelPolicy;
     const phaseAwareModel = phaseModel !== resolvedModelPolicy
-      ? agentModel(phaseModel, {
-        entrypoint,
-        fallbackModelIds: fallbackModelsForRoute(phaseModel),
-        routeState: routeStateFromCursor(claimed.cursor),
-      })
+      ? buildModel(phaseModel)
       : model;
     let liveSequence = 1_000 + Math.max(0, claimed.attempt - 1) * 10_000;
     let streamSequence = 1_000 + Math.max(0, claimed.attempt - 1) * 10_000;
@@ -839,6 +850,7 @@ export const runFreeAutoJobSlice = internalAction({
         publicStream = undefined;
       }
       if (providerEgressBlock) throw providerEgressBlock;
+      if (modelBuildBlock) throw modelBuildBlock;
       const activeFrameId = activeFrame?.frameId;
       const manualRetryAfterProtocolStall = hasProtocolStallMarker(claimed.handoff) || hasProtocolStallMarker(claimed.cursor);
       const initialMessages = manualRetryAfterProtocolStall ? undefined : messagesFromCursor(claimed.cursor, activeFrameId);

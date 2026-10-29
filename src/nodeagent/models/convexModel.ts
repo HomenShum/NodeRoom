@@ -642,13 +642,14 @@ function hydrateConcreteRouteState(
   persisted?: AgentModelRouteState,
 ): ConcreteRouteState {
   const allowed = [primaryModelId, ...normalizeFallbackModelIds(primaryModelId, fallbackModelIds)];
+  // Saved route state is history (SPEC A.0.6): a retired id is dropped by the allowed filter below, never resolved strictly.
   const preferred = persisted?.preferredModelId
-    ? resolveModelAlias(persisted.preferredModelId)
+    ? lookupModelAlias(persisted.preferredModelId)
     : primaryModelId;
   const now = Date.now();
   const cooldownUntil = new Map<string, number>();
   for (const [candidateId, until] of Object.entries(persisted?.cooldownUntil ?? {})) {
-    const normalized = resolveModelAlias(candidateId);
+    const normalized = lookupModelAlias(candidateId);
     if (allowed.includes(normalized) && Number.isFinite(until) && until > now) {
       cooldownUntil.set(normalized, until);
     }

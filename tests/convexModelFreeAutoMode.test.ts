@@ -798,3 +798,21 @@ describe("Convex free-auto model routing", () => {
     expect(attempted).toEqual(["zai-org/GLM-5.2"]);
   });
 });
+
+describe("persisted route state naming ids the catalog no longer knows (SPEC A.0.6)", () => {
+  // Persona: a job saved before the model refresh resumes after deploy with a checkpointed route that still names
+  // anthropic/claude-sonnet-4 (retired). The current primary is valid; the stale entries are history, not dispatch
+  // targets, so they are dropped by the allowed-list filter and must not make the build throw.
+  const stale = "anthropic/claude-sonnet-4";
+  it("a valid primary builds when the saved preferredModelId is an unknown id, and keeps its own primary", () => {
+    const route = convexModel("gemini-3.8-flash", { routeState: { preferredModelId: stale } });
+    expect(route.routeState?.()).toMatchObject({ preferredModelId: "gemini-3.8-flash" });
+  });
+  it("a valid primary builds when a saved cooldownUntil key is an unknown id, and the stale key is dropped", () => {
+    const route = convexModel("gemini-3.8-flash", { routeState: { cooldownUntil: { [stale]: Date.now() + 60_000 } } });
+    expect(route.routeState?.().cooldownUntil ?? {}).not.toHaveProperty(stale);
+  });
+  it("a NEW dispatch to an unknown primary still fails closed", () => {
+    expect(() => convexModel(stale)).toThrow(UnknownModelError);
+  });
+});

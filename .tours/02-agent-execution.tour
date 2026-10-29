@@ -55,7 +55,7 @@
     },
     {
       "file": "convex/agentJobRunner.ts",
-      "line": 946,
+      "line": 958,
       "pattern": "await runAgent\\(\\{",
       "title": "The live tier calls the same runAgent",
       "description": "Note the extra hooks the server passes and the browser does not: `onTextDelta` streams provider prose to the asking tab, `onStreamEvent` records tool/step parts, `onTrace` records live operations, and `journal` makes a retried slice replay a completed step instead of re-calling — and re-paying for — the model."
