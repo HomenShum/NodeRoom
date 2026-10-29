@@ -1,7 +1,7 @@
 {
   "$schema": "https://aka.ms/codetour-schema",
   "title": "1 — One message, from Send to a changed cell",
-  "description": "A person types '@nodeagent recompute the Q3 variance column' into a shared room and presses Send. This tour follows that one action through the code, in the order it executes. Run the app first with `npm run dev` and open /?mode=memory.",
+  "description": "A person types '@nodeagent recompute the Q3 variance column' into a shared room and presses Send. This tour follows that one action through the room's code, in the order it executes. It is the room, not the agent workspace: the one agent product path is #workspace + packages/nodeagent-engines (npm run agent:worker). To watch it locally without keys, `npm run dev` and open /?mode=memory, the keyless test harness that tests and immutable CI drive; it is not a product mode.",
   "ref": "wave3-human-ready",
   "steps": [
     {
@@ -23,7 +23,7 @@
       "line": 9,
       "pattern": "VITE_CONVEX_URL",
       "title": "The tier is chosen once, here",
-      "description": "`VITE_CONVEX_URL` set means a live Convex backend. Unset means the room runs entirely in this browser tab against an in-memory engine with a scripted model — no keys, no network.\n\nThis is the only place that branches on it. Everything below is written against one interface."
+      "description": "`VITE_CONVEX_URL` set means the live Convex room, the product path. Unset means the keyless test harness: the room runs in this browser tab against an in-memory engine with a scripted model, which is what tests and immutable CI drive. It is never presented to users as a product mode.\n\nThis is the only place that branches on it. Everything below is written against one interface."
     },
     {
       "file": "src/ui/Chat.tsx",
@@ -41,10 +41,10 @@
     },
     {
       "file": "src/app/store.tsx",
-      "line": 1086,
+      "line": 2327,
       "pattern": "askAgent: async \\(input\\)",
       "title": "The seam: one interface, two providers",
-      "description": "`RoomStore` is the boundary between the UI and its data source. Chat, the artifact panel and the rails call `useStore()` and never touch the engine or Convex directly.\n\nThis is the in-memory `askAgent`: it builds `InMemoryRoomTools` and runs the agent loop right here in the tab. Scroll to line 2327 for the Convex twin, which instead calls a mutation and hands off to a durable server job."
+      "description": "`RoomStore` is the boundary between the UI and its data source. Chat, the artifact panel and the rails call `useStore()` and never touch the engine or Convex directly.\n\nThis is the live `askAgent`: it calls the `startPublicAsk` mutation and hands off to a durable server job, then selects that job so the UI follows it. The keyless test-harness twin is at line 1086: it builds `InMemoryRoomTools` and runs the same agent loop in the tab with a scripted model."
     },
     {
       "file": "convex/agentJobs.ts",

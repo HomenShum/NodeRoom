@@ -6,7 +6,20 @@ instructions (gates, deploys, scaffold allowlist, design rules); this file is th
 NodeAgent code map plus the proof-loop doctrine. Fast per-change gate:
 `npm run floor`. Full pre-ship gate: `npm run prod:gate`.
 
-NodeAgent is the canonical agent harness in this repo. Before changing it, run:
+## Agent workspace (start here for agent work)
+
+- The one agent path is the `#workspace` route
+  (`src/ui/workspace/AgentWorkspaceRoute.tsx`) backed by
+  `packages/nodeagent-engines`. Run `npm run agent:worker` (worker on
+  `http://127.0.0.1:4317`) next to `npm run dev`, then open `/#workspace`.
+- Engines and their qualified capabilities live in
+  `packages/nodeagent-engines/qualification/*.json`; check them before claiming an
+  engine can do something.
+- The keyless scripted room (`?mode=memory`) exists only as the isolated test
+  harness that immutable CI (`prod:gate`, design-gate, proofloop suites) drives. It
+  is never the product: do not route users to it, demo it, or build features on it.
+
+NodeAgent (`src/nodeagent`) is the room agent's harness. Before changing it, run:
 
 ```bash
 npm run nodeagent:frame:smoke

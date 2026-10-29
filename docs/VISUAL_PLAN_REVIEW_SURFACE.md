@@ -132,6 +132,9 @@ For source-controlled local plans:
 plans/<slug>/plan.mdx
 ```
 
+The hand-written plans already under `plans/` are a June 2026 historical snapshot,
+kept for rationale only (see `plans/README.md`); they are not a work queue.
+
 For sensitive or enterprise/security plans, prefer local-files mode so the plan content stays local.
 
 Hosted/shareable mode is appropriate when the plan is safe to share and comment collaboration is desired.

@@ -1,6 +1,6 @@
 {
   "schema": "proofloop-company-task-coverage-v1",
-  "generatedAt": "2026-07-09T06:32:51.554Z",
+  "generatedAt": "2026-10-29T17:27:21.903Z",
   "policy": [
     "Track company-named requests as task archetypes unless the third-party app is explicitly consented and reachable.",
     "Prod browser proof is a separate gate from local browser proof and production API/runtime proof.",
@@ -11,9 +11,9 @@
   "summary": {
     "entries": 7,
     "ownProductOrSameArchetype": 6,
-    "prodBrowserProven": 2,
+    "prodBrowserProven": 1,
     "prodRuntimeProven": 3,
-    "readyForProdBrowser": 5,
+    "readyForProdBrowser": 6,
     "partial": 0,
     "externalPermissionOrClosed": 1,
     "taskTypesTracked": 38
@@ -130,12 +130,12 @@
         "blockers": []
       },
       "prodBrowserProof": {
-        "status": "prod_browser_proven",
+        "status": "ready_for_prod_browser",
         "command": "PROOFLOOP_LIVE_BROWSER=1 PROOFLOOP_TASKS_JSON=proofloop/accounting/live.accounting.config.json BENCH_BASE_URL=https://noderoom.live BENCH_AGENT_MODEL_MODE=specific BENCH_AGENT_MODEL_POLICY=z-ai/glm-5.2 npx playwright test --config playwright.proofloop.config.ts proofloop/live-browser-proof.spec.ts",
-        "evidence": [
-          "docs/eval/proofloop-live-room-proof.json"
-        ],
-        "blockers": []
+        "evidence": [],
+        "blockers": [
+          "No passing prod UI live-browser receipt is checked in for the accounting task set."
+        ]
       },
       "officialOrExternalClaim": {
         "status": "not_applicable",
@@ -149,7 +149,7 @@
       ],
       "notes": [
         "The production runtime proof records real Convex jobs, resolved models, durations, and pass patterns.",
-        "The full serial prod UI suite has a passing receipt."
+        "Individual prod UI task receipts currently pass: none."
       ]
     },
     {

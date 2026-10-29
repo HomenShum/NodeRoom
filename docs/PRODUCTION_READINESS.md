@@ -21,7 +21,7 @@ and SLO dashboards remain tracked in [`GAPS_NOT_DONE.md`](GAPS_NOT_DONE.md).
 Security, accessibility, privacy, incident-response, retention/deletion, and
 load/chaos readiness now have a dedicated teachable layer in
 [`SECURITY_PRODUCTION_READINESS.md`](SECURITY_PRODUCTION_READINESS.md) plus local
-Visual Plans under `plans/`. That layer is deliberately phrased as architecture
+Visual Plans under `plans/` (a June 2026 historical snapshot, rationale only). That layer is deliberately phrased as architecture
 and regression primitives, not as a compliance claim: NIST CSF, OWASP ASVS,
 WCAG 2.2, GDPR, and HIPAA-adjacent obligations require deployment evidence,
 policies, access reviews, monitoring, restore drills, and vendor/legal work

@@ -47,9 +47,10 @@ selection, pricing and failover live in `src/nodeagent/models/`
 (`modelCatalog.ts`, `qualityFailover.ts`, `convexModel.ts`). Tool argument
 schemas are Zod 4.
 
-**The app runs with no model key at all.** `src/nodeagent/models/scripted.ts`
-supplies a deterministic scripted model for the in-memory demo tier, which is
-why `npm run dev` needs no secrets.
+**Tests need no model key.** `src/nodeagent/models/scripted.ts` supplies a
+deterministic scripted model for the keyless test harness (the in-memory room
+that Vitest and the product-memory gate drive). That harness is test
+infrastructure, not a product mode; real agent work needs a provider key.
 
 ## Document and data formats
 

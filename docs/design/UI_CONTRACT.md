@@ -10,14 +10,13 @@ without an explicit taste review and approval in this contract.
 
 ## Visual Authority Order
 
-1. Latest production/main is the behavioral source of truth.
-2. For mobile, `docs/design/mobile/MOBILE_TASTE_AUDIT.md` and
-   `docs/design/mobile/MOBILE_HEADER_CONTRACT.md` are the approved visual source
-   of truth.
-3. Standalone HTML, Cloud Design captures, screenshots, and legacy prototypes
+1. Latest production/main is the behavioral source of truth. There is no
+   separate approved mobile taste document in the repo; mobile follows this
+   contract and the `#mobile` defaults below.
+2. Standalone HTML, Cloud Design captures, screenshots, and legacy prototypes
    are reference evidence. They may be kept, refined, or rejected on taste,
    semantic, accessibility, and mobile-native grounds.
-4. CSS cascade accidents, stale snapshots, and prototype-only device chrome are
+3. CSS cascade accidents, stale snapshots, and prototype-only device chrome are
    not design decisions.
 
 Desktop and mobile have separate canonical defaults over shared semantics:
@@ -338,56 +337,36 @@ trace links — stay intact and sit alongside them. Each primitive is themed wit
 terracotta tokens (never AI Elements' default Tailwind palette) and must survive the
 production CSP (Streamdown is CSP-safe; verified with zero violations).
 
-Every primitive is rendered on-brand in the standalone render check
-(`ai-elements-check.html` → `src/ui/ai/AiElementsShowcase.tsx` +
-`AiElementsGallery.tsx`), captured under
-`docs/design/ui-contract/20260714-ai-elements/`:
+The live primitives are the ones still vendored under `src/components/ai-elements/`
+(`message`, `reasoning`, `tool`, `suggestion`, `shimmer`, `code-block`, plus
+`streamdown-plugins`). The standalone gallery (`ai-elements-check.html`,
+`AiElementsShowcase.tsx`, `AiElementsGallery.tsx`) and the primitives that only
+existed to fill it were deleted in `d022d42d`; their screenshots were removed with
+them. The kept captures under `docs/design/ui-contract/20260714-ai-elements/` show
+live primitives only:
 
-- Flagship conversation (Conversation · Message · Reasoning · Tool · MessageResponse ·
-  Checkpoint): `ui-contract/20260714-ai-elements/00-flagship-conversation.png`
-- Full gallery, dark + light: `_full-dark.png`, `_full-light.png`
+- Flagship conversation (Message · Reasoning · Tool · MessageResponse), captured
+  while the gallery still existed: `ui-contract/20260714-ai-elements/00-flagship-conversation.png`
 
-![AI Elements flagship conversation + gallery, terracotta-themed](ui-contract/20260714-ai-elements/00-flagship-conversation.png)
+![AI Elements flagship conversation (Message, Reasoning, Tool, MessageResponse), terracotta-themed](ui-contract/20260714-ai-elements/00-flagship-conversation.png)
 
-**Adoption status** — `live` = wired into the real `Chat.tsx` and shipped to
-noderoom.live; `scaffolded` = themed and render-verified, not yet cut over.
+**Adoption status** — `live` = wired into the real `Chat.tsx`; `vendored` = in
+`src/components/ai-elements/` but not yet cut over to a new surface.
 
 | Primitive | Status | KEEP / REFINE / REJECT | Screenshot |
 |---|---|---|---|
 | `MessageResponse` (Streamdown) | **live** | KEEP — replaces the bespoke `MarkdownBody` for agent text. REFINE: pinned to 13.5px / `--text-secondary` to match the chat (Streamdown defaults to 16px). | in flagship |
 | `Reasoning` | **live** | KEEP — replaced `AgentReasoningCard`; the "Thought for…" disclosure. | in flagship |
 | `Tool` | live | COMPOSED — `AgentProgressCard` uses the maintained header/collapsible shell while NodeRoom keeps progress, trace, source, version, and lock receipts. | flagship chat |
-| `Checkpoint` | scaffolded | KEEP — maps to restore-checkpoint / version-jump. | in flagship |
-| `Task` | scaffolded | REFINE — good for grouped sub-steps; must link to the trace, not replace it. | `task.png` |
-| `Sources` | scaffolded | KEEP — collapsible source list; map to NodeRoom evidence/`sourceCaptures`. | `sources.png` |
-| `Suggestions` | **live** | KEEP — wired into the composer's contextual-prompt chips; `applySlash` + labels preserved (e2e clicks them by name), sized to the composer hint. | `suggestions-in-composer.png` |
-| `Confirmation` | scaffolded | REFINE — must carry NodeRoom's approval + CAS semantics, not a bare yes/no. | `confirmation.png` |
-| `InlineCitation` | scaffolded | KEEP — inline evidence badge with hover card; map to cited cells. | `inline-citation.png` |
-| `Terminal` | scaffolded | KEEP — command/log output blocks. | `terminal.png` |
-| `Agent` | scaffolded | REFINE — lightweight agent header/instructions; NodeRoom's richer agent surfaces stay for the room. | `agent.png` |
-| `Artifact` | scaffolded | REFINE — header/description chrome only; the real artifact panel keeps its grid/columns/CAS. | `artifact.png` |
-| `ChainOfThought` | scaffolded | REFINE — alternative reasoning layout; do not duplicate `Reasoning` in the same turn. | `chain-of-thought.png` |
-| `Shimmer` | scaffolded | KEEP — streaming/loading text shimmer. | `shimmer.png` |
+| `Suggestions` | **live** | KEEP — wired into the composer's contextual-prompt chips; `applySlash` + labels preserved (e2e clicks them by name), sized to the composer hint. | `suggestions.png`, `suggestions-in-composer.png` |
+| `Shimmer` | live (inside `Reasoning`) | KEEP — the streaming "thinking" text; `reasoning.tsx` imports it, so there is nothing separate to wire. | `shimmer.png` |
+| `CodeBlock` (Shiki) | vendored | KEEP — re-verify CSP before wiring it into a new surface. | — |
 
-Why the rest stay `scaffolded` (not "unfinished" — a deliberate call): rendering in
-the gallery is not the same as having a safe home in the product.
-- **Proof-bearing — keep NodeRoom's version**: `Tool`/`Sources`/`Confirmation` map to
-  `AgentProgressCard`, the `agent-source-receipt`, and work-plan approval, which carry
-  run receipts, CAS, and lock state. Swapping them in wholesale would *drop* those
-  affordances — a downgrade. The path is to compose (AI Elements chrome + NodeRoom
-  receipts as children), not replace.
-- **No current surface**: `Terminal`, `Agent`, `Artifact`, `Task`, `ChainOfThought`,
-  `Checkpoint` have no live counterpart to swap; wiring them means inventing a surface,
-  which is scope, not cleanup.
-- **Already covered**: `Shimmer`'s "thinking" state lives inside the `Reasoning`
-  primitive, so there is nothing separate to wire.
-
-Not galleried (available, larger compound trees to evaluate before adoption):
-`PromptInput`, `ModelSelector`, `CodeBlock` (Shiki — re-verify CSP before wiring),
-`Context`, `Artifact` actions.
-
-Contract for future cutovers: a primitive moves from `scaffolded` → `live` only when
-it is wired into the real component, preserves the surface's testids + proof
+Rule for adding another AI Elements primitive: compose, don't replace. NodeRoom's
+proof-bearing surfaces (`AgentProgressCard`, the `agent-source-receipt`, work-plan
+approval) carry run receipts, CAS, and lock state; an AI Elements primitive may wrap
+them as chrome but must not drop those affordances. A primitive is `live` only
+when it is wired into the real component, preserves the surface's testids + proof
 affordances, passes the e2e content assertions, and is live-verified on noderoom.live
 (the reasoning + response-text cutovers set the precedent — see
 `feat(ai-elements)` commits `e5c594e2`, `0ebe0470`).

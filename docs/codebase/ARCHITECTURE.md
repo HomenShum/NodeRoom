@@ -17,35 +17,40 @@ Everything structural in this repository follows from that sentence.
         ▼
   the store seam            src/app/store.tsx  ← one interface, two providers
         │
-        ├──── in-memory ───► src/engine/roomEngine.ts   (no keys, no network)
+        ├──── test harness ► src/engine/roomEngine.ts   (no keys, no network)
         └──── live ────────► convex/**                  (database + durable jobs)
 
   the agent                 src/nodeagent/core/runtime.ts
         │  RoomTools port (src/nodeagent/core/types.ts)
-        ├──── in-memory ───► src/nodeagent/skills/integration/noderoomAdapter.ts
+        ├──── test harness ► src/nodeagent/skills/integration/noderoomAdapter.ts
         └──── live ────────► convex/convexRoomTools.ts
 ```
 
 The arrows only point down. A UI component never imports `RoomEngine` or
 `convex/_generated/api`; the agent loop never imports React or a database client.
 
-## The two tiers, and why both exist
+## The live room and its test harness
 
-`src/app/main.tsx` picks a tier once, from `VITE_CONVEX_URL`:
+The one agent product path is the agent workspace: `#workspace` +
+`packages/nodeagent-engines` (`npm run agent:worker`). This file describes the
+room underneath. `src/app/main.tsx` picks the room's backend once, from
+`VITE_CONVEX_URL`. With no URL the room runs as the keyless test harness
+(`?mode=memory`), which exists only because immutable CI (prod:gate,
+design-gate, proofloop suites) drives it — it is never the product:
 
-| | **Memory tier** (no env) | **Live tier** (Convex URL + model key) |
+| | **Test harness** (no env) | **Live room** (Convex URL + model key) |
 |---|---|---|
 | Room state | `RoomEngine`, in the tab | Convex tables (`artifacts`, `elements`, `proposals`, `locks`, `traces`) |
 | Agent runs | in the tab, synchronously | as a durable Convex workflow job |
 | Model | `scripted.ts` — deterministic, no key | a real provider through the AI SDK |
 | Reply delivery | React re-render | `@convex-dev/persistent-text-streaming` |
-| Reachable by | anyone who clones the repo | anyone with a deployment |
+| Used by | Vitest, the product-memory Playwright gate, design-gate | real users, via a deployment |
 
-This is not a mock. Both tiers satisfy the same `RoomStore` interface and the
+The harness is not a mock. Both satisfy the same `RoomStore` interface and the
 same `RoomTools` port, and both run the same agent loop and the same tool
-definitions. The memory tier is what makes it possible to demo, test and debug
-the product with no secrets — and it is the tier every test in `tests/` that does
-not use `convex-test` runs against.
+definitions. The harness is what makes it possible to test and debug the room
+with no secrets — and it is what every test in `tests/` that does not use
+`convex-test` runs against. Do not present it to users as a product mode.
 
 The cost of that choice is honest and worth knowing: **two implementations must
 be kept in step.** When you add a tool, you implement it twice (see

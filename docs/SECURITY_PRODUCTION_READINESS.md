@@ -106,6 +106,8 @@ checked authorization and approval path.
 
 ## Visual Plans
 
+Historical June 2026 snapshots (rationale only; statuses may be stale):
+
 - [`plans/security-production-readiness/plan.mdx`](../plans/security-production-readiness/plan.mdx)
 - [`plans/accessibility-wcag22/plan.mdx`](../plans/accessibility-wcag22/plan.mdx)
 - [`plans/incident-response-disaster-recovery/plan.mdx`](../plans/incident-response-disaster-recovery/plan.mdx)
