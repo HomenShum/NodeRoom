@@ -15,7 +15,7 @@ import { api } from "../../convex/_generated/api";
 import { SMB_LENDING_EVIDENCE_PROPOSAL, SMB_LENDING_PROPOSAL } from "./smbLendingRoomSeed";
 import type { FeedItem } from "../../convex/roomActivity";
 import type { TraceRecord } from "../ui/panels/traceData";
-import { engine, demo, useEngineRev, runDemo, handleSmbLendingLocalProposalResolution } from "./roomStore";
+import { engine, demo, useEngineRev, runDemo } from "./roomStore";
 // Specific imports (NOT the nodeagent barrel) so Node-only model adapters never reach the client bundle.
 import { runAgent as runHarness } from "../nodeagent/core/runtime";
 import { stableJournalHash } from "../nodeagent/core/journal";
@@ -1073,10 +1073,7 @@ export function EngineStoreProvider({ roomId, children }: { roomId: string; me: 
       const proposal = [...engine.listProposals(roomId)].find((p) => p.id === id);
       const undo = proposal ? makeUndoEntry(proposal.roomId, engine.getArtifact(proposal.artifactId), proposal.op) : null;
       const r = engine.resolveProposal(id, approve, actor);
-      if (approve && r?.ok) {
-        pushUndo(undoStack.current, withAppliedVersion(undo, r.toVersion));
-        if (proposal) handleSmbLendingLocalProposalResolution(proposal, true, actor);
-      }
+      if (approve && r?.ok) pushUndo(undoStack.current, withAppliedVersion(undo, r.toVersion));
       return r ? (r.ok ? { ok: true, version: r.toVersion } : { ok: false, reason: r.reason }) : { ok: false, reason: "not_found" };
     },
     addResearchRows: async ({ roomId, artifactId, rows, actor }) => engine.addResearchRows({ roomId, artifactId, rows, by: actor }).length,

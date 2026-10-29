@@ -41,10 +41,10 @@
     },
     {
       "file": "src/app/store.tsx",
-      "line": 1089,
+      "line": 1086,
       "pattern": "askAgent: async \\(input\\)",
       "title": "The seam: one interface, two providers",
-      "description": "`RoomStore` is the boundary between the UI and its data source. Chat, the artifact panel and the rails call `useStore()` and never touch the engine or Convex directly.\n\nThis is the in-memory `askAgent`: it builds `InMemoryRoomTools` and runs the agent loop right here in the tab. Scroll to line 2330 for the Convex twin, which instead calls a mutation and hands off to a durable server job."
+      "description": "`RoomStore` is the boundary between the UI and its data source. Chat, the artifact panel and the rails call `useStore()` and never touch the engine or Convex directly.\n\nThis is the in-memory `askAgent`: it builds `InMemoryRoomTools` and runs the agent loop right here in the tab. Scroll to line 2327 for the Convex twin, which instead calls a mutation and hands off to a durable server job."
     },
     {
       "file": "convex/agentJobs.ts",

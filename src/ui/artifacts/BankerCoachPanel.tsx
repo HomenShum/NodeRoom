@@ -34,9 +34,9 @@ const buildEvidenceBundleRef = (api as unknown as {
 
 /**
  * "Export evidence bundle" — the audit deliverable (CSV + sources + trace +
- * signed manifest) as downloadable room files. Mounted ONLY in live (convex)
- * mode: memory mode has no ConvexProvider, so useAction would throw
- * (Landing.tsx's live-only-mount precedent).
+ * signed manifest) as downloadable room files. Mounted ONLY with a requester
+ * proof, which exists only under the live ConvexProvider (useAction would
+ * throw without it).
  */
 function ExportEvidenceBundleButton({ roomId, artifactId, requester, onOpenArtifact }: {
   roomId: string;
@@ -230,11 +230,10 @@ export function BankerCoachPanel({
         })()}
         {(() => {
           // Reveal-on-relevance: audit export only when the room has a sheet to
-          // bundle, and only live — memory mode has no auditBundle action. The
-          // requester proof rides the store's only proof-bearing surface
-          // (privateStreamAccess returns the session ActorProof in convex mode,
-          // null in memory mode); RoomShell does not thread proof into the coach.
-          if (store.mode !== "convex") return null;
+          // bundle and a signed-in requester. The proof rides the store's only
+          // proof-bearing surface (privateStreamAccess returns the session
+          // ActorProof, or null without one); RoomShell does not thread proof
+          // into the coach.
           const sheet = artifacts.find((a) => a.kind === "sheet");
           const requester = store.privateStreamAccess("evidence-bundle-export")?.requester;
           if (!sheet || !requester) return null;

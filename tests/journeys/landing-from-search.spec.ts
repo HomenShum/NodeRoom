@@ -2,6 +2,7 @@ import { expect, test, type Page, type TestInfo } from "@playwright/test";
 
 test.describe("SEO journey: Google-origin QA", () => {
   test("records one search-origin scenario or safely falls back to direct landing", async ({ page }, testInfo) => {
+    test.skip(process.env.E2E_LIVE !== "1", "SEO journeys model a production visitor: run against a Convex-configured server (E2E_LIVE=1).");
     const targetPhrase = process.env.SEO_QA_GOOGLE_TARGET_PHRASE ?? "NodeRoom collaborative AI room";
     const allowGoogle = process.env.SEO_QA_ALLOW_GOOGLE_ORIGIN === "1";
     const problems = collectPageProblems(page);
@@ -13,14 +14,14 @@ test.describe("SEO journey: Google-origin QA", () => {
       const result = page.locator('a[href*="noderoom.live"]').first();
       foundNodeRoom = await result.isVisible({ timeout: 5_000 }).catch(() => false);
       if (foundNodeRoom) await result.click();
-      else await page.goto("/?mode=memory&surface=desktop", { waitUntil: "domcontentloaded" });
+      else await page.goto("/?surface=desktop", { waitUntil: "domcontentloaded" });
     } else {
       testInfo.annotations.push({ type: "seo-qa", description: "Google-origin step skipped; set SEO_QA_ALLOW_GOOGLE_ORIGIN=1 for a one-query manual QA scenario." });
-      await page.goto("/?mode=memory&surface=desktop", { waitUntil: "domcontentloaded" });
+      await page.goto("/?surface=desktop", { waitUntil: "domcontentloaded" });
     }
 
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-    await expect(page.getByTestId("start-demo-room")).toBeVisible();
+    await expect(page.getByTestId("create-room")).toBeVisible();
     await attachScreenshot(page, testInfo, foundNodeRoom ? "google-origin-noderoom-result" : "google-origin-direct-fallback");
 
     expect(problems.errors.filter((error) => !isExternalGoogleNoise(error)), problemsSummary(problems)).toEqual([]);

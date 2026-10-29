@@ -3,5 +3,5 @@
 out/
 out-btb/
 
-# transient diagnostic captures (regenerate via cap-box-diag.mjs)
+# transient diagnostic captures (their producer, cap-box-diag.mjs, was retired)
 app-shots/diag-*.png

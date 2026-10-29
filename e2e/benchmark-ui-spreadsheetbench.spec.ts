@@ -134,7 +134,7 @@ const NB01_RUBRIC_DOM: GoldenRubric = {
   sources: NB01_RUBRIC_FULL.sources,
 };
 
-// Scripted demoRoom variance seed (mirrored from tests/playwright.benchmark.config.ts). The expected
+// Scripted demoRoom variance seed (mirrors src/engine/demoRoom.ts). The expected
 // map for THIS task must never equal it — that would mean the test read pre-seeded demo data.
 const SCRIPTED_VARIANCE_SEED: Readonly<Record<string, string>> = Object.freeze({
   r_rev__variance: "+24%",

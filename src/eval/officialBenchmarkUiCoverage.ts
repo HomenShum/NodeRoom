@@ -530,9 +530,8 @@ function bankerToolBenchUiTrack(proofPath: string = BANKERTOOLBENCH_FRESH_ROOM_P
     if (gate.id === "public_nodeagent_invocation") {
       return {
         ...gate,
-        status: "partial" as const,
-        evidence: "tests/ui-benchmark-drive.spec.ts",
-        blocker: "Covered in memory mode only; no trusted FR-020 fresh-room receipt is present.",
+        status: "missing" as const,
+        blocker: "No trusted FR-020 fresh-room receipt proves the public @nodeagent invocation.",
       };
     }
     if (gate.id === "trace_video_artifacts") {
@@ -624,7 +623,6 @@ function spreadsheetBenchV1UiTrack(proofPath: string = SPREADSHEETBENCH_LIVE_ROO
     requiredDeliverables: ["workbook"],
     supportedByNonUiRunner: ["workbook"],
     currentEvidence: [
-      "tests/ui-benchmark-drive.spec.ts",
       "src/eval/spreadsheetBenchRunner.ts",
       "src/eval/spreadsheetBenchScorer.ts",
       "docs/qa/browser-e2e-flow-inventory.json",
@@ -632,7 +630,7 @@ function spreadsheetBenchV1UiTrack(proofPath: string = SPREADSHEETBENCH_LIVE_ROO
     ],
     requiredSpec: "e2e/benchmark-ui-spreadsheetbench.spec.ts",
     blockers: [
-      "Current Playwright benchmark driver uses memory mode and demo sheet cells, not a fresh live room with official workbook upload/export.",
+      "No fresh live room run uploads the official workbook and exports it from the browser.",
       "No browser-run workbook is downloaded, reopened, and scored against the official V1 policy.",
     ],
     proof,
@@ -647,7 +645,6 @@ function spreadsheetBenchV2UiTrack(): BenchmarkUiCoverageTrack {
     requiredDeliverables: ["workbook"],
     supportedByNonUiRunner: ["workbook", "image"],
     currentEvidence: [
-      "tests/ui-benchmark-drive.spec.ts",
       "src/eval/spreadsheetBenchRunner.ts",
       "src/eval/spreadsheetBenchChartVisualProbe.ts",
       "docs/qa/browser-e2e-flow-inventory.json",
@@ -734,9 +731,8 @@ function buildTrack(args: {
     if (gate.id === "public_nodeagent_invocation") {
       return {
         ...gate,
-        status: "partial" as const,
-        evidence: "tests/ui-benchmark-drive.spec.ts",
-        blocker: "Covered in memory mode only; fresh live room benchmark route is not wired.",
+        status: "missing" as const,
+        blocker: "No live-room benchmark run has proven the public @nodeagent invocation.",
       };
     }
     if (gate.id === "trace_video_artifacts") {
@@ -781,7 +777,7 @@ function buildTrack(args: {
         status: requiredSpecExists ? "partial" as const : "missing" as const,
         blocker: requiredSpecExists
           ? "Spec exists but still needs proof that it never uses ?mode=memory."
-          : "No fresh-room benchmark UI spec exists; current benchmark UI driver uses ?mode=memory.",
+          : "No fresh-room benchmark UI spec exists.",
       };
     }
     return {
@@ -791,14 +787,13 @@ function buildTrack(args: {
     };
   });
 
-  // Status is DERIVED from the LIVE-BROWSER receipt, not from the pre-existing memory-mode partials
-  // (public_nodeagent_invocation / trace_video_artifacts are 'partial' for every track regardless,
-  // because a memory-mode driver and generic traces exist — that has never meant a track is anything
-  // but 'missing'). So:
+  // Status is DERIVED from the LIVE-BROWSER receipt, not from fallback partials (trace_video_artifacts
+  // is 'partial' for every track regardless, because generic traces exist — that has never meant a
+  // track is anything but 'missing'). So:
   //   - 'covered'  : every gate covered (impossible while the workbook export gates are missing).
   //   - 'partial'  : an honest receipt flipped real live-browser gates to covered, but export is still
   //                  missing (the genuine gap) — the honest landing state for SpreadsheetBench V1.
-  //   - 'missing'  : no honest receipt; only the pre-existing memory-mode partials exist.
+  //   - 'missing'  : no honest receipt; only fallback partials exist.
   const hasCoveredGate = gates.some((gate) => gate.status === "covered");
   const status: BenchmarkUiCoverageStatus = gates.every((gate) => gate.status === "covered")
     ? "covered"

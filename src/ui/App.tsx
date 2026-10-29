@@ -8,18 +8,15 @@ import { BtbLiveLedgerPanel } from "./BtbLiveLedgerPanel";
 import { FrontierObservationsPanel } from "./FrontierObservationsPanel";
 import { LandingStory } from "../landing/LandingStory";
 const MobileRoot = lazy(() => import("./mobile/MobileRoot").then((m) => ({ default: m.MobileRoot })));
-// Lazy: the Tour bundle is ~50 KB of scripted demo content (panels, sheet,
-// note, wall, post-its) only needed at #room-tour — don't ship it on every
-// route's first paint.
-const RoomTour = lazy(() => import("../landing/roomTour/RoomTour").then((m) => ({ default: m.RoomTour })));
 // Lazy: Always-On public rooms (#rooms/<slug>) — read-only agent-maintained
 // surface with its own css/svg bundle; keep it off every other route's first
-// paint (same precedent as RoomTour above).
+// paint.
 const PublicRoomPage = lazy(() => import("../alwayson/PublicRoomPage").then((m) => ({ default: m.PublicRoomPage })));
 // Lazy: #workspace — the shared Node agent workspace (worker-backed, no room store or Convex).
 const AgentWorkspaceRoute = lazy(() => import("./workspace/AgentWorkspaceRoute").then((m) => ({ default: m.AgentWorkspaceRoute })));
 import { EngineStoreProvider, ConvexStoreProvider, HAS_CONVEX } from "../app/store";
-import { createFreshRoom, enterBankerToolBenchRoomAsHost, enterDemoRoomAsHost, enterHackwithBayRoomAsHost, enterScaleDemoRoomAsHost, enterSmbLendingDeploymentRoomAsHost, enterUpScaleXRoomAsHost } from "../app/roomStore";
+import { createFreshRoom, enterDemoRoomAsHost } from "../app/roomStore";
+import { SetupRequired } from "./SetupRequired";
 import type { Actor } from "../engine/types";
 import { authIntentLabel, clearPersistedRoomSessions, launchAuthRequired } from "../auth/launchAuth";
 import { AccountGate } from "./auth/AccountGate";
@@ -63,10 +60,6 @@ type LiveRequest =
 export function App() {
   const [hash, setHash] = useState(() => readRoutableHash());
   const [memorySession, setMemorySession] = useState<Session | null>(() => initialMemorySession());
-  const btbSessionRef = useRef<Session | null>(null);
-  const hackwithBaySessionRef = useRef<Session | null>(null);
-  const upscalexSessionRef = useRef<Session | null>(null);
-  const smbLendingSessionRef = useRef<Session | null>(null);
   useEffect(() => {
     const onHash = () => setHash(readRoutableHash());
     window.addEventListener("hashchange", onHash);
@@ -90,14 +83,6 @@ export function App() {
     return (
       <Suspense fallback={<div style={{ padding: 24, fontFamily: "var(--font-ui)", color: "var(--text-muted)" }}>Loading agent workspace…</div>}>
         <AgentWorkspaceRoute />
-      </Suspense>
-    );
-  }
-
-  if (hash === "#room-tour" || hash === "#/room-tour") {
-    return (
-      <Suspense fallback={<div style={{ padding: 24, fontFamily: "system-ui", color: "#888" }}>Loading room tour…</div>}>
-        <RoomTour />
       </Suspense>
     );
   }
@@ -132,49 +117,18 @@ export function App() {
     return <LandingStory onEnter={enter} onBack={exit} />;
   }
 
+  // #btb — standalone read-only BankerToolBench eval ledger (public Convex query only).
   if (hash === "#btb" || hash === "#/btb") {
-    btbSessionRef.current ??= enterBankerToolBenchRoomAsHost();
-    return (
-      <EngineStoreProvider roomId={btbSessionRef.current.roomId} me={btbSessionRef.current.me}>
-        <RoomShell roomId={btbSessionRef.current.roomId} me={btbSessionRef.current.me} onLeave={() => { window.location.hash = ""; }} />
-        {HAS_CONVEX ? <BtbLiveLedgerPanel /> : null}
-      </EngineStoreProvider>
-    );
+    return HAS_CONVEX ? <BtbLiveLedgerPanel /> : <SetupRequired surface="BankerToolBench ledger" />;
   }
 
   if (hash === "#smb-lending" || hash === "#/smb-lending") {
-    if (HAS_CONVEX) return <LiveSmbLendingLauncher />;
-    smbLendingSessionRef.current ??= enterSmbLendingDeploymentRoomAsHost();
-    return (
-      <EngineStoreProvider roomId={smbLendingSessionRef.current.roomId} me={smbLendingSessionRef.current.me}>
-        <RoomShell roomId={smbLendingSessionRef.current.roomId} me={smbLendingSessionRef.current.me} onLeave={() => { window.location.hash = ""; }} />
-        <LendingProofBar roomId={smbLendingSessionRef.current.roomId} />
-      </EngineStoreProvider>
-    );
-  }
-
-  if (hash === "#hackwithbay" || hash === "#/hackwithbay") {
-    hackwithBaySessionRef.current ??= enterHackwithBayRoomAsHost();
-    return (
-      <EngineStoreProvider roomId={hackwithBaySessionRef.current.roomId} me={hackwithBaySessionRef.current.me}>
-        <RoomShell roomId={hackwithBaySessionRef.current.roomId} me={hackwithBaySessionRef.current.me} onLeave={() => { window.location.hash = ""; }} />
-      </EngineStoreProvider>
-    );
-  }
-
-  // #upscalex — a fresh room seeded with the UpScaleX portfolio; open the Graph tab for Mark's network.
-  if (hash === "#upscalex" || hash === "#/upscalex") {
-    upscalexSessionRef.current ??= enterUpScaleXRoomAsHost();
-    return (
-      <EngineStoreProvider roomId={upscalexSessionRef.current.roomId} me={upscalexSessionRef.current.me}>
-        <RoomShell roomId={upscalexSessionRef.current.roomId} me={upscalexSessionRef.current.me} onLeave={() => { window.location.hash = ""; }} />
-      </EngineStoreProvider>
-    );
+    return HAS_CONVEX ? <LiveSmbLendingLauncher /> : <SetupRequired surface="SMB lending room" />;
   }
 
   // #frontier — standalone read-only panel for the 8 model-frontier
-  // observations. NOT mounted inside #btb so it skips the engine-store
-  // bootstrap (it only needs the public Convex query). See
+  // observations. Skips the engine-store bootstrap (it only needs the
+  // public Convex query). See
   // src/ui/FrontierObservationsPanel.tsx for the honest-lane contract.
   if (hash === "#frontier" || hash === "#/frontier" || hash.startsWith("#frontier?") || hash.startsWith("#/frontier?")) {
     return <FrontierObservationsPanel />;
@@ -276,7 +230,6 @@ function normalizeSourceHash(hash: string): string {
 function initialMemorySession(): Session | null {
   if (typeof window === "undefined" || HAS_CONVEX) return null;
   const params = new URLSearchParams(window.location.search);
-  if (params.get("demo") === "scale") return enterScaleDemoRoomAsHost(cleanLiveName(params.get("name") ?? "", "Host"));
   if (params.get("demo") !== null) return enterDemoRoomAsHost(cleanLiveName(params.get("name") ?? "", "Host"));
   if (params.get("create") !== null) return createFreshRoom("Blank NodeRoom", cleanLiveName(params.get("name") ?? "", "Host"));
   return null;

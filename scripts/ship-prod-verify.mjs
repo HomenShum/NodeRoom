@@ -7,7 +7,7 @@
  * catches the three deploy landmines: disconnected deploy webhooks, SSR Suspense
  * shells that hydrate for browsers but serve blanks to crawlers, and stale CDN HTML.
  *
- *   node scripts/ship-prod-verify.mjs --signal "data-testid=\"start-demo-room\""
+ *   node scripts/ship-prod-verify.mjs --signal "data-testid=\"ssr-private-boot-shell\""
  *   node scripts/ship-prod-verify.mjs --url https://noderoom.live --signal foo --signal bar
  *
  * Exits nonzero naming the failed leg. A ship is not "live" until this passes.

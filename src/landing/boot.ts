@@ -1,6 +1,6 @@
-const privateRoutePattern = /(?:[?&](?:room|demo|create)=|#(?:mobile|\/?mobile|rooms\/|\/?rooms\/|btb|\/?btb|smb-lending|\/?smb-lending|hackwithbay|\/?hackwithbay|upscalex|\/?upscalex|frontier|\/?frontier|room-tour|\/?room-tour|story|\/?story|workspace|\/?workspace))/i;
+const privateRoutePattern = /(?:[?&](?:room|demo|create)=|#(?:mobile|\/?mobile|rooms\/|\/?rooms\/|btb|\/?btb|smb-lending|\/?smb-lending|frontier|\/?frontier|story|\/?story|workspace|\/?workspace))/i;
 const appSearchPattern = /(?:[?&](?:mode|surface|intent|room|demo|create)=)/i;
-const appHashPattern = /^#(?:mobile|\/?mobile|rooms\/|\/?rooms\/|btb|\/?btb|smb-lending|\/?smb-lending|hackwithbay|\/?hackwithbay|upscalex|\/?upscalex|frontier|\/?frontier|room-tour|\/?room-tour|story|\/?story|workspace|\/?workspace)/i;
+const appHashPattern = /^#(?:mobile|\/?mobile|rooms\/|\/?rooms\/|btb|\/?btb|smb-lending|\/?smb-lending|frontier|\/?frontier|story|\/?story|workspace|\/?workspace)/i;
 
 const routeText = window.location.search + window.location.hash;
 const privateRoute = privateRoutePattern.test(routeText);

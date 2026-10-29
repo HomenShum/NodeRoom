@@ -21,10 +21,10 @@
  * Contract with the page:
  *   - The hook MUST only be mounted under the root ConvexProvider
  *     (PublicRoomPage gates on HAS_CONVEX and wraps the live subtree in an
- *     error boundary — a missing/erroring server query falls back silently).
- *   - While loading, on null, or on a malformed payload it returns the demo
- *     bundle (source: "demo"). Demo values are honest specimen data reused
- *     as-is — never fabricated timestamps or fake "live" markers.
+ *     error boundary that renders an explicit "unavailable" state with retry).
+ *   - It returns undefined while loading and null for a missing room or a
+ *     malformed payload. There is no demo substitute: the page renders a
+ *     loading state or MissingRoom instead.
  *   - A live payload is normalized defensively and BOUNDED (row caps) before
  *     it reaches the DOM. Live meta sets viewersWeek to null (no viewer
  *     tracking exists — the page hides the chip rather than fabricating it).
@@ -33,10 +33,7 @@ import { useMemo } from "react";
 import { useQuery } from "convex/react";
 import { makeFunctionReference, type FunctionReference } from "convex/server";
 import {
-  AO_PAPERS,
-  AO_PROOF,
   AO_ROOM_META,
-  AO_RUNLOG,
   type AoPaper,
   type AoPaperStatus,
   type AoProofRow,
@@ -45,22 +42,20 @@ import {
 } from "./demoData";
 
 /**
- * viewersWeek is number | null: null means "not tracked" (live mode — no
- * viewer analytics exist, so the page hides the chip instead of inventing a
- * number). The demo meta keeps its specimen value.
+ * viewersWeek is number | null: live bundles set null ("not tracked" — no
+ * viewer analytics exist, so nothing renders a viewer count).
  */
 export type AoRoomMeta = Omit<typeof AO_ROOM_META, "viewersWeek"> & { viewersWeek: number | null };
 
 export type PublicRoomBundle = {
-  /** "live" only when a well-formed convex payload arrived; everything else is "demo". */
-  source: "live" | "demo";
+  /** Only well-formed convex payloads become bundles (stamped on the DOM as data-ao-source). */
+  source: "live";
   meta: AoRoomMeta;
   papers: AoPaper[];
   runlog: AoRunEvent[];
   proof: AoProofRow[];
   /**
-   * Live: state.briefMarkdown ("" until the first successful scan writes one).
-   * Demo: null — the page renders the specimen Brief component instead.
+   * state.briefMarkdown ("" until the first successful scan writes one).
    */
   briefMarkdown: string | null;
 };
@@ -79,26 +74,9 @@ export function normalizeRoomSlug(raw: string): string {
   return raw.toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 64);
 }
 
-/**
- * Demo fallback. Only the flagship room has specimen data; unknown slugs get
- * null so the page can render an honest "not available" state instead of
- * relabeling Expositio Pulse content as some other room.
- */
-export function fallbackRoomBundle(slug: string): PublicRoomBundle | null {
-  if (normalizeRoomSlug(slug) !== AO_ROOM_META.slug) return null;
-  return {
-    source: "demo",
-    meta: AO_ROOM_META,
-    papers: AO_PAPERS,
-    runlog: AO_RUNLOG,
-    proof: AO_PROOF,
-    briefMarkdown: null,
-  };
-}
-
 // convex/alwaysOn.ts is deployed, but _generated/api can lag and omit it.
 // Use the same explicit reference pattern as the backend/tests so live public
-// rooms do not fall back to demo just because codegen was not refreshed.
+// rooms do not break just because codegen was not refreshed.
 export const alwaysOnApi: {
   getPublicRoomBundle: FunctionReference<"query", "public", { slug: string }, unknown>;
   listPublicRooms: FunctionReference<"query", "public", Record<string, never>, unknown>;
@@ -259,7 +237,7 @@ function buildSourceLine(sourcesRaw: unknown[], cadence: string): string {
  * Accept a live payload only when it carries the REAL server shape's minimum:
  * a room object whose slug matches the requested room. state may be null
  * (a freshly seeded room before its first scan) — that renders as an honest
- * empty live room, not as demo data. Anything malformed falls back to demo.
+ * empty live room. Anything malformed returns null (the page shows MissingRoom).
  * Exported for tests (feed it a toPublicRoomBundle-shaped payload).
  */
 export function normalizeBundle(raw: unknown, slug: string): PublicRoomBundle | null {
@@ -320,15 +298,15 @@ export function normalizeBundle(raw: unknown, slug: string): PublicRoomBundle | 
 
 /**
  * Live hook — ONLY mount under ConvexProvider (PublicRoomPage gates this).
- * Loading / null / malformed → demo fallback; server-side throws propagate to
- * the page's error boundary, which renders the same fallback.
+ * undefined = loading; null = missing room or malformed payload. Server-side
+ * throws propagate to the page's error boundary.
  */
-export function usePublicRoomData(slug: string): PublicRoomBundle | null {
+export function usePublicRoomData(slug: string): PublicRoomBundle | null | undefined {
   const normalized = normalizeRoomSlug(slug);
   const raw = useQuery(alwaysOnApi.getPublicRoomBundle, { slug: normalized });
   return useMemo(() => {
-    const live = raw === undefined || raw === null ? null : normalizeBundle(raw, normalized);
-    return live ?? fallbackRoomBundle(normalized);
+    if (raw === undefined) return undefined;
+    return raw === null ? null : normalizeBundle(raw, normalized);
   }, [raw, normalized]);
 }
 
@@ -351,8 +329,8 @@ export type AoLiveCard = {
 /**
  * Normalize listPublicRooms card rows ({ slug, title, description, lastRunAt,
  * lastRunStatus, lastMetric, papersCount } — convex/alwaysOnShape.ts
- * toPublicRoomCard). Empty or malformed → null so the gallery falls back to
- * the demo cards (stamped demo, never presented as live).
+ * toPublicRoomCard). Empty or malformed → null so the gallery shows an honest
+ * empty state.
  */
 export function normalizeRoomCards(raw: unknown, nowMs: number = Date.now()): AoLiveCard[] | null {
   if (!Array.isArray(raw) || raw.length === 0) return null;
@@ -385,9 +363,9 @@ export function normalizeRoomCards(raw: unknown, nowMs: number = Date.now()): Ao
 
 /**
  * Live landing cards — ONLY mount under ConvexProvider (AlwaysOnCards gates on
- * HAS_CONVEX + error boundary). Loading / empty / malformed → null (demo).
+ * HAS_CONVEX + error boundary). undefined = loading; null = empty or malformed.
  */
-export function useLivePublicRoomCards(): AoLiveCard[] | null {
+export function useLivePublicRoomCards(): AoLiveCard[] | null | undefined {
   const raw = useQuery(alwaysOnApi.listPublicRooms, {});
-  return useMemo(() => (raw === undefined || raw === null ? null : normalizeRoomCards(raw)), [raw]);
+  return useMemo(() => (raw === undefined ? undefined : raw === null ? null : normalizeRoomCards(raw)), [raw]);
 }

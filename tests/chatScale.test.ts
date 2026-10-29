@@ -3,7 +3,7 @@
  * jump-to-latest threshold.
  *
  * Scenario: the scale parity room — Priya (VC platform lead) opens a room whose public chat
- * carries the 312-message demo seed (roomStore.seedScaleMessages: 2 openers + 309 workflow
+ * carries a 312-message feed (shaped like the retired scale demo seed: 2 openers + 309 workflow
  * lines + 1 agent summary) while Homen (host) fires @nodeagent enrichment runs whose messages
  * carry run-scoped clientMsgIds (`pubstream-<jobId>` convex/streaming.ts, `final-<runId>` /
  * `plan-blocked-<jobId>` convex/agent.ts). The feed must stay readable: one quiet divider per
@@ -240,7 +240,7 @@ describe("jump-to-latest threshold — Priya scrolls back through history", () =
 });
 
 describe("312-message scale seed — the full pipeline stays O(n)", () => {
-  /** Mirror roomStore.seedScaleMessages: 2 openers + 309 rotating workflow lines + 1 agent
+  /** Shaped like the retired scale demo seed: 2 openers + 309 rotating workflow lines + 1 agent
    *  summary (uuid clientMsgIds throughout — the memory engine never mints run prefixes),
    *  spread across three local days so dividers land mid-feed. */
   const buildScaleSeed = (): FeedRow[] => {

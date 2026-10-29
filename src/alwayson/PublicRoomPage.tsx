@@ -4,9 +4,9 @@
  * brief, papers sheet, topics graph, run log, proof footer, post-its,
  * read-only composer strip) styled by src/alwayson/alwayson.css.
  *
- * Data: usePublicRoomData(slug) under the root ConvexProvider when HAS_CONVEX;
- * memory mode / query errors / unknown functions fall back silently to the
- * demo bundle (honest specimen data — no fabricated "live" markers).
+ * Data: usePublicRoomData(slug) under the root ConvexProvider when HAS_CONVEX.
+ * Without Convex the page says setup is required; loading, missing rooms and
+ * query errors each render their own explicit state (no demo substitute).
  *
  * Ops tab renders ONLY when the location search or hash carries ops=1, and
  * lazily imports AlwaysOnOpsPanel (owned by the ops lane).
@@ -23,11 +23,11 @@ import {
   type ReactNode,
 } from "react";
 import { HAS_CONVEX } from "../app/store";
+import { SetupRequired } from "../ui/SetupRequired";
 import { MarkdownBody } from "../ui/MarkdownBody";
 import { AoIcon } from "./AoIcon";
 import { SubscribeModal } from "./SubscribeModal";
 import {
-  fallbackRoomBundle,
   normalizeRoomSlug,
   usePublicRoomData,
   type PublicRoomBundle,
@@ -86,18 +86,28 @@ function opsEnabled(): boolean {
   return /(?:\?|&)ops=1(?:&|$)/.test(window.location.search) || /[?&]ops=1(?:&|$)/.test(window.location.hash);
 }
 
-/* ── silent fallback boundary: a throwing live query renders the demo view ── */
-class AoFallbackBoundary extends Component<{ fallback: ReactNode; children: ReactNode }, { failed: boolean }> {
+/* ── error boundary: a throwing live query renders an explicit unavailable state ── */
+class AoErrorBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
   override state = { failed: false };
   static getDerivedStateFromError() {
     return { failed: true };
   }
   override componentDidCatch(error: unknown) {
-    // Silent fallback per contract, but keep a console breadcrumb for debugging.
-    console.warn("[alwayson] live room bundle unavailable — using demo data", error);
+    console.warn("[alwayson] live room bundle unavailable", error);
   }
   override render() {
-    return this.state.failed ? this.props.fallback : this.props.children;
+    if (!this.state.failed) return this.props.children;
+    return (
+      <div className="ao-public">
+        <div className="ao-wrap">
+          <div className="ao-empty" role="alert" data-testid="ao-room-unavailable">
+            <div className="h">Public room unavailable</div>
+            <div className="b">The live room could not be loaded.</div>
+            <button className="ao-btn" type="button" onClick={() => this.setState({ failed: false })}>Retry</button>
+          </div>
+        </div>
+      </div>
+    );
   }
 }
 
@@ -107,63 +117,22 @@ function Brief({ bundle }: { bundle: PublicRoomBundle }) {
   const { meta } = bundle;
   // LIVE: render the agent-written state.briefMarkdown through the repo's safe
   // markdown renderer (MarkdownBody builds React elements — text is escaped by
-  // React, links pass safeHref; no dangerouslySetInnerHTML anywhere). The
-  // specimen prose below is DEMO-ONLY — never shown for a live bundle.
-  if (bundle.source === "live") {
-    const markdown = (bundle.briefMarkdown ?? "").trim();
-    return (
-      <div className="ao-brief" data-testid="ao-brief-live">
-        <div className="stamp">
-          <span className="ao-chip acc" style={{ fontSize: 10 }}><Ic name="note" size={11} />daily brief · agent-authored · append-only</span>
-        </div>
-        {markdown ? (
-          <MarkdownBody className="ao-brief-md" text={markdown} />
-        ) : (
-          <>
-            <h2>{meta.briefTitle}</h2>
-            <p>No brief yet — the first successful scan writes it.</p>
-          </>
-        )}
-        <div className="agent-line"><span className="dot"></span>Written by the room agent · template-rendered from the last scan · deterministic, no model calls</div>
-      </div>
-    );
-  }
+  // React, links pass safeHref; no dangerouslySetInnerHTML anywhere).
+  const markdown = (bundle.briefMarkdown ?? "").trim();
   return (
-    <div className="ao-brief">
+    <div className="ao-brief" data-testid="ao-brief-live">
       <div className="stamp">
         <span className="ao-chip acc" style={{ fontSize: 10 }}><Ic name="note" size={11} />daily brief · agent-authored · append-only</span>
       </div>
-      <h2>{meta.briefTitle}</h2>
-      <div className="date">{meta.briefDate}</div>
-
-      <h3>New papers</h3>
-      <ul>
-        <li>Spectral sequences without tears — algebraic topology, lecture-note style, graduate.<span className="cite">[1]</span></li>
-        <li>A gentle route to the étale fundamental group — arithmetic geometry, assumes one course in algebraic geometry.<span className="cite">[2]</span></li>
-        <li>What attention heads actually compute — ML interpretability survey, intermediate.<span className="cite">[3]</span></li>
-        <li>Renormalization for the impatient — QFT exposition, graduate.<span className="cite">[4]</span></li>
-      </ul>
-
-      <h3>Themes</h3>
-      <ul>
-        <li>The interpretability cluster grew for the third week running — 3 of the last 9 uploads.</li>
-        <li>Topology lecture notes continue a 4-week streak; two share an author with prior uploads.</li>
-      </ul>
-
-      <h3>Recommended reads</h3>
-      <ol>
-        <li>Beginner — Causal inference: the missing semester.<span className="cite">[5]</span></li>
-        <li>Graduate — Spectral sequences without tears.<span className="cite">[1]</span></li>
-        <li>Specialist — Renormalization for the impatient.<span className="cite">[4]</span></li>
-      </ol>
-
-      <h3>Open questions</h3>
-      <ul>
-        <li>Is “Sheaves for systems biologists” a revision or a new upload? Source page shows no version marker.</li>
-        <li>Author affiliations are not exposed on expositio.org — flagged, not guessed.</li>
-      </ul>
-
-      <div className="agent-line"><span className="dot"></span>Written by Room NodeAgent · every claim links to a source capture · admins can correct with a trace, never silently</div>
+      {markdown ? (
+        <MarkdownBody className="ao-brief-md" text={markdown} />
+      ) : (
+        <>
+          <h2>{meta.briefTitle}</h2>
+          <p>No brief yet — the first successful scan writes it.</p>
+        </>
+      )}
+      <div className="agent-line"><span className="dot"></span>Written by the room agent · template-rendered from the last scan · deterministic, no model calls</div>
     </div>
   );
 }
@@ -197,19 +166,6 @@ function proofValue(bundle: PublicRoomBundle, key: string): string | null {
 }
 
 function ChangePostit({ bundle }: { bundle: PublicRoomBundle }) {
-  if (bundle.source === "demo") {
-    return (
-      <div className="ao-postit" data-testid="ao-change-postit">
-        <div className="t"><Ic name="alert" size={12} />What changed - post-its</div>
-        <ul>
-          <li>4 new papers today - 3 topics touched</li>
-          <li>1 source page changed its list markup; parser adjusted, trace attached</li>
-          <li>2 rows carry a quality flag: no version marker on source</li>
-        </ul>
-      </div>
-    );
-  }
-
   const status = proofValue(bundle, "Status") ?? "no runs yet";
   const newItems = proofValue(bundle, "New items") ?? "0";
   const rowsUpdated = proofValue(bundle, "Rows updated") ?? "0";
@@ -412,40 +368,9 @@ function RunLog({ bundle }: { bundle: PublicRoomBundle }) {
   );
 }
 
-/* Topics graph — papers → topics → disciplines, hand-laid (specimen data). */
-const G = {
-  disc: [
-    { id: "math", l: "Mathematics", x: 195, y: 118, w: 96 },
-    { id: "cs", l: "Computer science", x: 600, y: 84, w: 128 },
-    { id: "phys", l: "Physics", x: 662, y: 306, w: 66 },
-    { id: "stat", l: "Statistics", x: 420, y: 262, w: 78 },
-    { id: "bio", l: "Biology", x: 148, y: 330, w: 64 },
-  ],
-  topics: [
-    { id: "atop", l: "algebraic topology", x: 320, y: 62 },
-    { id: "ageo", l: "arithmetic geometry", x: 92, y: 196 },
-    { id: "interp", l: "ML interpretability", x: 560, y: 178 },
-    { id: "qft", l: "quantum field theory", x: 700, y: 402 },
-    { id: "causal", l: "causal inference", x: 452, y: 388 },
-    { id: "aptop", l: "applied topology", x: 268, y: 420 },
-  ],
-  papers: [
-    { id: "p1", l: "Spectral sequences…", x: 402, y: 118, nw: true, t: "atop", d: "math" },
-    { id: "p2", l: "Étale fundamental…", x: 150, y: 78, nw: true, t: "ageo", d: "math" },
-    { id: "p3", l: "Attention heads…", x: 668, y: 196, nw: true, t: "interp", d: "cs" },
-    { id: "p4", l: "Renormalization…", x: 588, y: 430, nw: true, t: "qft", d: "phys" },
-    { id: "p5", l: "Causal inference…", x: 348, y: 322, nw: false, t: "causal", d: "stat" },
-    { id: "p6", l: "Sheaves…", x: 158, y: 442, nw: false, t: "aptop", d: "bio" },
-  ],
-  rel: [["atop", "aptop"], ["atop", "ageo"], ["causal", "interp"]] as const,
-};
-const TOPIC_TO_DISC: Record<string, string> = { atop: "math", ageo: "math", interp: "cs", qft: "phys", causal: "stat", aptop: "bio" };
-const gfind = (id: string) => G.disc.find((n) => n.id === id) ?? G.topics.find((n) => n.id === id);
-
-/* The hand-laid specimen graph cannot lay out arbitrary live data, so it is
-   demo-only. Live mode renders honest counts + the actual topic/discipline
-   sets derived from the live papers — no specimen numbers, no fake layout —
-   until a real graph index ships with the hosted room.
+/* Topics renders honest counts + the actual topic/discipline sets derived
+   from the live papers — no specimen numbers, no fake layout — until a real
+   graph index ships with the hosted room.
  *
  * Consolidation review (vs the shared entity graph, KnowledgeGraph in
  * src/ui/panels/KnowledgeGraph.tsx): NOT consolidated — incompatible data
@@ -467,7 +392,6 @@ const gfind = (id: string) => G.disc.find((n) => n.id === id) ?? G.topics.find((
 function TopicsGraph({ bundle, onTopicSelect }: { bundle: PublicRoomBundle; onTopicSelect: (topic: string) => void }) {
   const topics = useMemo(() => [...new Set(bundle.papers.map((p) => p.topic).filter(Boolean))], [bundle.papers]);
   const disciplines = useMemo(() => [...new Set(bundle.papers.map((p) => p.discipline).filter(Boolean))], [bundle.papers]);
-  if (bundle.source === "demo") return <TopicsGraphSpecimen onTopicSelect={onTopicSelect} />;
   return (
     <div className="ao-graph" data-testid="ao-topics-live">
       <div className="ao-graph-head">
@@ -502,100 +426,6 @@ function TopicsGraph({ bundle, onTopicSelect }: { bundle: PublicRoomBundle; onTo
       <div className="ao-glegend">
         <span>counts derived from the live papers index</span>
         <span style={{ marginLeft: "auto" }}>topic chips filter the papers sheet</span>
-      </div>
-    </div>
-  );
-}
-
-function TopicsGraphSpecimen({ onTopicSelect }: { onTopicSelect: (topic: string) => void }) {
-  const [sel, setSel] = useState("p1");
-  const sp = G.papers.find((p) => p.id === sel);
-  const spTopic = sp ? gfind(sp.t) : undefined;
-  const choosePaper = (paperId: string) => setSel(paperId);
-  return (
-    <div className="ao-graph">
-      <div className="ao-graph-head">
-        <span className="t">Topics graph</span>
-        <span className="ao-chip" style={{ fontSize: 9.5 }}>43 papers · 21 topics · 5 disciplines</span>
-        <span className="grow"></span>
-        {sp && spTopic && <span className="ao-src"><Ic name="link" size={10} />{sp.l.replace("…", "")} → {spTopic.l} · evidence attached</span>}
-      </div>
-      <svg viewBox="0 0 800 490" role="img" aria-label="Topics graph: papers link to topics, topics to disciplines">
-        {/* edges: topic → discipline */}
-        {G.topics.map((t) => {
-          const dn = gfind(TOPIC_TO_DISC[t.id]);
-          if (!dn) return null;
-          return <line className="edge" key={t.id + dn.id} x1={t.x} y1={t.y} x2={dn.x} y2={dn.y} />;
-        })}
-        {/* edges: topic ↔ related topic */}
-        {G.rel.map(([a, b]) => {
-          const na = gfind(a);
-          const nb = gfind(b);
-          if (!na || !nb) return null;
-          return <line className="edge rel" key={a + b} x1={na.x} y1={na.y} x2={nb.x} y2={nb.y} />;
-        })}
-        {/* edges: paper → topic + discipline */}
-        {G.papers.map((p) => {
-          const t = gfind(p.t);
-          const d = gfind(p.d);
-          if (!t || !d) return null;
-          return (
-            <g key={"e" + p.id}>
-              <line className="edge" x1={p.x} y1={p.y} x2={t.x} y2={t.y} />
-              <line className="edge" x1={p.x} y1={p.y} x2={d.x} y2={d.y} />
-            </g>
-          );
-        })}
-        {G.disc.map((n) => (
-          <g className="ao-gdisc" key={n.id}>
-            <rect x={n.x - n.w / 2} y={n.y - 12} width={n.w} height={24} rx="8"></rect>
-            <text x={n.x} y={n.y + 3.5} textAnchor="middle">{n.l}</text>
-          </g>
-        ))}
-        {G.topics.map((n) => (
-          <g className="ao-gnode topic" key={n.id}>
-            <circle cx={n.x} cy={n.y} r="6"></circle>
-            <text x={n.x} y={n.y - 11} textAnchor="middle">{n.l}</text>
-          </g>
-        ))}
-        {G.papers.map((n) => (
-          <g
-            className={"ao-gnode paper" + (n.nw ? " new" : "")}
-            key={n.id}
-            role="button"
-            tabIndex={0}
-            aria-label={`Select ${n.l.replace("â€¦", "")}`}
-            onClick={() => choosePaper(n.id)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                choosePaper(n.id);
-              }
-            }}
-          >
-            <circle cx={n.x} cy={n.y} r="5" stroke={sel === n.id ? "var(--text-primary)" : "none"} strokeWidth="1.5"></circle>
-            <text x={n.x} y={n.y + 16} textAnchor="middle">{n.l}</text>
-          </g>
-        ))}
-      </svg>
-      <div className="ao-topic-strip" aria-label="Filter papers by topic">
-        {G.topics.map((topic) => (
-          <button
-            className="ao-chip ao-topic-chip"
-            type="button"
-            key={topic.id}
-            data-testid={`ao-topic-${slugifyUi(topic.l)}`}
-            onClick={() => onTopicSelect(topic.l)}
-          >
-            {topic.l}
-          </button>
-        ))}
-      </div>
-      <div className="ao-glegend">
-        <span><span className="d" style={{ background: "var(--accent-primary)" }}></span>paper · new today</span>
-        <span><span className="d" style={{ background: "var(--text-tertiary)" }}></span>paper · tracked</span>
-        <span><span className="d" style={{ background: "#5E6AD2" }}></span>topic</span>
-        <span style={{ marginLeft: "auto" }}>dashed = related topics · click a paper for its evidence ref</span>
       </div>
     </div>
   );
@@ -652,11 +482,6 @@ function PublicRoomView({ bundle }: { bundle: PublicRoomBundle }) {
             <span className="ao-chip acc"><Ic name="globe" size={11} />public · read-only</span>
             <span className="ao-chip"><Ic name="clock" size={11} />{meta.schedule}</span>
             <span className="grow"></span>
-            {/* Viewer count is specimen-only: no viewer tracking exists, so a
-                live bundle sets viewersWeek to null and the chip is hidden. */}
-            {meta.viewersWeek !== null && (
-              <span className="ao-chip"><Ic name="eye" size={11} />{meta.viewersWeek} viewers this week</span>
-            )}
             <button
               className="ao-btn pri ao-btn-sm"
               type="button"
@@ -768,18 +593,26 @@ function MissingRoom({ slug }: { slug: string }) {
 
 function LivePublicRoom({ slug }: { slug: string }) {
   const bundle = usePublicRoomData(slug);
+  if (bundle === undefined) {
+    return (
+      <div className="ao-public">
+        <div className="ao-wrap">
+          <div className="ao-empty" aria-busy="true" data-testid="ao-room-loading">
+            <div className="h">Loading public room…</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
   if (!bundle) return <MissingRoom slug={slug} />;
   return <PublicRoomView bundle={bundle} />;
 }
 
 export function PublicRoomPage({ slug }: { slug: string }) {
-  const normalized = normalizeRoomSlug(slug);
-  const demo = fallbackRoomBundle(normalized);
-  const demoView = demo ? <PublicRoomView bundle={demo} /> : <MissingRoom slug={normalized} />;
-  if (!HAS_CONVEX) return demoView;
+  if (!HAS_CONVEX) return <SetupRequired surface="Public room" />;
   return (
-    <AoFallbackBoundary fallback={demoView}>
-      <LivePublicRoom slug={normalized} />
-    </AoFallbackBoundary>
+    <AoErrorBoundary>
+      <LivePublicRoom slug={normalizeRoomSlug(slug)} />
+    </AoErrorBoundary>
   );
 }

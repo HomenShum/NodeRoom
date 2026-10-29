@@ -54,7 +54,6 @@ import { downloadXlsxWorkbook, type XlsxDownloadReceipt } from "../workArtifacts
 
 async function runAuthorizedInvestigationResearch(store: RoomStore, roomId: string): Promise<void> {
   if (
-    store.mode === "convex" &&
     typeof window !== "undefined" &&
     !window.confirm("Allow this investigation run to retrieve public sources for the exact current Company research dataset?")
   ) {
@@ -1439,9 +1438,9 @@ export const CELL_HISTORY_LIMIT = 8; // BOUND: popover shows the newest 8 (serve
 const CELL_HISTORY_PREVIEW_MAX = 60;
 export const CELL_DIFF_MAX_WORDS = 160; // BOUND: word-level LCS is O(n*m); clamp both sides
 
-/** Live-only gate: history exists only where the elementVersions log does (Convex). */
-export function cellHistoryEnabled(mode: "memory" | "convex", proof: ActorProof | undefined): boolean {
-  return mode === "convex" && !!proof;
+/** Live-only gate: history exists only where the elementVersions log does (Convex), read with a requester proof. */
+export function cellHistoryEnabled(proof: ActorProof | undefined): boolean {
+  return !!proof;
 }
 
 /** Bounded one-line preview of a logged value (objects render via displayCellValue). */
@@ -1514,7 +1513,7 @@ export function CellDiff({ version, oldValue, currentValue }: { version: number;
  * versions with per-row Restore + diff. Any room member may restore (the
  * mutation itself is proof-gated); a restore is a NEW CAS write, so conflicts
  * come back as honest EditFeedback — never a silent history rewrite.
- * Mounted in LIVE mode only (see cellHistoryEnabled).
+ * Mounted only with a requester proof (see cellHistoryEnabled).
  */
 export function CellHistory({ roomId, artifactId, elementId, requester, currentValue, shifted, onFeedback }: {
   roomId: string;
@@ -1843,9 +1842,9 @@ function GenericResearchWorkflow({ roomId, me, art, rows, activeRowId }: {
 
 export function GenericSheet({ roomId, me, art, proof, onError }: { roomId: string; me: Actor; art: Art; proof?: ActorProof; onError?: (f: EditFeedback) => void }) {
   const store = useStore();
-  // Per-cell version history is LIVE-mode-only: the in-memory engine keeps no
-  // elementVersions log, so memory mode hides the affordance (honest absence).
-  const historyOn = cellHistoryEnabled(store.mode, proof);
+  // Per-cell version history needs the live elementVersions log and a requester
+  // proof; without one the affordance is hidden (honest absence).
+  const historyOn = cellHistoryEnabled(proof);
   const [pages, setPages] = useState(1);
   const [sel, setSel] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<SheetStatusFilter>("any");
@@ -2606,7 +2605,7 @@ function prettyCol(col: string) {
 
 function Sheet({ roomId, me, art, proof, onError }: { roomId: string; me: Actor; art: Art; proof?: ActorProof; onError: (f: EditFeedback) => void }) {
   const store = useStore();
-  const historyOn = cellHistoryEnabled(store.mode, proof);
+  const historyOn = cellHistoryEnabled(proof);
   const rows = rowIdsOf(art);
   const now = Date.now();
   const proposals = store.listProposals(roomId).filter((p) => p.artifactId === art.id);
