@@ -54,7 +54,7 @@ export function createGateway(opts: GatewayOptions): NodeToolGateway {
       const fail = (content: string): ToolCallOutcome => ({ callId, ok: false, content: capContent(content), ms: Date.now() - t0 });
       const tool = byName.get(name);
       if (!tool) return fail(`Unknown Node tool "${name}". Use tool search to find available tools.`);
-      const parsed = tool.schema.safeParse(args ?? {});
+      const parsed = tool.schema.safeParse(coerceArgs(tool.schema, args));
       if (!parsed.success) return fail(`Invalid arguments for ${name}: ${z.prettifyError(parsed.error)}`);
       if (opts.signal.aborted) return fail(`Run aborted before ${name} started`);
 
@@ -95,4 +95,31 @@ export function createGateway(opts: GatewayOptions): NodeToolGateway {
       refresher = fn;
     },
   };
+}
+
+/**
+ * Models sometimes send a bare string (or a JSON string) where an object is expected
+ * (observed: Codex helpers calling read_source "sources/x.md"). A JSON object string is
+ * parsed; any other string fills the schema's first string field. Everything is still
+ * validated by the zod schema afterwards.
+ */
+function coerceArgs(schema: z.ZodTypeAny, args: unknown): unknown {
+  if (args === undefined || args === null) return {};
+  if (typeof args !== "string") return args;
+  const text = args.trim();
+  if (text.startsWith("{")) {
+    try {
+      return JSON.parse(text);
+    } catch {
+      /* fall through */
+    }
+  }
+  const shape = (schema as unknown as { shape?: Record<string, z.ZodTypeAny> }).shape;
+  if (!shape) return args;
+  const key = Object.keys(shape).find((k) => {
+    const def = shape[k] as unknown as { unwrap?: () => z.ZodTypeAny };
+    const inner = typeof def.unwrap === "function" ? def.unwrap() : shape[k];
+    return inner instanceof z.ZodString;
+  });
+  return key ? { [key]: text } : args;
 }

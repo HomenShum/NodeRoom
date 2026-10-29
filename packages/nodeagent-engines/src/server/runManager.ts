@@ -9,7 +9,7 @@ import { randomUUID } from "node:crypto";
 import { mkdirSync } from "node:fs";
 import path from "node:path";
 import type { CreateProjectRequest, CreateRunRequest, HandoffRequest, ProjectRecord, ResumeRequest, RunCounters, RunRecord, VerificationReport } from "../api.js";
-import type { EngineEventDraft, EngineHost, EngineId, EngineRunHandle, EngineRunOutcome, HandoffPacket, NodeAgentEvent, ProviderEnv, RunSpec } from "../contract.js";
+import type { EngineEventDraft, EngineHost, EngineId, EngineRunHandle, EngineRunOutcome, HandoffPacket, NodeAgentEvent, ProviderEnv, RunSpec, TemplateConfig } from "../contract.js";
 import { emptyUsage } from "../contract.js";
 import { diff, snapshot, type Snapshot } from "../artifacts.js";
 import { cleanChildEnv } from "../env.js";
@@ -46,7 +46,10 @@ export const DEFAULT_HANDOFF_PROMPT =
   "Continue the task described in the handoff packet. Re-read the workspace files you rely on, re-check the goals and finish the remaining work.";
 
 /** Engines whose native tools already read/write/run in the workspace; they get the catalog without Node's file duplicates. */
-const NATIVE_FILE_ENGINES = new Set<EngineId>(["claude-agent-sdk", "codex-app-server"]);
+// Only engines whose native file tools work under Node policy for every model skip Node's
+// workspace tools. Codex is excluded: some models expose no apply_patch and shell writes are
+// denied, which left Codex with no way to write files at all.
+const NATIVE_FILE_ENGINES = new Set<EngineId>(["claude-agent-sdk"]);
 const TERMINAL = new Set(["run.completed", "run.failed", "run.interrupted"]);
 
 export interface RunManagerOptions {
@@ -409,6 +412,13 @@ export class RunManager {
     return next;
   }
 
+  /** The stage of the suggested task this run's root run was started from, if any. */
+  private verifierStage(record: RunRecord, template: TemplateConfig): string | undefined {
+    let root = record;
+    for (let hops = 0; root.parentRunId && hops < 50; hops++) root = this.getRun(root.parentRunId);
+    return template.suggestedTasks?.find((t) => t.prompt.trim() === root.prompt.trim())?.verifierStage;
+  }
+
   /** Runs the template's verifier outside the engine and the workspace context. */
   async verify(runId: string): Promise<VerificationReport> {
     const live = this.live.get(runId);
@@ -422,7 +432,8 @@ export class RunManager {
     try {
       const name = path.basename(template.verifierPath);
       const t0 = Date.now();
-      const out = await runVerifier(template.verifierPath, project.workspaceDir, this.shutdown.signal);
+      const stage = this.verifierStage(record, template.config);
+      const out = await runVerifier(template.verifierPath, project.workspaceDir, this.shutdown.signal, stage ? ["--stage", stage] : []);
       const durationMs = Date.now() - t0;
       let checks = parseVerifierChecks(out.stdout);
       const why = `exit ${out.code ?? "none"}${out.timedOut ? ", timed out" : ""}${out.error ? `, ${out.error}` : ""}`;
@@ -723,13 +734,13 @@ interface VerifierOutput {
   error?: string;
 }
 
-function runVerifier(verifier: string, workspaceDir: string, signal: AbortSignal): Promise<VerifierOutput> {
+function runVerifier(verifier: string, workspaceDir: string, signal: AbortSignal, extraArgs: string[] = []): Promise<VerifierOutput> {
   return new Promise((resolve) => {
     let stdout = "";
     let stderr = "";
     let timedOut = false;
     let error: string | undefined;
-    const child = spawn(process.execPath, [verifier, workspaceDir, "--json"], {
+    const child = spawn(process.execPath, [verifier, workspaceDir, "--json", ...extraArgs], {
       cwd: path.dirname(verifier),
       env: cleanChildEnv({}),
       shell: false,

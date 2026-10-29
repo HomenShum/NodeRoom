@@ -295,7 +295,9 @@ function startRun(spec: RunSpec, host: EngineHost, version: string, runQuery: Qu
   /** PreToolUse sees tool_use_id + agent_id before the MCP handler runs; the handler claims it here. */
   const pendingNode = new Map<string, Array<{ toolUseId: string; agentId?: string }>>();
 
-  const nodeTools = host.tools.list();
+  // Native ToolSearch is the only way a deferred MCP tool becomes callable here; Node's
+  // search_tools/load_tool would return schemas the CLI cannot install. One mechanism.
+  const nodeTools = host.tools.list().filter((t) => t.name !== "search_tools" && t.name !== "load_tool");
   const deferred = nodeTools.filter((t) => t.alwaysLoad !== true).map((t) => t.name);
   const nodeToolNames = nodeTools.map((t) => `${NODE_PREFIX}${t.name}`);
   const readOnlyNodeTools = nodeTools.filter((t) => t.risk === "read").map((t) => `${NODE_PREFIX}${t.name}`);

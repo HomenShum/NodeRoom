@@ -23,6 +23,7 @@ const SECOND_TASK = process.env.AGENT_PROOF_SECOND_TASK?.trim() || "inbox-update
 const MAX_MINUTES = Number(process.env.AGENT_PROOF_MAX_MIN || 120);
 const DO_INTERRUPT = process.env.AGENT_PROOF_INTERRUPT !== "0";
 const DO_SECOND = process.env.AGENT_PROOF_SECOND !== "0";
+const HANDOFF_ENGINE = process.env.AGENT_PROOF_HANDOFF_ENGINE?.trim() || "";
 const API = "/agent-api/api";
 
 type Milestone = { name: string; at: string; videoOffsetSec: number; runId?: string; detail: string; screenshot?: string };
@@ -88,15 +89,22 @@ async function exportRun(request: APIRequestContext, runId: string): Promise<num
   return lines.length;
 }
 
-/** Drive one task from the composer to a terminal status, recording milestones. */
-async function driveTask(page: Page, request: APIRequestContext, projectId: string, taskId: string, label: string, allowInterrupt: boolean): Promise<string[]> {
+/**
+ * Drive one task to a terminal status, recording milestones. By default the task is
+ * started from its suggested-task chip in the composer; `start` replaces that (handoff).
+ */
+async function driveTask(page: Page, request: APIRequestContext, projectId: string, taskId: string, label: string, allowInterrupt: boolean, start?: () => Promise<void>): Promise<string[]> {
   const before = await api<RunRecord[]>(request, `/runs?projectId=${projectId}`);
-  const chip = page.getByTestId("naw-suggested-task").filter({ hasText: new RegExp(taskId.replace(/-/g, "[- ]"), "i") });
-  if ((await chip.count()) > 0) await chip.first().click();
-  else await page.getByTestId("naw-suggested-task").nth(taskId === FIRST_TASK ? 0 : 1).click();
-  await expect(page.getByTestId("naw-composer")).not.toHaveValue("");
-  await milestone(page, `${label}-task-entered`, `suggested task "${taskId}" placed in the composer`);
-  await page.getByTestId("naw-send").click();
+  if (start) {
+    await start();
+  } else {
+    const chip = page.getByTestId("naw-suggested-task").filter({ hasText: new RegExp(taskId.replace(/-/g, "[- ]"), "i") });
+    if ((await chip.count()) > 0) await chip.first().click();
+    else await page.getByTestId("naw-suggested-task").nth(taskId === FIRST_TASK ? 0 : 1).click();
+    await expect(page.getByTestId("naw-composer")).not.toHaveValue("");
+    await milestone(page, `${label}-task-entered`, `suggested task "${taskId}" placed in the composer`);
+    await page.getByTestId("naw-send").click();
+  }
 
   let runId = "";
   await expect
@@ -208,7 +216,9 @@ test("agent workspace long-run proof", async ({ browser, request }) => {
     viewport: { width: 1440, height: 900 },
     recordVideo: { dir: join(OUT, "video-raw"), size: { width: 1440, height: 900 } },
   });
-  await context.tracing.start({ screenshots: true, snapshots: false, title: "agent workspace long-run proof" });
+  // Action, network and console log only: per-action screenshots made a 3.6-min trace 488 MB;
+  // the raw video and milestone screenshots carry the pixels.
+  await context.tracing.start({ screenshots: false, snapshots: false, title: "agent workspace long-run proof" });
   const page = await context.newPage();
   recordingStartedAt = Date.now();
   const allRuns: string[] = [];
@@ -263,6 +273,20 @@ test("agent workspace long-run proof", async ({ browser, request }) => {
     if (DO_SECOND) {
       allRuns.push(...(await driveTask(page, request, projectId, SECOND_TASK, "task2", false)));
       await shot(page, "task2-final-overview");
+    }
+
+    // Cross-engine handoff: a different engine continues from Node's portable packet
+    // (goals, artifact hashes, checks, unresolved items), not from the first engine's state.
+    if (HANDOFF_ENGINE) {
+      const target = page.getByTestId("naw-task-brief").locator("select");
+      allRuns.push(
+        ...(await driveTask(page, request, projectId, "handoff", "handoff", false, async () => {
+          await target.selectOption(HANDOFF_ENGINE);
+          await milestone(page, "handoff-target-selected", `handing the finished run to ${HANDOFF_ENGINE}`);
+          await page.getByTestId("naw-handoff").click();
+        })),
+      );
+      await shot(page, "handoff-final-overview");
     }
   } finally {
     const exported: Record<string, number> = {};

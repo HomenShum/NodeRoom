@@ -111,3 +111,6 @@ docs/seo/journey-artifacts/
 # Prod dogfood raw traces/videos are local proof output; keep compact receipts in docs/qa/*.md.
 docs/qa/prod-dogfood/
 
+
+# Frozen UI build used while recording agent-workspace proofs
+.proof-dist/

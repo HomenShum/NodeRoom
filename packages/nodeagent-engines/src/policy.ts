@@ -36,6 +36,15 @@ const KINDS: Record<string, Kind> = {
 const NODE_OWNED_DIRS = new Set([".claude", ".codex", ".agents"]);
 const NETWORK_COMMANDS = new Set(["curl", "wget", "invoke-webrequest", "iwr", "invoke-restmethod", "irm", "nc", "ncat", "ssh", "scp", "sftp", "ftp", "telnet"]);
 const SIMPLE_COMMANDS = new Set(["ls", "cat", "head", "tail", "wc", "grep", "find", "pwd", "echo"]);
+/** Codex runs shell commands through PowerShell on Windows; its read-only cmdlets map onto the POSIX allowlist. */
+const POWERSHELL_READ = new Map([
+  ["get-childitem", "ls"], ["gci", "ls"], ["dir", "ls"], ["resolve-path", "ls"], ["test-path", "ls"],
+  ["get-content", "cat"], ["gc", "cat"], ["type", "cat"],
+  ["select-string", "grep"], ["sls", "grep"],
+  ["get-location", "pwd"],
+]);
+const CONTENT_COMMANDS = new Set(["cat", "head", "tail", "wc", "grep"]);
+const GLOB_CHARS = /[*?[]]/;
 const FIND_DENIED = new Set(["-exec", "-execdir", "-ok", "-okdir", "-delete", "-fprint", "-fprint0", "-fprintf", "-fls"]);
 const SHELL_WRAPPERS = new Set(["bash", "sh", "zsh", "pwsh", "powershell", "cmd"]);
 const META_CHARS = /[;&|<>`$\r\n]/;
@@ -186,7 +195,7 @@ export function createPolicy(opts: PolicyOptions): PolicyGate {
     if (meta) return deny(`Shell metacharacter "${meta[0] === "\n" ? "\\n" : meta[0]}" is not allowed; run one simple command without chaining, pipes, redirects or substitution.`);
     if (tokens.length === 0) return deny("Empty shell command.");
 
-    const cmd = lowered[0];
+    const cmd = POWERSHELL_READ.get(lowered[0]) ?? lowered[0];
     if (looksLikePath(tokens[0])) return deny(`Run commands by name, not by path ("${tokens[0]}").`);
     const args = tokens.slice(1);
     const pathArgs: string[] = [];
@@ -243,10 +252,21 @@ export function createPolicy(opts: PolicyOptions): PolicyGate {
         }
       }
     } else {
-      return deny(`Command "${tokens[0]}" is not on Node's allowlist (node --test, node <script>.mjs, npm test, ls, cat, head, tail, wc, grep, find, pwd, echo).`);
+      return deny(`Command "${tokens[0]}" is not on Node's allowlist (node --test, node <script>.mjs, npm test, ls, cat, head, tail, wc, grep, find, pwd, echo, or their PowerShell equivalents Get-ChildItem, Get-Content, Select-String, Get-Location).`);
     }
 
     for (const p of pathArgs) {
+      if (GLOB_CHARS.test(p)) {
+        // A wildcard can expand into restricted folders; content commands may only glob
+        // under a directory that contains no restricted paths. Listing names is fine.
+        const d = checkPath(staticGlobPrefix(p) || ".", "read", cwd);
+        if (!d.allow) return d;
+        if (CONTENT_COMMANDS.has(cmd) && restricted.length) {
+          const s = checkSearchRoot(d.rel ?? "");
+          if (!s.allow) return s;
+        }
+        continue;
+      }
       const d = checkPath(p, "read", cwd);
       if (!d.allow) return d;
     }

@@ -20,10 +20,11 @@ export default defineConfig({
     ...devices["Desktop Chrome"],
     baseURL,
     viewport: { width: 1440, height: 900 },
-    video: { mode: "on", size: { width: 1440, height: 900 } },
-    // Screenshots per action make the trace scrubbable; DOM snapshots over a
-    // multi-hour run would be very large, so they stay off.
-    trace: { mode: "on", screenshots: true, snapshots: false, sources: false },
+    // The proof spec creates its own context with recordVideo and starts its own
+    // trace (screenshots on, DOM snapshots off — a multi-hour snapshot trace is huge).
+    // Config-level video/trace would instrument that context too and collide.
+    video: "off",
+    trace: "off",
     screenshot: "off",
   },
 });

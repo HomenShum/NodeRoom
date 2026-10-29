@@ -2,10 +2,13 @@
 /**
  * Independent verifier for the diligence-pack template. Dependency-free; ground truth lives only here.
  *
- *   node diligence-pack.verify.mjs <workspaceDir> [--json] [--stage full|inbox] [--node-state <dir>]
+ *   node diligence-pack.verify.mjs <workspaceDir> [--json] [--stage full|inbox|deep] [--node-state <dir>]
  *
  * Runs outside the agent's context and never writes into the workspace (temp files go to os.tmpdir()).
- * --stage defaults to "inbox" when comparison.json has more than 8 rows or names an inbox company.
+ * --stage defaults to "deep" when any deep deliverable exists (analysis/memos/, analysis/risk-matrix.md,
+ * analysis/sensitivity.json or the memo-lint skill), else to "inbox" when comparison.json has more
+ * than 8 rows or names an inbox company, else "full". "deep" checks all ten companies plus the memos,
+ * risk matrix, burn stress test, html export and the memo-lint skill.
  * --node-state defaults to <workspaceDir>/../node-state (the worker's project layout); when no skill
  * ledger is found there, the activation-provenance check is skipped and the skill check says so.
  * Output: a VerificationReport ({ ranAt, verifier, passed, failed, checks }) with --json, else text.
@@ -13,7 +16,7 @@
  */
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { copyFileSync, existsSync, lstatSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
+import { copyFileSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -41,6 +44,26 @@ const RESTATED = { key: "tessaly", reported: { arr: 14.2, yoy: 71 } };
 const SUPERSEDED = { key: "marrowfield", file: "marrowfield-financials-v1.md", v1: { arr: 17.9, yoy: 46, gm: 55, burn: 0.95, cash: 13.6 } };
 const RESTRICTED_DOCS = ["tessaly-board-minutes-2026-06", "halvorine-litigation-memo"];
 const CONCENTRATION_KEY = "ynderra";
+/** Where the restatement and the concentration are recorded, and the concentration figure (% of ARR). */
+const RESTATED_CALL = "sources/diligence-calls/tessaly-call-notes.md";
+const CONCENTRATION = { call: "sources/diligence-calls/ynderra-call-notes.md", sharePct: 46 };
+
+// Deep stage
+const MEMO_SECTIONS = ["Overview", "Financials", "Risks", "Exceptions", "Sources"];
+const MIN_MEMO_CITATIONS = 6;
+const RISK_COLUMNS = [["credit", /credit/], ["concentration", /concentration/], ["regulatory", /regulat/], ["liquidity", /liquidity/], ["dataQuality", /data[\s-]*quality/]];
+const RATINGS = new Set(["low", "medium", "high"]);
+const STRESS = [["base", 1], ["burnUp20", 1.2], ["burnDown20", 0.8]];
+const LIQUIDITY_PROCEED_MONTHS = 12;
+const LIQUIDITY_DECLINE_MONTHS = 9;
+/** Figures every memo must state with a citation (fields of FULL/INBOX). */
+const MEMO_CORE = [["ARR", "arr"], ["monthly burn", "burn"], ["cash", "cash"]];
+/** Deep-stage citations may span at most this many lines: a figure sits on one line; a short range is a convenience. */
+const MAX_CITED_LINES = 3;
+/** Any of these in a workspace selects the deep stage when --stage is not given. */
+const DEEP_ARTIFACTS = ["analysis/memos", "analysis/risk-matrix.md", "analysis/sensitivity.json", ".claude/skills/memo-lint"];
+const MEMO_LINT = "memo-lint";
+const HTML_PROBE_MARK = "@@diligence-verify-html@@";
 
 const METRICS = [
   ["arrUsdM", "arr", 0.05],
@@ -61,7 +84,7 @@ const SCRIPT_TIMEOUT_MS = 30_000;
 // CLI
 // ---------------------------------------------------------------------------
 function usage(msg) {
-  console.error(`${msg}\nusage: node diligence-pack.verify.mjs <workspaceDir> [--json] [--stage full|inbox] [--node-state <dir>]`);
+  console.error(`${msg}\nusage: node diligence-pack.verify.mjs <workspaceDir> [--json] [--stage full|inbox|deep] [--node-state <dir>]`);
   process.exit(2);
 }
 const argv = process.argv.slice(2);
@@ -81,7 +104,7 @@ for (let i = 0; i < argv.length; i++) {
   else usage(`unexpected argument ${a}`);
 }
 if (!wsArg) usage("missing <workspaceDir>");
-if (stageArg !== undefined && stageArg !== "full" && stageArg !== "inbox") usage(`--stage must be full or inbox (got ${stageArg})`);
+if (stageArg !== undefined && !["full", "inbox", "deep"].includes(stageArg)) usage(`--stage must be full, inbox or deep (got ${stageArg})`);
 const WS = path.resolve(wsArg);
 if (!existsSync(WS) || !statSync(WS).isDirectory()) usage(`workspace ${WS} is not a directory`);
 
@@ -132,6 +155,34 @@ function sourceLines(p) {
   sourceCache.set(p, out);
   return out;
 }
+
+const BOUNDARY = /[.!?;:]\s+(?=\S)/g;
+/**
+ * Citations of a prose document, each with the figure written right before it: the last number back to
+ * the previous citation, `|` cell border or sentence start (undefined when that stretch has no number).
+ */
+function citedFigures(text) {
+  const out = [];
+  String(text ?? "").split(/\r?\n/).forEach((line, i) => {
+    let from = 0;
+    for (const m of line.matchAll(TOKEN)) {
+      let seg = line.slice(from, m.index);
+      from = m.index + m[0].length;
+      seg = seg.slice(seg.lastIndexOf("|") + 1);
+      let cut = 0;
+      for (const b of seg.matchAll(BOUNDARY)) cut = b.index + b[0].length;
+      out.push({ ...tokensIn(m[0])[0], line: i + 1, figure: numbersIn(seg.slice(cut)).at(-1) });
+    }
+  });
+  return out;
+}
+
+/** Every digit outside the citation tokens on lines that carry a citation, shifted by one. */
+const corruptCitedNumbers = (text) =>
+  text
+    .split("\n")
+    .map((line) => (line.includes("[src:") ? line.split(/(\[src:[^\]]*\])/).map((part, i) => (i % 2 ? part : part.replace(/\d/g, (d) => String((Number(d) + 1) % 10)))).join("") : line))
+    .join("\n");
 
 /** null when the citation resolves (and, when `value` is given, a cited line contains it). */
 function citationProblem(tok, value) {
@@ -211,8 +262,9 @@ let rows = null;
 
 const ALL = { ...FULL, ...INBOX };
 const keyOf = (company) => Object.keys(ALL).find((k) => norm(company).includes(k));
-const stage = stageArg ?? (rows && (rows.length > 8 || rows.some((r) => keyOf(r.company) in INBOX)) ? "inbox" : "full");
-const EXPECTED = stage === "inbox" ? ALL : FULL;
+const MEMOS_DIR = path.join(WS, "analysis", "memos");
+const stage = stageArg ?? (DEEP_ARTIFACTS.some((p) => existsSync(path.join(WS, p))) ? "deep" : rows && (rows.length > 8 || rows.some((r) => keyOf(r.company) in INBOX)) ? "inbox" : "full");
+const EXPECTED = stage === "full" ? FULL : ALL;
 const NO_TABLE = "skipped: analysis/comparison.json is unusable";
 
 /** key -> row, for rows that map to an expected company. */
@@ -428,19 +480,23 @@ if (rows) {
 }
 
 // ---------------------------------------------------------------------------
-// Skill: citation-validation
+// Skills (activated through Node into .claude/skills/<name>)
 // ---------------------------------------------------------------------------
-{
-  const dir = path.join(WS, ".claude", "skills", SKILL);
+const ledgerFile = path.join(nodeStateArg ? path.resolve(nodeStateArg) : path.join(WS, "..", "node-state"), "skills-ledger.json");
+const haveLedger = existsSync(ledgerFile);
+
+/** The active skill's script (named by its skill.test.json pass case, else its only top-level script), or why there is none. */
+function activeSkill(name, role) {
+  const dir = path.join(WS, ".claude", "skills", name);
   let script = null;
   let why = null;
-  const md2 = path.join(dir, "SKILL.md");
-  if (!existsSync(md2)) why = `.claude/skills/${SKILL}/SKILL.md does not exist (the skill is not active)`;
+  const skillMd = path.join(dir, "SKILL.md");
+  if (!existsSync(skillMd)) why = `.claude/skills/${name}/SKILL.md does not exist (the skill is not active)`;
   else {
-    const fm = readFileSync(md2, "utf8").replace(/^﻿/, "").match(/^---\r?\n([\s\S]*?)\r?\n---/);
+    const fm = readFileSync(skillMd, "utf8").replace(/^﻿/, "").match(/^---\r?\n([\s\S]*?)\r?\n---/);
     const field = (k) => fm?.[1].match(new RegExp(`^${k}:\\s*(.+)$`, "m"))?.[1].trim().replace(/^["']|["']$/g, "");
     if (!fm) why = "SKILL.md has no YAML frontmatter";
-    else if (field("name") !== SKILL) why = `SKILL.md frontmatter name is ${JSON.stringify(field("name"))}, expected ${SKILL}`;
+    else if (field("name") !== name) why = `SKILL.md frontmatter name is ${JSON.stringify(field("name"))}, expected ${name}`;
     else if (!field("description")) why = "SKILL.md frontmatter has no description";
     else {
       try {
@@ -454,37 +510,51 @@ if (rows) {
       if (!script) {
         const top = readdirSync(dir).filter((f) => /\.m?js$/i.test(f));
         if (top.length === 1) script = path.join(dir, top[0]);
-        else why = top.length ? `cannot tell which of ${top.join(", ")} is the validator (no skill.test.json pass case)` : "the skill has no .mjs/.js script";
+        else why = top.length ? `cannot tell which of ${top.join(", ")} is the ${role} (no skill.test.json pass case)` : "the skill has no .mjs/.js script";
       }
     }
   }
-  const ledgerFile = path.join(nodeStateArg ? path.resolve(nodeStateArg) : path.join(WS, "..", "node-state"), "skills-ledger.json");
-  const haveLedger = existsSync(ledgerFile);
-  record("skill.active", script !== null, script ? `active with script ${path.relative(WS, script).replace(/\\/g, "/")}${haveLedger ? "" : "; activation provenance unchecked (no skill ledger found)"}` : why);
+  return { dir, script, why };
+}
 
-  if (haveLedger) {
-    let ok = false;
-    let detail;
-    try {
-      const entry = JSON.parse(readFileSync(ledgerFile, "utf8")).skills?.[SKILL];
-      const last = entry?.activations?.at(-1);
-      if (!last) detail = "the skill ledger has no activation for this skill (not activated through Node)";
-      else if (!existsSync(dir)) detail = "the ledger records an activation but the active skill directory is missing";
-      else {
-        const now = hashDir(dir);
-        ok = now === last.sha256;
-        detail = ok ? `active files match the Node activation ${now.slice(0, 12)}` : `active files (${now.slice(0, 12)}) differ from the Node activation (${String(last.sha256).slice(0, 12)})`;
-      }
-    } catch (e) {
-      detail = `skill ledger unreadable: ${e.message}`;
+function recordActive(id, skill) {
+  record(id, skill.script !== null, skill.script ? `active with script ${path.relative(WS, skill.script).replace(/\\/g, "/")}${haveLedger ? "" : "; activation provenance unchecked (no skill ledger found)"}` : skill.why);
+}
+
+/** Proves the active files are byte-identical to the last activation Node recorded (only when a ledger exists). */
+function recordLedger(id, name, dir) {
+  if (!haveLedger) return;
+  let ok = false;
+  let detail;
+  try {
+    const entry = JSON.parse(readFileSync(ledgerFile, "utf8")).skills?.[name];
+    const last = entry?.activations?.at(-1);
+    if (!last) detail = "the skill ledger has no activation for this skill (not activated through Node)";
+    else if (!existsSync(dir)) detail = "the ledger records an activation but the active skill directory is missing";
+    else {
+      const now = hashDir(dir);
+      ok = now === last.sha256;
+      detail = ok ? `active files match the Node activation ${now.slice(0, 12)}` : `active files (${now.slice(0, 12)}) differ from the Node activation (${String(last.sha256).slice(0, 12)})`;
     }
-    record("skill.ledger", ok, detail);
+  } catch (e) {
+    detail = `skill ledger unreadable: ${e.message}`;
   }
+  record(id, ok, detail);
+}
 
-  const runScript = (table, extraRead) => {
-    const reads = [WS, ...(extraRead ? [extraRead] : [])].map((p) => `--allow-fs-read=${p}`);
-    return run(["--permission", ...reads, script, table], WS, SCRIPT_TIMEOUT_MS);
-  };
+/** Runs an agent skill script under Node's permission model: read-only, workspace (+ one temp dir), cwd = workspace. */
+const runSkill = (script, target, extraRead) => {
+  const reads = [WS, ...(extraRead ? [extraRead] : [])].map((p) => `--allow-fs-read=${p}`);
+  return run(["--permission", ...reads, script, target], WS, SCRIPT_TIMEOUT_MS);
+};
+
+// citation-validation
+{
+  const skill = activeSkill(SKILL, "validator");
+  const { script } = skill;
+  recordActive("skill.active", skill);
+  recordLedger("skill.ledger", SKILL, skill.dir);
+
   const mdPath = path.join(WS, "analysis", "comparison.md");
   if (!script) {
     record("skill.accepts-table", false, "skipped: no active citation-validation script");
@@ -493,19 +563,16 @@ if (rows) {
     record("skill.accepts-table", false, "skipped: analysis/comparison.md does not exist");
     record("skill.rejects-corrupted", false, "skipped: analysis/comparison.md does not exist");
   } else {
-    const a = runScript(mdPath);
+    const a = runSkill(script, mdPath);
     record("skill.accepts-table", a.code === 0, a.code === 0 ? "exit 0 on analysis/comparison.md" : `exit ${a.code}${a.timedOut ? " (timed out)" : ""} on analysis/comparison.md: ${tail(a.out)}`);
 
-    const corrupted = md
-      .split("\n")
-      .map((line) => (line.includes("[src:") ? line.split(/(\[src:[^\]]*\])/).map((part, i) => (i % 2 ? part : part.replace(/\d/g, (d) => String((Number(d) + 1) % 10)))).join("") : line))
-      .join("\n");
+    const corrupted = corruptCitedNumbers(md);
     const tmp = mkdtempSync(path.join(os.tmpdir(), "diligence-verify-"));
     try {
       copyFileSync(mdPath, path.join(tmp, "control.md"));
       writeFileSync(path.join(tmp, "corrupted.md"), corrupted);
-      const control = runScript(path.join(tmp, "control.md"), tmp);
-      const bad = runScript(path.join(tmp, "corrupted.md"), tmp);
+      const control = runSkill(script, path.join(tmp, "control.md"), tmp);
+      const bad = runSkill(script, path.join(tmp, "corrupted.md"), tmp);
       let ok = false;
       let detail;
       if (corrupted === md) detail = "comparison.md has no numbers next to citations to corrupt";
@@ -518,6 +585,363 @@ if (rows) {
       record("skill.rejects-corrupted", ok, detail);
     } finally {
       rmSync(tmp, { recursive: true, force: true });
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Deep stage: memos, risk matrix, burn stress test, html export, memo-lint
+// ---------------------------------------------------------------------------
+if (stage === "deep") {
+  // Deep-stage evidence rule. Paths are normalized first so "sources/x/../restricted/..." cannot pass as a source.
+  const srcRel = (p) => path.posix.normalize(relOf(p)).toLowerCase();
+  const restrictedDeep = (p) => srcRel(p).startsWith("sources/restricted/");
+  /** null when the citation names a non-superseded document under sources/, spans at most MAX_CITED_LINES lines and resolves (with `value` on the cited lines). */
+  const evidenceProblem = (tok, value) => {
+    const rel = srcRel(tok.path);
+    if (!rel.startsWith("sources/")) return `${tok.raw}: ${tok.path} is not a source document under sources/`;
+    if (rel.endsWith(SUPERSEDED.file)) return `${tok.raw}: cites the superseded statement`;
+    if (tok.end - tok.start + 1 > MAX_CITED_LINES) return `${tok.raw}: spans ${tok.end - tok.start + 1} lines (at most ${MAX_CITED_LINES}); cite the line that holds the figure`;
+    return citationProblem(tok, value);
+  };
+  /** Problems with a prose document's citations: not a source, unresolved, out of range, or the figure before it not on the cited line. */
+  const proseProblems = (name, text, { skipRestricted }) => {
+    const problems = [];
+    for (const c of citedFigures(text)) {
+      if (skipRestricted && restrictedDeep(c.path)) continue;
+      const why = evidenceProblem(c, c.figure);
+      if (why) problems.push(`${name} line ${c.line}: ${why}`);
+    }
+    return problems;
+  };
+  /** True when `text` writes `value` right before a valid citation (into `file`, when given). */
+  const citesFigure = (text, value, file) => citedFigures(text).some((c) => (!file || srcRel(c.path) === file) && near(c.figure, value, 1e-9) && !evidenceProblem(c, c.figure));
+  const r1 = (x) => Math.round(x * 10) / 10;
+  const UP = Object.fromEntries(STRESS).burnUp20;
+
+  // ---- memos
+  /** key -> { file, text } */
+  const memos = new Map();
+  const memoIds = ["memos.present", "memos.sections", "memos.citations", "memos.no-restricted", "memos.restatement", "memos.concentration"];
+  if (!existsSync(MEMOS_DIR) || !statSync(MEMOS_DIR).isDirectory()) {
+    record("memos.present", false, "analysis/memos/ does not exist");
+    for (const id of memoIds.slice(1)) record(id, false, "skipped: analysis/memos/ does not exist");
+  } else {
+    const problems = [];
+    for (const f of readdirSync(MEMOS_DIR).filter((n) => /\.md$/i.test(n)).sort()) {
+      const k = keyOf(f);
+      if (!k) continue; // not a company memo (an index or notes file)
+      if (memos.has(k)) problems.push(`two memos for ${ALL[k].name} (${memos.get(k).file}, analysis/memos/${f})`);
+      else {
+        const text = readText(`analysis/memos/${f}`);
+        if (text !== null) memos.set(k, { file: `analysis/memos/${f}`, text });
+      }
+    }
+    for (const [k, t] of Object.entries(EXPECTED)) if (!memos.has(k)) problems.push(`missing memo for ${t.name}`);
+    record("memos.present", problems.length === 0, problems.length ? list(problems) : `${memos.size} company memos in analysis/memos/`);
+
+    const sections = [];
+    for (const [k, { file, text }] of memos) {
+      const headings = [...text.matchAll(/^#{1,6}[ \t]+(.+)$/gm)].map((m) => m[1].toLowerCase());
+      const missing = MEMO_SECTIONS.filter((s) => !headings.some((h) => h.includes(s.toLowerCase())));
+      if (missing.length) sections.push(`${file} has no ${missing.join(", ")} section`);
+      if (!text.includes(ALL[k].name)) sections.push(`${file} does not name ${ALL[k].name}`);
+    }
+    record("memos.sections", sections.length === 0, sections.length ? list(sections) : `every memo names its company and has ${MEMO_SECTIONS.join(", ")} sections`);
+
+    const cites = [];
+    let n = 0;
+    for (const { file, text } of memos.values()) {
+      const count = tokensIn(text).length;
+      n += count;
+      if (count < MIN_MEMO_CITATIONS) cites.push(`${file}: ${count} citations, need at least ${MIN_MEMO_CITATIONS}`);
+      cites.push(...proseProblems(file, text, { skipRestricted: true }));
+    }
+    for (const [k, { file, text }] of memos) {
+      const missing = MEMO_CORE.filter(([, f]) => !citesFigure(text, ALL[k][f])).map(([label, f]) => `${label} ${ALL[k][f]}`);
+      if (missing.length) cites.push(`${file} does not state its ${missing.join(", ")} with a citation to a source line holding it`);
+    }
+    record("memos.citations", cites.length === 0, cites.length ? list(cites) : `${n} memo citations resolve to source lines; every cited figure is on its cited line; every memo cites its ARR, burn and cash`);
+
+    const hits = [];
+    for (const { file, text } of memos.values()) for (const tok of tokensIn(text)) if (restrictedDeep(tok.path)) hits.push(`${file}: ${tok.raw}`);
+    record("memos.no-restricted", hits.length === 0, hits.length ? `cites restricted documents: ${list(hits)}` : "no memo cites sources/restricted/");
+
+    const rm = memos.get(RESTATED.key);
+    const rt = FULL[RESTATED.key];
+    const restIssues = [];
+    if (!rm) restIssues.push(`no memo for ${rt.name}`);
+    else {
+      if (!/restat/i.test(rm.text)) restIssues.push("does not say the ARR was restated");
+      if (!/pilot|one-time|non-recurring/i.test(rm.text)) restIssues.push("does not explain why (one-time pilot revenue)");
+      if (!citesFigure(rm.text, rt.arr, RESTATED_CALL)) restIssues.push(`does not cite the restated ARR ${rt.arr} to ${RESTATED_CALL}`);
+      if (!citesFigure(rm.text, RESTATED.reported.arr)) restIssues.push(`does not state the reported ARR ${RESTATED.reported.arr} with a citation`);
+    }
+    record("memos.restatement", restIssues.length === 0, restIssues.length ? `${rm?.file ?? rt.name}: ${restIssues.join("; ")}` : `${rm.file} explains the restatement to ${rt.arr} citing the call notes`);
+
+    const cm = memos.get(CONCENTRATION_KEY);
+    const ct = FULL[CONCENTRATION_KEY];
+    const concIssues = [];
+    if (!cm) concIssues.push(`no memo for ${ct.name}`);
+    else {
+      if (!/concentrat/i.test(cm.text)) concIssues.push("does not name the customer concentration");
+      if (!citesFigure(cm.text, CONCENTRATION.sharePct, CONCENTRATION.call)) concIssues.push(`does not state the ${CONCENTRATION.sharePct}% share cited to ${CONCENTRATION.call}`);
+    }
+    record("memos.concentration", concIssues.length === 0, concIssues.length ? `${cm?.file ?? ct.name}: ${concIssues.join("; ")}` : `${cm.file} states the ${CONCENTRATION.sharePct}% concentration citing the call notes`);
+  }
+
+  // ---- risk matrix
+  {
+    const text = readText("analysis/risk-matrix.md");
+    const ids = ["risk-matrix.table", "risk-matrix.citations", "risk-matrix.ratings"];
+    if (text === null) {
+      record(ids[0], false, "analysis/risk-matrix.md does not exist");
+      for (const id of ids.slice(1)) record(id, false, "skipped: analysis/risk-matrix.md does not exist");
+    } else {
+      const lines = text.split(/\r?\n/);
+      const cellsOf = (l) => l.trim().replace(/^\|/, "").replace(/\|$/, "").split("|").map((c) => c.trim());
+      const h = lines.findIndex((l) => l.trim().startsWith("|") && /company/i.test(l) && /liquidity/i.test(l));
+      const problems = [];
+      /** key -> { ratings, rationale } */
+      const matrix = new Map();
+      if (h < 0) problems.push("no markdown table with Company and risk columns");
+      else {
+        const head = cellsOf(lines[h]).map((c) => c.toLowerCase());
+        const col = { company: head.findIndex((c) => c.includes("company")), rationale: head.findIndex((c) => c.includes("rationale")) };
+        for (const [k, re] of RISK_COLUMNS) col[k] = head.findIndex((c) => re.test(c));
+        const missingCols = Object.entries(col).filter(([, i]) => i < 0).map(([k]) => k);
+        if (missingCols.length) problems.push(`missing column(s) ${missingCols.join(", ")}`);
+        else {
+          for (const l of lines.slice(h + 2)) {
+            if (!l.trim().startsWith("|")) break;
+            const cells = cellsOf(l);
+            const k = keyOf(cells[col.company] ?? "");
+            if (!k || !(k in EXPECTED)) problems.push(`unexpected row "${cells[col.company]}"`);
+            else if (matrix.has(k)) problems.push(`duplicate row for ${EXPECTED[k].name}`);
+            else {
+              const ratings = Object.fromEntries(RISK_COLUMNS.map(([r]) => [r, String(cells[col[r]] ?? "").replace(/[*_`]/g, "").trim().toLowerCase()]));
+              for (const [r, v] of Object.entries(ratings)) if (!RATINGS.has(v)) problems.push(`${EXPECTED[k].name} ${r} rating ${JSON.stringify(v)} is not low/medium/high`);
+              const rationale = cells[col.rationale] ?? "";
+              if (!tokensIn(rationale).length) problems.push(`${EXPECTED[k].name} rationale has no citation`);
+              matrix.set(k, { ratings, rationale });
+            }
+          }
+          for (const [k, t] of Object.entries(EXPECTED)) if (!matrix.has(k)) problems.push(`missing ${t.name}`);
+        }
+      }
+      record(ids[0], problems.length === 0, problems.length ? list(problems) : `${matrix.size} companies rated on ${RISK_COLUMNS.length} risks, every rationale cited`);
+
+      const cp = proseProblems("risk-matrix.md", text, { skipRestricted: true });
+      for (const tok of tokensIn(text)) if (restrictedDeep(tok.path)) cp.unshift(`cites a restricted document: ${tok.raw}`);
+      record(ids[1], cp.length === 0, cp.length ? list(cp) : `${tokensIn(text).length} citations resolve to source lines; every cited figure is on its cited line`);
+
+      const rules = [[CONCENTRATION_KEY, "concentration", ["high"], `largest customer ${CONCENTRATION.sharePct}% of ARR, above the 25% guideline`]];
+      for (const [k, t] of Object.entries(EXPECTED)) if (t.cash / t.burn < LIQUIDITY_DECLINE_MONTHS) rules.push([k, "liquidity", ["high"], `runway ${(t.cash / t.burn).toFixed(1)} months, below the ${LIQUIDITY_DECLINE_MONTHS}-month decline threshold`]);
+      // The other direction, so a matrix rated "high" everywhere cannot pass: runway that clears the proceed threshold even at +20% burn.
+      for (const [k, t] of Object.entries(EXPECTED)) if (r1(t.cash / (t.burn * UP)) >= LIQUIDITY_PROCEED_MONTHS) rules.push([k, "liquidity", ["low", "medium"], `runway ${r1(t.cash / (t.burn * UP)).toFixed(1)} months at +20% burn, above the ${LIQUIDITY_PROCEED_MONTHS}-month proceed threshold`]);
+      rules.push([RESTATED.key, "dataQuality", ["medium", "high"], "ARR restated on the diligence call"], [SUPERSEDED.key, "dataQuality", ["medium", "high"], "preliminary statement superseded"]);
+      const wrong = [];
+      if (matrix.size === 0) wrong.push("skipped: no usable risk-matrix rows");
+      for (const [k, risk, allowed, why] of rules) {
+        const got = matrix.get(k)?.ratings[risk];
+        if (matrix.size && got !== undefined && !allowed.includes(got)) wrong.push(`${ALL[k].name} ${risk} is ${got}, expected ${allowed.join(" or ")} (${why})`);
+      }
+      record(ids[2], wrong.length === 0, wrong.length ? list(wrong) : `${rules.length} committee-threshold ratings consistent with the evidence`);
+    }
+  }
+
+  // ---- burn stress test
+  {
+    const text = readText("analysis/sensitivity.json");
+    /** key -> row */
+    const sens = new Map();
+    let detail;
+    if (text === null) detail = "analysis/sensitivity.json does not exist";
+    else {
+      try {
+        const doc = JSON.parse(text);
+        if (!doc || !Array.isArray(doc.rows)) detail = 'analysis/sensitivity.json has no "rows" array';
+        else {
+          const problems = [];
+          for (const r of doc.rows) {
+            const k = typeof r?.company === "string" ? keyOf(r.company) : undefined;
+            if (!k || !(k in EXPECTED)) problems.push(`unexpected row ${JSON.stringify(r?.company)}`);
+            else if (sens.has(k)) problems.push(`duplicate row for ${EXPECTED[k].name}`);
+            else sens.set(k, r);
+          }
+          for (const [k, t] of Object.entries(EXPECTED)) if (!sens.has(k)) problems.push(`missing ${t.name}`);
+          if (problems.length) detail = list(problems);
+        }
+      } catch (e) {
+        detail = `analysis/sensitivity.json is not valid JSON (${e.message})`;
+      }
+    }
+    record("sensitivity.json", !detail, detail ?? `${sens.size} companies`);
+
+    const values = [];
+    const cites = [];
+    if (!sens.size) values.push("skipped: analysis/sensitivity.json is unusable");
+    for (const [k, r] of sens) {
+      const t = ALL[k];
+      for (const [field, factor] of STRESS) {
+        const want = t.cash / (t.burn * factor);
+        const got = r.runwayMonths?.[field];
+        if (!near(got, want, RUNWAY_TOL)) values.push(`${t.name} runwayMonths.${field} = ${JSON.stringify(got)}, expected ${want.toFixed(1)}`);
+      }
+      const toks = (Array.isArray(r.citations) ? r.citations : []).map((c) => [c, tokensIn(c)[0]]);
+      const bad = toks.filter(([c, tok]) => !tok || tok.raw !== String(c).trim() || restrictedDeep(tok.path) || evidenceProblem(tok));
+      if (bad.length) cites.push(`${t.name}: ${bad.map(([c]) => JSON.stringify(c)).join(", ")} invalid, unresolved, restricted or not a source line`);
+      for (const [label, v] of [["cash", t.cash], ["burn", t.burn]]) if (!toks.some(([, tok]) => tok && !evidenceProblem(tok, v))) cites.push(`${t.name}: no citation to a source line containing its ${label} ${v}`);
+    }
+    if (!sens.size) cites.push("skipped: analysis/sensitivity.json is unusable");
+    record("sensitivity.values", values.length === 0, values.length ? list(values) : "base, +20% and -20% burn runway match cash / (burn x factor) for every company");
+    record("sensitivity.citations", cites.length === 0, cites.length ? list(cites) : "every row cites its cash and burn lines");
+
+    let nbIssue = null;
+    try {
+      const cells = JSON.parse(notebookText ?? "null")?.cells ?? [];
+      const src = (c) => (Array.isArray(c?.source) ? c.source.join("") : String(c?.source ?? ""));
+      const stressMd = cells.filter((c) => c?.cell_type === "markdown" && /sensitiv|stress/i.test(src(c))).map(src).join("\n");
+      // Companies whose runway clearly crosses a committee threshold when burn rises 20% (one-decimal runway, as displayed).
+      // A base runway exactly on a threshold (Solvane: 12.0, 11.999... in floating point) is not forced either way.
+      const crossers = Object.entries(EXPECTED).filter(([, t]) => [LIQUIDITY_PROCEED_MONTHS, LIQUIDITY_DECLINE_MONTHS].some((th) => r1(t.cash / t.burn) > th && r1(t.cash / (t.burn * UP)) < th));
+      const unnamed = crossers.filter(([k]) => !norm(stressMd).includes(k)).map(([, t]) => t.name);
+      if (!stressMd) nbIssue = "no markdown cell explains the burn sensitivity";
+      else if (!cells.some((c) => c?.cell_type === "code" && (/sensitiv/i.test(src(c)) || (/1\.2/.test(src(c)) && /0\.8/.test(src(c)))))) nbIssue = "no code cell computes the +20% / -20% burn cases";
+      else if (unnamed.length) nbIssue = `the sensitivity markdown does not name ${list(unnamed)}, whose runway crosses a committee threshold at +20% burn`;
+    } catch {
+      nbIssue = "analysis/diligence.ipynb is missing or not valid JSON";
+    }
+    if (notebookText === null) nbIssue = "analysis/diligence.ipynb does not exist";
+    record("notebook.sensitivity", !nbIssue, nbIssue ?? "markdown and code cells cover the burn stress test and name the companies crossing a threshold at +20% burn");
+  }
+
+  // ---- html export (independent import of the agent's module in a child process)
+  {
+    const reportDir = path.join(WS, "report");
+    const exportFile = path.join(reportDir, "src", "export.mjs");
+    const cite = (n) => `[src:sources/example/metrics.md#L${n}]`;
+    const probe = `
+      const { pathToFileURL } = await import("node:url");
+      const out = {};
+      try {
+        const { exportReport } = await import(pathToFileURL(process.argv[1]).href);
+        const cite = (n) => "[src:sources/example/metrics.md#L" + n + "]";
+        const m = (value, ...l) => ({ value, citations: l.map(cite) });
+        const row = (company, runway, risk) => ({ company, arrUsdM: m(10.5, 11), yoyGrowthPct: m(42, 13), grossMarginPct: m(51, 24), monthlyBurnUsdM: m(1.25, 36), cashUsdM: m(runway * 1.25, 37), runwayMonths: m(runway, 37, 36), topRisk: { text: risk, citations: [cite(41)] } });
+        out.html = exportReport([row("Probe <b>R&D</b> Lending", 9, "Note <script>alert('x')</script> & \\"more\\""), row("Second & Co", 20, "Plain risk")], { format: "html" });
+        const bad = row("Uncited Probe Co", 10, "x");
+        bad.cashUsdM.citations = [];
+        try { exportReport([bad], { format: "html" }); out.refusesUncited = false; } catch (e) { out.refusesUncited = /citation/i.test(String(e && e.message)); }
+      } catch (e) { out.error = String((e && e.message) || e).slice(0, 400); }
+      process.stdout.write("\\n${HTML_PROBE_MARK}" + JSON.stringify(out) + "\\n");`;
+    const problems = [];
+    if (!existsSync(exportFile)) problems.push("report/src/export.mjs does not exist");
+    else {
+      const r = run(["--permission", `--allow-fs-read=${reportDir}`, "--input-type=module", "-e", probe, exportFile], reportDir, SCRIPT_TIMEOUT_MS);
+      const at = r.out.lastIndexOf(HTML_PROBE_MARK);
+      let out = null;
+      try {
+        out = at < 0 ? null : JSON.parse(r.out.slice(at + HTML_PROBE_MARK.length).split(/\r?\n/)[0]);
+      } catch {
+        /* reported below */
+      }
+      if (!out) problems.push(`importing report/src/export.mjs failed${r.timedOut ? " (timed out)" : ""}: ${tail(r.out)}`);
+      else if (out.error) problems.push(`exportReport(rows, { format: "html" }) threw: ${tail(out.error, 200)}`);
+      else if (typeof out.html !== "string") problems.push('exportReport(rows, { format: "html" }) did not return a string');
+      else {
+        const html = out.html;
+        if (!/<table[\s>]/i.test(html) || !/<\/table>/i.test(html)) problems.push("no <table> element");
+        if (!/<th[^>]*>\s*Sources\s*<\/th>/i.test(html)) problems.push("no Sources header cell");
+        // Column labels come from the template's report/src/table.mjs (the copy outside the workspace).
+        const labels = [...readFileSync(path.join(TEMPLATE_DIR, "report", "src", "table.mjs"), "utf8").matchAll(/label: "([^"]+)"/g)].map((m) => m[1]);
+        const noTh = labels.filter((l) => !new RegExp(`<th[^>]*>\\s*${l.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*</th>`, "i").test(html));
+        if (!labels.length || noTh.length) problems.push(`no <th> header cell for ${noTh.join(", ") || "the template's column labels"}`);
+        if (html.includes("<script>alert(") || html.includes("<b>R&")) problems.push("raw markup from cell data (<script>, <b>) reaches the output");
+        if (!html.includes("&lt;script&gt;alert(") || !html.includes("&lt;b&gt;R&amp;D&lt;/b&gt;")) problems.push("cell text containing < > & is not HTML-escaped");
+        if (/&(?![a-z][a-z0-9]*;|#\d+;|#x[0-9a-f]+;)/i.test(html)) problems.push("an unescaped & reaches the output");
+        if (html.includes("alert('x')") || html.includes('"more"')) problems.push("quotes from cell data reach the output unescaped");
+        else if (!/alert\((&#0*39;|&#x0*27;|&apos;)x\1\)/i.test(html) || !/(&quot;|&#0*34;|&#x0*22;)more\1/i.test(html)) problems.push(`cell text containing " and ' is not HTML-escaped`);
+        const a = html.indexOf("Second ");
+        const b = html.indexOf("Probe ");
+        if (a < 0 || b < 0 || a > b) problems.push("rows are not in runway order (longest first)");
+        if (!html.includes([11, 13, 24, 36, 37, 41].map(cite).join(" "))) problems.push("the Sources cell does not list the row's de-duplicated citations");
+      }
+      if (out && !out.error && out.refusesUncited !== true) problems.push('a row with an uncited field is not refused with a "citation" error');
+    }
+    record("report.html-escape", problems.length === 0, problems.length ? list(problems) : "html export: <table> with the column labels and Sources in <th>, <script>, &, \" and ' escaped, runway order, uncited rows refused");
+
+    // The agent's own html tests: test files in report/ that are not the template's and mention html.
+    const templateTests = new Set(existsSync(path.join(TEMPLATE_DIR, "report", "test")) ? readdirSync(path.join(TEMPLATE_DIR, "report", "test")).map((f) => `test/${f}`) : []);
+    const isTestFile = (rel) => /\.[cm]?js$/i.test(rel) && (/(^|\/)test\//.test(rel) || /[.\-_]test\.[cm]?js$/i.test(rel) || /(^|\/)test(-[^/]*)?\.[cm]?js$/i.test(rel));
+    const mine = [];
+    const walk = (abs, rel) => {
+      for (const n of existsSync(abs) ? readdirSync(abs).sort() : []) {
+        if (n === "node_modules" || n.startsWith(".")) continue;
+        const a = path.join(abs, n);
+        const r = rel ? `${rel}/${n}` : n;
+        const st = lstatSync(a);
+        if (st.isDirectory()) walk(a, r);
+        else if (st.isFile() && isTestFile(r) && !templateTests.has(r) && st.size <= MAX_READ_BYTES && /html/i.test(readFileSync(a, "utf8"))) mine.push(r);
+      }
+    };
+    walk(reportDir, "");
+    if (!mine.length) record("report.html-tests", false, "no test file of your own in report/ exercises the html format");
+    else {
+      const r = run(["--test", "--test-reporter=tap", ...mine], reportDir, REPORT_TIMEOUT_MS);
+      const pass = Number(r.out.match(/^# pass (\d+)/m)?.[1] ?? NaN);
+      const fail = Number(r.out.match(/^# fail (\d+)/m)?.[1] ?? NaN);
+      const ok = r.code === 0 && pass > 0 && fail === 0;
+      record("report.html-tests", ok, r.timedOut ? `node --test timed out after ${REPORT_TIMEOUT_MS} ms` : `${list(mine, 3)}: node --test exit ${r.code}, ${pass} passed, ${fail} failed${ok || !Number.isNaN(pass) ? "" : `: ${tail(r.out)}`}`);
+    }
+  }
+
+  // ---- memo-lint skill
+  {
+    const skill = activeSkill(MEMO_LINT, "linter");
+    const { script } = skill;
+    recordActive("memo-lint.active", skill);
+    recordLedger("memo-lint.ledger", MEMO_LINT, skill.dir);
+    const skip = !script ? "skipped: no active memo-lint script" : !memos.size ? "skipped: no company memos in analysis/memos/" : null;
+    if (skip) {
+      record("memo-lint.accepts-memos", false, skip);
+      record("memo-lint.rejects-corrupted", false, skip);
+    } else {
+      const a = runSkill(script, MEMOS_DIR);
+      record("memo-lint.accepts-memos", a.code === 0, a.code === 0 ? "exit 0 on analysis/memos/" : `exit ${a.code}${a.timedOut ? " (timed out)" : ""} on analysis/memos/: ${tail(a.out)}`);
+
+      const sample = memos.get(RESTATED.key) ?? [...memos.values()][0];
+      const name = path.basename(sample.file);
+      // The control is the memo plus one plain line, so a script that compares against the workspace memo's bytes cannot pass.
+      const base = `${sample.text.replace(/\s*$/, "")}\n\nPrepared for the credit committee pack.\n`;
+      const variants = [
+        ["altered cited figures", corruptCitedNumbers(base)],
+        ["Risks section removed", base.replace(/^#{1,6}[ \t]+.*risk.*$/gim, "## Commentary")],
+        ["restricted citation added", `${base}- Counsel's view: see [src:sources/restricted/halvorine-litigation-memo.md#L1]\n`],
+      ];
+      const tmp = mkdtempSync(path.join(os.tmpdir(), "diligence-verify-memos-"));
+      try {
+        const dirOf = (label, text) => {
+          const d = path.join(tmp, label.replace(/[^a-z0-9]+/gi, "-"));
+          mkdirSync(d);
+          writeFileSync(path.join(d, name), text);
+          return d;
+        };
+        const control = runSkill(script, dirOf("control", base), tmp);
+        let ok = false;
+        let detail;
+        const unchanged = variants.filter(([, t]) => t === base).map(([l]) => l);
+        if (unchanged.length) detail = `${sample.file} cannot be corrupted (${unchanged.join(", ")}: nothing to change)`;
+        else if (control.code !== 0) detail = `exit ${control.code} on a valid copy of ${sample.file} outside the workspace (the memo plus one plain line): citations must resolve against the working directory and the memo must be linted, not compared (${tail(control.out, 200)})`;
+        else {
+          const accepted = variants.filter(([label, t]) => runSkill(script, dirOf(label, t), tmp).code === 0).map(([l]) => l);
+          ok = accepted.length === 0;
+          detail = ok ? `exit non-zero on all ${variants.length} corrupted copies of ${sample.file} (${variants.map(([l]) => l).join(", ")}), exit 0 on a valid copy` : `exit 0 on corrupted copies of ${sample.file}: ${accepted.join(", ")}`;
+        }
+        record("memo-lint.rejects-corrupted", ok, detail);
+      } finally {
+        rmSync(tmp, { recursive: true, force: true });
+      }
     }
   }
 }

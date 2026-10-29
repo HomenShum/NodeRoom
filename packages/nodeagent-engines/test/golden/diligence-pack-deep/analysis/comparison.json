@@ -1,0 +1,467 @@
+{
+  "schema": "diligence.comparison/v1",
+  "asOf": "2026-06-30",
+  "currency": "USD",
+  "rows": [
+    {
+      "company": "Quillmark Lending",
+      "arrUsdM": {
+        "value": 18.4,
+        "citations": [
+          "[src:sources/financials/quillmark-financials.md#L11]"
+        ]
+      },
+      "yoyGrowthPct": {
+        "value": 61,
+        "citations": [
+          "[src:sources/financials/quillmark-financials.md#L13]"
+        ]
+      },
+      "grossMarginPct": {
+        "value": 58,
+        "citations": [
+          "[src:sources/financials/quillmark-financials.md#L24]"
+        ]
+      },
+      "monthlyBurnUsdM": {
+        "value": 1.1,
+        "citations": [
+          "[src:sources/financials/quillmark-financials.md#L36]"
+        ]
+      },
+      "cashUsdM": {
+        "value": 24.2,
+        "citations": [
+          "[src:sources/financials/quillmark-financials.md#L37]"
+        ]
+      },
+      "runwayMonths": {
+        "value": 22,
+        "citations": [
+          "[src:sources/financials/quillmark-financials.md#L37]",
+          "[src:sources/financials/quillmark-financials.md#L36]"
+        ]
+      },
+      "topRisk": {
+        "text": "Warehouse refinancing: the $175.0M facility matures in March 2027 and the renewal term sheet is priced 75 bps wider, compressing gross margin.",
+        "citations": [
+          "[src:sources/diligence-calls/quillmark-call-notes.md#L41]"
+        ]
+      }
+    },
+    {
+      "company": "Pellucid Ledger",
+      "arrUsdM": {
+        "value": 12.1,
+        "citations": [
+          "[src:sources/financials/pellucid-financials.md#L11]"
+        ]
+      },
+      "yoyGrowthPct": {
+        "value": 112,
+        "citations": [
+          "[src:sources/financials/pellucid-financials.md#L13]"
+        ]
+      },
+      "grossMarginPct": {
+        "value": 66,
+        "citations": [
+          "[src:sources/financials/pellucid-financials.md#L24]"
+        ]
+      },
+      "monthlyBurnUsdM": {
+        "value": 2,
+        "citations": [
+          "[src:sources/financials/pellucid-financials.md#L36]"
+        ]
+      },
+      "cashUsdM": {
+        "value": 41,
+        "citations": [
+          "[src:sources/financials/pellucid-financials.md#L37]"
+        ]
+      },
+      "runwayMonths": {
+        "value": 20.5,
+        "citations": [
+          "[src:sources/financials/pellucid-financials.md#L37]",
+          "[src:sources/financials/pellucid-financials.md#L36]"
+        ]
+      },
+      "topRisk": {
+        "text": "Burn intensity and partner dependence: average monthly burn of $2.0M is the highest in the cohort and the top three software partners contribute 51% of originations.",
+        "citations": [
+          "[src:sources/diligence-calls/pellucid-call-notes.md#L41]"
+        ]
+      }
+    },
+    {
+      "company": "Kestrelmoor Capital",
+      "arrUsdM": {
+        "value": 23.8,
+        "citations": [
+          "[src:sources/inbox/kestrelmoor-financials.md#L11]"
+        ]
+      },
+      "yoyGrowthPct": {
+        "value": 33,
+        "citations": [
+          "[src:sources/inbox/kestrelmoor-financials.md#L13]"
+        ]
+      },
+      "grossMarginPct": {
+        "value": 57,
+        "citations": [
+          "[src:sources/inbox/kestrelmoor-financials.md#L24]"
+        ]
+      },
+      "monthlyBurnUsdM": {
+        "value": 1.3,
+        "citations": [
+          "[src:sources/inbox/kestrelmoor-financials.md#L36]"
+        ]
+      },
+      "cashUsdM": {
+        "value": 23.4,
+        "citations": [
+          "[src:sources/inbox/kestrelmoor-financials.md#L37]"
+        ]
+      },
+      "runwayMonths": {
+        "value": 18,
+        "citations": [
+          "[src:sources/inbox/kestrelmoor-financials.md#L37]",
+          "[src:sources/inbox/kestrelmoor-financials.md#L36]"
+        ]
+      },
+      "topRisk": {
+        "text": "Brand correlation: 31% of outstanding loans are to franchisees of two quick-service brands, so a downturn at either brand would hit roughly a third of the book.",
+        "citations": [
+          "[src:sources/inbox/kestrelmoor-call-notes.md#L41]"
+        ]
+      }
+    },
+    {
+      "company": "Brindlewood Finance",
+      "arrUsdM": {
+        "value": 9.7,
+        "citations": [
+          "[src:sources/financials/brindlewood-financials.md#L11]"
+        ]
+      },
+      "yoyGrowthPct": {
+        "value": 87,
+        "citations": [
+          "[src:sources/financials/brindlewood-financials.md#L13]"
+        ]
+      },
+      "grossMarginPct": {
+        "value": 44,
+        "citations": [
+          "[src:sources/financials/brindlewood-financials.md#L24]"
+        ]
+      },
+      "monthlyBurnUsdM": {
+        "value": 0.9,
+        "citations": [
+          "[src:sources/financials/brindlewood-financials.md#L36]"
+        ]
+      },
+      "cashUsdM": {
+        "value": 15.3,
+        "citations": [
+          "[src:sources/financials/brindlewood-financials.md#L37]"
+        ]
+      },
+      "runwayMonths": {
+        "value": 17,
+        "citations": [
+          "[src:sources/financials/brindlewood-financials.md#L37]",
+          "[src:sources/financials/brindlewood-financials.md#L36]"
+        ]
+      },
+      "topRisk": {
+        "text": "Construction payment delays: loans 30+ days past due rose to 4.4% from 2.9% a year earlier as general contractors stretched payables.",
+        "citations": [
+          "[src:sources/diligence-calls/brindlewood-call-notes.md#L41]"
+        ]
+      }
+    },
+    {
+      "company": "Ynderra Lending",
+      "arrUsdM": {
+        "value": 21.3,
+        "citations": [
+          "[src:sources/financials/ynderra-financials.md#L11]"
+        ]
+      },
+      "yoyGrowthPct": {
+        "value": 54,
+        "citations": [
+          "[src:sources/financials/ynderra-financials.md#L13]"
+        ]
+      },
+      "grossMarginPct": {
+        "value": 49,
+        "citations": [
+          "[src:sources/financials/ynderra-financials.md#L24]"
+        ]
+      },
+      "monthlyBurnUsdM": {
+        "value": 1.8,
+        "citations": [
+          "[src:sources/financials/ynderra-financials.md#L36]"
+        ]
+      },
+      "cashUsdM": {
+        "value": 27.9,
+        "citations": [
+          "[src:sources/financials/ynderra-financials.md#L37]"
+        ]
+      },
+      "runwayMonths": {
+        "value": 15.5,
+        "citations": [
+          "[src:sources/financials/ynderra-financials.md#L37]",
+          "[src:sources/financials/ynderra-financials.md#L36]"
+        ]
+      },
+      "topRisk": {
+        "text": "Customer concentration: the largest customer, a regional less-than-truckload carrier, accounts for 46% of ARR, far above the committee's 25% guideline, with a 90-day termination clause.",
+        "citations": [
+          "[src:sources/diligence-calls/ynderra-call-notes.md#L49]"
+        ]
+      }
+    },
+    {
+      "company": "Halvorine Funding",
+      "arrUsdM": {
+        "value": 33.5,
+        "citations": [
+          "[src:sources/financials/halvorine-financials.md#L11]"
+        ]
+      },
+      "yoyGrowthPct": {
+        "value": 29,
+        "citations": [
+          "[src:sources/financials/halvorine-financials.md#L13]"
+        ]
+      },
+      "grossMarginPct": {
+        "value": 63,
+        "citations": [
+          "[src:sources/financials/halvorine-financials.md#L24]"
+        ]
+      },
+      "monthlyBurnUsdM": {
+        "value": 1.4,
+        "citations": [
+          "[src:sources/financials/halvorine-financials.md#L36]"
+        ]
+      },
+      "cashUsdM": {
+        "value": 19.6,
+        "citations": [
+          "[src:sources/financials/halvorine-financials.md#L37]"
+        ]
+      },
+      "runwayMonths": {
+        "value": 14,
+        "citations": [
+          "[src:sources/financials/halvorine-financials.md#L37]",
+          "[src:sources/financials/halvorine-financials.md#L36]"
+        ]
+      },
+      "topRisk": {
+        "text": "Undisclosed legal exposure and slowing growth: a pending legal matter could not be assessed because counsel's memo is restricted, and ARR growth slowed to 29% year over year.",
+        "citations": [
+          "[src:sources/diligence-calls/halvorine-call-notes.md#L41]"
+        ]
+      }
+    },
+    {
+      "company": "Corvane Capital",
+      "arrUsdM": {
+        "value": 26.9,
+        "citations": [
+          "[src:sources/financials/corvane-financials.md#L11]"
+        ]
+      },
+      "yoyGrowthPct": {
+        "value": 48,
+        "citations": [
+          "[src:sources/financials/corvane-financials.md#L13]"
+        ]
+      },
+      "grossMarginPct": {
+        "value": 51,
+        "citations": [
+          "[src:sources/financials/corvane-financials.md#L24]"
+        ]
+      },
+      "monthlyBurnUsdM": {
+        "value": 2.3,
+        "citations": [
+          "[src:sources/financials/corvane-financials.md#L36]"
+        ]
+      },
+      "cashUsdM": {
+        "value": 31.7,
+        "citations": [
+          "[src:sources/financials/corvane-financials.md#L37]"
+        ]
+      },
+      "runwayMonths": {
+        "value": 13.8,
+        "citations": [
+          "[src:sources/financials/corvane-financials.md#L37]",
+          "[src:sources/financials/corvane-financials.md#L36]"
+        ]
+      },
+      "topRisk": {
+        "text": "Credit losses: the 2025 vintage is running 6.1% annualized net charge-offs versus a 4.5% plan, and repayment speed depends on merchant sales.",
+        "citations": [
+          "[src:sources/diligence-calls/corvane-call-notes.md#L41]"
+        ]
+      }
+    },
+    {
+      "company": "Solvane Trade Credit",
+      "arrUsdM": {
+        "value": 7.4,
+        "citations": [
+          "[src:sources/inbox/solvane-financials.md#L11]"
+        ]
+      },
+      "yoyGrowthPct": {
+        "value": 95,
+        "citations": [
+          "[src:sources/inbox/solvane-financials.md#L13]"
+        ]
+      },
+      "grossMarginPct": {
+        "value": 42,
+        "citations": [
+          "[src:sources/inbox/solvane-financials.md#L24]"
+        ]
+      },
+      "monthlyBurnUsdM": {
+        "value": 0.8,
+        "citations": [
+          "[src:sources/inbox/solvane-financials.md#L36]"
+        ]
+      },
+      "cashUsdM": {
+        "value": 9.6,
+        "citations": [
+          "[src:sources/inbox/solvane-financials.md#L37]"
+        ]
+      },
+      "runwayMonths": {
+        "value": 12,
+        "citations": [
+          "[src:sources/inbox/solvane-financials.md#L37]",
+          "[src:sources/inbox/solvane-financials.md#L36]"
+        ]
+      },
+      "topRisk": {
+        "text": "Unseasoned credit: only 14 months of vintage history, so the 2.6% annualized net charge-off rate has not been tested through a downturn.",
+        "citations": [
+          "[src:sources/inbox/solvane-call-notes.md#L41]"
+        ]
+      }
+    },
+    {
+      "company": "Marrowfield Credit",
+      "arrUsdM": {
+        "value": 16.8,
+        "citations": [
+          "[src:sources/financials/marrowfield-financials-v2.md#L12]"
+        ]
+      },
+      "yoyGrowthPct": {
+        "value": 37,
+        "citations": [
+          "[src:sources/financials/marrowfield-financials-v2.md#L14]"
+        ]
+      },
+      "grossMarginPct": {
+        "value": 52,
+        "citations": [
+          "[src:sources/financials/marrowfield-financials-v2.md#L25]"
+        ]
+      },
+      "monthlyBurnUsdM": {
+        "value": 1.2,
+        "citations": [
+          "[src:sources/financials/marrowfield-financials-v2.md#L37]"
+        ]
+      },
+      "cashUsdM": {
+        "value": 10.2,
+        "citations": [
+          "[src:sources/financials/marrowfield-financials-v2.md#L38]"
+        ]
+      },
+      "runwayMonths": {
+        "value": 8.5,
+        "citations": [
+          "[src:sources/financials/marrowfield-financials-v2.md#L38]",
+          "[src:sources/financials/marrowfield-financials-v2.md#L37]"
+        ]
+      },
+      "topRisk": {
+        "text": "Liquidity heading into the seasonal peak: after the v2 correction removed a $3.4M restricted reserve from cash and added omitted seasonal costs, runway is under nine months before the Q3 drawdown.",
+        "citations": [
+          "[src:sources/diligence-calls/marrowfield-call-notes.md#L41]"
+        ]
+      }
+    },
+    {
+      "company": "Tessaly Credit",
+      "arrUsdM": {
+        "value": 11.6,
+        "citations": [
+          "[src:sources/diligence-calls/tessaly-call-notes.md#L29]"
+        ]
+      },
+      "yoyGrowthPct": {
+        "value": 40,
+        "citations": [
+          "[src:sources/diligence-calls/tessaly-call-notes.md#L31]"
+        ]
+      },
+      "grossMarginPct": {
+        "value": 47,
+        "citations": [
+          "[src:sources/financials/tessaly-financials.md#L25]"
+        ]
+      },
+      "monthlyBurnUsdM": {
+        "value": 1.6,
+        "citations": [
+          "[src:sources/financials/tessaly-financials.md#L37]"
+        ]
+      },
+      "cashUsdM": {
+        "value": 12.8,
+        "citations": [
+          "[src:sources/financials/tessaly-financials.md#L38]"
+        ]
+      },
+      "runwayMonths": {
+        "value": 8,
+        "citations": [
+          "[src:sources/financials/tessaly-financials.md#L38]",
+          "[src:sources/financials/tessaly-financials.md#L37]"
+        ]
+      },
+      "topRisk": {
+        "text": "Revenue quality and liquidity: reported ARR of $14.2M included $2.6M of annualized one-time pilot revenue (restated ARR $11.6M), and runway is the shortest in the cohort.",
+        "citations": [
+          "[src:sources/diligence-calls/tessaly-call-notes.md#L54]"
+        ]
+      }
+    }
+  ]
+}

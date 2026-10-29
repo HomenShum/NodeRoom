@@ -55,7 +55,15 @@ describe("catalog shape", () => {
       assert.ok(withFs.some((t) => t.name === n && t.family === "workspace"));
       assert.ok(!noFs.some((t) => t.name === n));
     }
-    assert.deepEqual(noFs.filter((t) => t.alwaysLoad).map((t) => t.name).sort(), ["list_sources", "load_tool", "run_checks", "search_tools", "update_goals"]);
+    // Was ["list_sources","load_tool","run_checks","search_tools","update_goals"] (core file
+    // tools deferred). Changed after real UI runs on 2026-10-29: Codex and OpenAI Agents with
+    // gpt-5.4-mini never discovered write_file behind search and wrote 0 artifacts (verifier
+    // 1/16). Core file/source reads and writes are now always loaded; specialty tools stay deferred.
+    assert.deepEqual(noFs.filter((t) => t.alwaysLoad).map((t) => t.name).sort(), ["list_sources", "load_tool", "read_source", "run_checks", "search_tools", "update_goals"]);
+    assert.deepEqual(
+      withFs.filter((t) => t.alwaysLoad).map((t) => t.name).sort(),
+      ["edit_file", "list_files", "list_sources", "load_tool", "read_file", "read_source", "run_checks", "search_tools", "update_goals", "write_file"],
+    );
     const names = new Set<string>();
     for (const t of withFs) {
       assert.ok(!names.has(t.name), `unique name ${t.name}`);

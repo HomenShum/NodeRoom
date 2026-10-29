@@ -262,7 +262,11 @@ export interface TemplateConfig {
   checks: Record<string, { cwd: string; command: string[]; timeoutMs: number }>;
   /** Independent verifier path, relative to template.json. Runs outside the workspace and the worker's context. */
   verifier?: string;
-  suggestedTasks?: Array<{ id: string; title: string; prompt: string }>;
+  /**
+   * verifierStage is passed to the verifier as --stage when a run (or the run it resumes)
+   * was started from that task, so a task cannot be graded against an easier stage.
+   */
+  suggestedTasks?: Array<{ id: string; title: string; prompt: string; verifierStage?: string }>;
 }
 
 export interface NodeToolContext {

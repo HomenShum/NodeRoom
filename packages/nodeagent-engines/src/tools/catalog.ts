@@ -150,6 +150,9 @@ function workspaceTools(): NodeToolDefinition[] {
   return [
     tool({
       name: "list_files",
+      // Core file access is the basic tool set for every non-Claude engine; deferring it behind
+      // search left small models unable to write at all. Specialty tools stay deferred.
+      alwaysLoad: true,
       family: "workspace",
       risk: "read",
       description: "List files under a workspace folder (recursive, bounded). Restricted files are marked, never read.",
@@ -165,6 +168,9 @@ function workspaceTools(): NodeToolDefinition[] {
     }),
     tool({
       name: "read_file",
+      // Core file access is the basic tool set for every non-Claude engine; deferring it behind
+      // search left small models unable to write at all. Specialty tools stay deferred.
+      alwaysLoad: true,
       family: "workspace",
       risk: "read",
       description: "Read a workspace text file with line numbers. offset is the 1-based first line, limit the line count (default 2000). Output capped at 256KB.",
@@ -185,6 +191,9 @@ function workspaceTools(): NodeToolDefinition[] {
     }),
     tool({
       name: "write_file",
+      // Core file access is the basic tool set for every non-Claude engine; deferring it behind
+      // search left small models unable to write at all. Specialty tools stay deferred.
+      alwaysLoad: true,
       family: "workspace",
       risk: "write",
       description: "Create or overwrite a workspace text file. Refused under .claude/ and restricted paths.",
@@ -207,6 +216,9 @@ function workspaceTools(): NodeToolDefinition[] {
     }),
     tool({
       name: "edit_file",
+      // Core file access is the basic tool set for every non-Claude engine; deferring it behind
+      // search left small models unable to write at all. Specialty tools stay deferred.
+      alwaysLoad: true,
       family: "workspace",
       risk: "write",
       description: "Replace one exact, unique occurrence of old_string with new_string in a workspace file.",
@@ -308,16 +320,23 @@ function sourceTools(): NodeToolDefinition[] {
     }),
     tool({
       name: "read_source",
+      // Core file access is the basic tool set for every non-Claude engine; deferring it behind
+      // search left small models unable to write at all. Specialty tools stay deferred.
+      alwaysLoad: true,
       family: "sources",
       risk: "read",
       description: "Read a source document (docId from list_sources) with line numbers, optionally a line range. Cite lines as [src:<docId>#L<a>-L<b>].",
       searchHint: "read source document lines cite",
+      // list_sources returns "docId"; models pass it back under that name, so accept both.
       schema: z.object({
-        path: z.string().min(1).describe("docId, e.g. sources/filings/q3.md"),
+        docId: z.string().min(1).optional().describe("docId from list_sources, e.g. sources/companies/acme-profile.md"),
+        path: z.string().min(1).optional().describe("Alias of docId"),
         startLine: z.number().int().min(1).optional(),
         endLine: z.number().int().min(1).optional(),
       }),
-      async execute({ path: p, startLine, endLine }, ctx) {
+      async execute({ docId, path: alias, startLine, endLine }, ctx) {
+        const p = docId ?? alias;
+        if (!p) return fail("read_source needs docId (the value list_sources returns), e.g. sources/companies/acme-profile.md");
         const norm = p.replace(/\\/g, "/");
         const docPath = /^(\.\/)?sources\//i.test(norm) ? norm : `${SOURCES}/${norm}`;
         const abs = resolveInside(ctx.workspaceDir, docPath);
@@ -360,10 +379,12 @@ export function buildNodeToolCatalog(opts: { nativeFileTools: boolean }): NodeTo
       family: "checks",
       risk: "exec",
       alwaysLoad: true,
-      description: "Run one of the template's allowlisted check suites (e.g. tests) inside the workspace and report pass/fail counts.",
-      schema: z.object({ suite: z.string().min(1).max(64) }),
-      async execute({ suite }, ctx) {
+      description: "Run one of the template's allowlisted check suites inside the workspace and report pass/fail counts. Omit suite when the template defines only one.",
+      schema: z.object({ suite: z.string().min(1).max(64).optional().describe("Check suite name from the template (not a source folder); optional when there is exactly one") }),
+      async execute({ suite: requested }, ctx) {
         const suites = Object.keys(ctx.template.checks);
+        const suite = requested ?? (suites.length === 1 ? suites[0] : "");
+        if (!suite) return fail(`run_checks needs a suite. Available: ${suites.join(", ") || "none (this template defines no checks)"}`);
         if (!Object.hasOwn(ctx.template.checks, suite)) return fail(`unknown check suite "${suite}". Available: ${suites.join(", ") || "none (this template defines no checks)"}`);
         const run = await runCheck({ suite, spec: ctx.template.checks[suite], workspaceDir: ctx.workspaceDir, signal: ctx.signal });
         recordCheck(ctx.nodeStateDir, run, { runId: ctx.runId, agentId: ctx.agentId, independent: false });

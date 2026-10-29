@@ -535,7 +535,11 @@ async function runOnce(
 
   const provider = new OpenAIProvider({ apiKey: host.env.openaiApiKey, useResponses: true });
   const als = new AsyncLocalStorage<string>();
-  const defs = host.tools.list();
+  // Deferred tools become callable only through the hosted tool_search. Node's own
+  // search_tools/load_tool return schemas but cannot install them into this SDK's request,
+  // so exposing both left the model loading tools that never became callable (observed:
+  // 22 search_tools + 12 load_tool calls, zero writes). One discovery mechanism per engine.
+  const defs = host.tools.list().filter((d) => d.name !== "search_tools" && d.name !== "load_tool");
   const deferred = defs.filter((d) => d.alwaysLoad !== true).map((d) => d.name);
   const immediate = defs.filter((d) => d.alwaysLoad === true).map((d) => d.name);
 
