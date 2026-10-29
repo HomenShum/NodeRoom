@@ -52,4 +52,4 @@ Held-out task btb-xyz expects output value 12.4.
 ## Verification
 
 When adding eval behavior, add an assertion that the eval output links to a
-trace and that the trace includes at least L6 proof in `traceExcellenceLevel`.
+trace and that the trace carries the eval verdict and evidence refs.

@@ -20,9 +20,7 @@ it:
 | Orchestrator agent | `frameRunner.ts` running `plan` / `synthesize` / `verify` phase frames on the orchestrator model |
 | Worker subagent | `frameRunner.ts` running `execute` phase frames on the worker model |
 | Task decomposition | `reasoningFrames.ts` — `intake` → `plan` → `execute` → `verify` → `synthesize` |
-| Fanout plan | `fanoutPlanner.ts` — `planNodeAgentFanout()` produces waves of subagent roles |
 | Subagent isolation | Each frame runs in its own context pack (`contextPack.ts`) with a scoped tool allowlist |
-| Subagent receipt | `NodeAgentSubagentReceipt` in `fanoutPlanner.ts` — verdict, tool calls, evidence facts |
 | Orchestrator review | `frameVerifier.ts` checks evidence state, missing refs, and blocked conditions |
 | Budget control | `gateway.ts` `checkSpendCeiling` — per-slice token and USD limits |
 | Durable memory | Convex `agentReasoningFrames` + `entityWorkItems` + `entityResearchCache` rows |
@@ -70,9 +68,9 @@ already separates orchestration from execution:
 
 The model switch happens at the `runReasoningFrame` boundary in
 `frameRunner.ts`. Each frame already carries its own `AgentModel` — the runner
-does not assume a single model for all phases. The adaptive router
-(`adaptiveRouter.ts`) selects the model based on task type and risk; the frame
-runner passes it through.
+does not assume a single model for all phases. The caller picks the model
+(`convex/agentJobs.ts` resolves it from the `AGENT_*_MODEL` env vars); the
+frame runner passes it through.
 
 ```typescript
 // frameRunner.ts — model is per-frame, not global
@@ -127,10 +125,8 @@ near-minimax cost with near-glm intelligence for the cognitive phases.
 
 ### Already implemented
 
-- `fanoutPlanner.ts` — subagent roles, waves, receipts, mutation modes
 - `frameRunner.ts` — per-frame model selection, tool allowlists, context packs
 - `frameVerifier.ts` — orchestrator review of worker output
-- `adaptiveRouter.ts` — task-type-based model routing (research, finance, etc.)
 - `gateway.ts` — per-slice spend ceilings
 - `reasoningFrames.ts` — five-phase loop (intake → plan → execute → verify → synthesize)
 - Durable frame rows in Convex (`agentReasoningFrames` table)

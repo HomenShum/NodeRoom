@@ -84,7 +84,7 @@ Every confirmed defect ships with a **scenario-based** test (per the global rule
 | **2 — medium** | `ui/App.tsx` | 9 | ✅ A1 fixed; B3 phantom-room open (task `f07ebfe6`). |
 | | `ui/GuidedTour.tsx` | 6 | Tour FSM + storage. |
 | | `ui/Landing.tsx` | 4 | Form entry. |
-| **3 — low / presentational** | `LeftRail`, `CellEditor`, `StoryStage`, `app/store.tsx`, `LandingStory`, `LayerCard` | 2–3 | Mostly derived; quick pass. |
+| **3 — low / presentational** | `LeftRail`, `StoryStage`, `app/store.tsx`, `LandingStory`, `LayerCard` | 2–3 | Mostly derived; quick pass. |
 
 **Sequence:** prove the harness on Tier 1 → add render-test infra → Tier 2 → Tier 3. Fixes are applied and tested per component, reviewed, then committed.
 

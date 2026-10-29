@@ -38,9 +38,10 @@ flowchart TD
 | Need | File |
 |---|---|
 | Status announcements without token spam | `src/accessibility/liveRegion.tsx` |
-| Spreadsheet-style arrow navigation | `src/accessibility/keyboardGrid.ts` |
-| Modal/review focus containment | `src/accessibility/focusManagement.ts` |
-| Respect `prefers-reduced-motion` | `src/accessibility/reducedMotion.ts` |
+
+The keyboard-grid, focus-containment and reduced-motion helpers were removed on
+2026-10-29 because no UI surface used them; build them inside the surface that
+needs them.
 
 ## Product Rules
 

@@ -5,10 +5,6 @@ import {
   redactTraceText,
   stableTraceHash,
   traceContextPackFromContext,
-  traceExcellenceLevel,
-  summarizeTrace,
-  NODE_WORKFLOW_PROTOCOL_VERSION,
-  validateNodeWorkflowRequest,
   type AgentResult,
 } from "../src/nodeagent";
 
@@ -22,22 +18,6 @@ const budget = {
 };
 
 describe("nodeagent trace spine", () => {
-  it("requires external workflow candidates to bind to a trace", () => {
-    const issues = validateNodeWorkflowRequest({
-      schemaVersion: NODE_WORKFLOW_PROTOCOL_VERSION,
-      app: "noderoom",
-      workflow: "candidate-only-sidecar",
-      fixtureId: "trace-binding-fixture",
-      traceId: "",
-      inputDigest: `sha256:${"1".repeat(64)}`,
-      idempotencyKey: "trace-binding-fixture:run-1",
-      concurrency: 1,
-      deadlineMs: 10_000,
-    });
-
-    expect(issues).toContain("Request trace ID is invalid.");
-  });
-
   it("turns runtime tool events into redacted workpaper receipts", () => {
     const contextPack = traceContextPackFromContext(
       {
@@ -122,8 +102,6 @@ describe("nodeagent trace spine", () => {
     expect(stableTraceHash(keySensitiveResult)).toBe(
       stableTraceHash(JSON.parse(JSON.stringify(keySensitiveResult))),
     );
-    expect(traceExcellenceLevel(trace)).toBe(3);
-    expect(summarizeTrace(trace)).toContain("L3 evidence links");
     expect(trace.final.status).toBe("completed");
   });
 });

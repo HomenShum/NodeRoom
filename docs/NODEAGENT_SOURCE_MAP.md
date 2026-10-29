@@ -16,21 +16,25 @@ frontend, tests, scripts, and evals now consume the nodeagent tree directly.
 
 | Review path | Repo path | Runtime status |
 | --- | --- | --- |
-| `src/nodeagent/core/orchestrator.ts` | `convex/agentJobs.ts`, `convex/agentJobRunner.ts`, `convex/agentWorkflows.ts` | Convex owns durable execution; nodeagent exposes the route contract. |
-| `src/nodeagent/core/adaptiveRouter.ts` | `convex/agent.ts`, `src/nodeagent/models/*`, benchmark route matrix | Product-safe route choice lives in the nodeagent tree. |
 | `src/nodeagent/core/contextCompactor.ts` | `src/nodeagent/core/runtime.ts` | Canonical implementation. |
 | `src/nodeagent/core/worldModel.ts` | room snapshot / awareness context builders | Canonical implementation plus surface-to-builder map. |
 | `src/nodeagent/core/formulaEngine.ts` | spreadsheet evaluation in UI + engine helpers | Canonical implementation. |
-| `src/nodeagent/core/stateBridge.ts` | `convex/agentStepJournal.ts`, `convex/messages.ts`, `convex/agentJobs.ts` | Contract adapter from Pi-style lifecycle events to Convex mutation specs. |
 | `src/nodeagent/models/openRouterClient.ts` | `src/nodeagent/models/adapter.ts`, `openRouterFreeModels.ts` | Canonical OpenRouter-facing model helpers. |
 | `src/nodeagent/models/piAiAdapter.ts` | `src/nodeagent/models/adapter.ts` | Thin compatibility seam. No second Pi runtime. |
 | `src/nodeagent/skills/finance/*` | runway math, runway prompts, ingest helpers | Canonical finance skill surface. |
-| `src/nodeagent/skills/search/*` | bounded fetch + Linkup-like contract | Canonical search skill surface. |
-| `src/nodeagent/skills/spreadsheet/*` | managed write protocol, semantic rebase, version helpers | Canonical spreadsheet skill surface. |
+| `src/nodeagent/skills/search/*` | bounded `fetch_source` | Canonical search skill surface. |
+| `src/nodeagent/skills/spreadsheet/*` | managed write protocol, semantic rebase, algorithm artifacts | Canonical spreadsheet skill surface. |
 | `src/nodeagent/skills/integration/noderoomAdapter.ts` | `convex/convexRoomTools.ts` | RoomTools adapter contract; in-memory implementation also lives here. |
 | `src/nodeagent/skills/integration/downstreamPublish.ts` | UI/export workstream | Draft-builder implemented. External Gmail/Notion/Slack/Linear adapters remain explicit future adapters. |
-| `src/nodeagent/components/*` | `src/ui/*`, walkthrough/deck surfaces | Stable agent component contract names. |
-| `src/nodeagent/guardrails/*` | provider egress, sanitization, evaluator hooks | Canonical guardrail surface. |
+| `src/nodeagent/guardrails/*` | provider egress, gateway spend ceilings, provider health, workbook workflow | Canonical guardrail surface. |
+
+Removed 2026-10-29 because nothing called them: `core/orchestrator.ts`,
+`core/adaptiveRouter.ts`, `core/stateBridge.ts`, `core/fanoutPlanner.ts`,
+`core/memory.ts`, `core/state.ts`, `core/streamManager.ts`, the
+`components/*` review-named UI stubs, and the `guardrails/approval`,
+`circuitBreaker`, `dataSanitizer`, `evaluator` and `providerEgress` stubs.
+The agent workspace path is `#workspace` (`src/ui/workspace/`) backed by
+`packages/nodeagent-engines`.
 
 ## Non-Negotiables
 

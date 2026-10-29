@@ -748,7 +748,7 @@ npm run benchmark:proofloop:prod-proxy-longrun -- resume --execute --run-id <run
 | `convex/roomActivity.ts` | Episode recording wired into `scanActivityRow` (gated on `NODEMEM_MODE != off`) |
 | `src/nodemem/memoryContextBuilder.ts` | `buildMemorySystemContext` + `injectMemoryIntoSystemPrompt` (bounded system context, not user message) |
 | `src/nodemem/core/` | Offline core: classifier, compiler, retrieval planner, freshness, evidence, types |
-| `tests/nodemem/core-fixtures.test.ts` | 21 offline fixture tests (entity detection, dedup, compilation, ContextPack assembly, token budget) |
+| `tests/nodemem/core-fixtures.test.ts` | Offline fixture tests for the classifier, compiler, retrieval planner, evidence partitioning and freshness |
 | `e2e/nodemem-benchmark.spec.ts` | Playwright E2E benchmark with four variants (bare / shadow / bounded / full) |
 
 ## Learnable Architecture Visual Plans
@@ -1410,7 +1410,7 @@ unless we explicitly wire that access.
 | Component | What it gives us | How NodeRoom adapts it |
 |---|---|---|
 | [`@convex-dev/workflow`](https://www.convex.dev/components/workflow) | Durable multi-step functions with persisted state, delays, retries, cancellation, and reactive status. | Long agent jobs run as slices, but `agentJobs` stays the user-facing source of truth. Workflow ids are runtime metadata. |
-| [`@convex-dev/workpool`](https://www.convex.dev/components/workpool) | Queues for actions/mutations with parallelism limits, backoff, jitter, and completion callbacks. | Background agent slices go through the named `agentWorkpool` so slow routes do not become unbounded server fan-out. |
+| [`@convex-dev/workpool`](https://www.convex.dev/components/workpool) | Queues for actions/mutations with parallelism limits, backoff, jitter, and completion callbacks. | Used through the workflow components' `workpoolOptions` (`convex/agentWorkflows.ts`) so slow routes do not become unbounded server fan-out. |
 | [`@convex-dev/persistent-text-streaming`](https://www.convex.dev/components/persistent-text-streaming) | Streaming text chunks that are also persisted to Convex for recovery and later reads. | Private text replies can stream; spreadsheet, legacy-note, and wall writes still go through CAS, proposals, and evidence-bearing tools. Native notebook text uses the ProseMirror sidecar path. |
 | [`@ikhrustalev/convex-debouncer`](https://www.convex.dev/components/ikhrustalev/convex-debouncer) | Server-side quiet-window debouncing for expensive operations. | Installed and registered. `roomActivityOutbox` uses it to run passive scans after edits/uploads settle instead of on every keystroke. |
 | [Convex File Storage](https://docs.convex.dev/file-storage/upload-files) | Built-in upload URLs, storage ids, metadata, and storage APIs. | Canonical raw file store. `uploadedFiles.storageId` remains the durable source of truth for room files. |

@@ -62,7 +62,7 @@
     },
     {
       "file": "convex/convex.config.ts",
-      "line": 14,
+      "line": 13,
       "pattern": "app\\.use\\(workflow, \\{ name: \"passiveWorkflow\" \\}\\)",
       "title": "Why there are two workflow components",
       "description": "A second `workflow` mount named `passiveWorkflow` exists so background/passive jobs get their own workpool with `maxParallelism = 1` and can never starve a foreground agent run. One line, one real production failure mode."

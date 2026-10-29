@@ -30,7 +30,7 @@ Convex **components** mounted in `convex/convex.config.ts`:
 | Component | What it does here |
 |---|---|
 | `@convex-dev/workflow` | Durable multi-step agent jobs. Mounted twice — the second mount, `passiveWorkflow`, exists so background/passive jobs get their own workpool with `maxParallelism = 1` and cannot starve foreground jobs. |
-| `@convex-dev/workpool` (`agentWorkpool`) | Bounded parallelism for agent work. |
+| `@convex-dev/workpool` | Bounded parallelism for agent work, configured through each workflow's `workpoolOptions` (no standalone mount). |
 | `@convex-dev/persistent-text-streaming` | Streams model tokens to the asking tab over HTTP while persisting sentence-flushed chunks, so other tabs and post-refresh reloads still see the reply. |
 | `@ikhrustalev/convex-debouncer` | Debounced writes. |
 | `@convex-dev/prosemirror-sync` | Collaborative rich-text documents. |

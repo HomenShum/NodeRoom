@@ -114,23 +114,17 @@ in [`src/eval/haloSelfImprovement.ts`](src/eval/haloSelfImprovement.ts)).
 > against `HEAD`). The loop reads/writes them, not abstractions.
 
 ### Memory substrate — NodeMem (provenance-first memory control plane)
-- [`src/nodemem/index.ts`](src/nodemem/index.ts) — barrel: passive detection +
-  full memory system (episodes, entities, facts, ContextPacks).
-- [`src/nodemem/core/episodeLog.ts`](src/nodemem/core/episodeLog.ts) — episode
-  capture + content-hash dedupe (`createEpisode`, `episodeContentHash`).
 - [`src/nodemem/core/memoryCompiler.ts`](src/nodemem/core/memoryCompiler.ts) —
   `compileEpisode` / `mergeEntities` (episode → compiled memories).
 - [`src/nodemem/core/retrievalPlanner.ts`](src/nodemem/core/retrievalPlanner.ts) —
   `planRetrieval` / `rankFacts` (ranked, task-classified retrieval).
 - [`src/nodemem/core/evidenceMemory.ts`](src/nodemem/core/evidenceMemory.ts) +
-  [`freshness.ts`](src/nodemem/core/freshness.ts) +
-  [`invalidation.ts`](src/nodemem/core/invalidation.ts) — source-backed gating,
-  staleness, supersede/expire.
+  [`freshness.ts`](src/nodemem/core/freshness.ts) — source-backed gating and
+  staleness.
 - [`src/nodemem/failureMemory.ts`](src/nodemem/failureMemory.ts) — failure-pattern
   records driving the outer-loop repair.
 - Convex persistence: [`convex/nodemem.ts`](convex/nodemem.ts),
-  [`convex/nodememCompile.ts`](convex/nodememCompile.ts),
-  [`convex/memory.ts`](convex/memory.ts).
+  [`convex/nodememCompile.ts`](convex/nodememCompile.ts).
 
 ### Codebase / knowledge graph
 - [`src/ui/panels/KnowledgeGraph.tsx`](src/ui/panels/KnowledgeGraph.tsx) —
@@ -140,9 +134,8 @@ in [`src/eval/haloSelfImprovement.ts`](src/eval/haloSelfImprovement.ts)).
   **deduped** so a shared entity links artifacts multi-hop), edges =
   artifact↔artifact "mentions" + sheet→company + company→person.
 - [`src/nodeagent/okf/graph.ts`](src/nodeagent/okf/graph.ts) +
-  [`src/nodeagent/retrieval/indexes/graphIndex.ts`](src/nodeagent/retrieval/indexes/graphIndex.ts) +
   [`src/nodeagent/retrieval/okf/okfGraph.ts`](src/nodeagent/retrieval/okf/okfGraph.ts)
-  — the agent-side OKF concept graph + retrieval graph index.
+  — the agent-side OKF concept graph + retrieval graph.
 
 ### OKF / knowledge layer (artifact metadata → RAG embedding)
 - [`src/engine/artifactMeta.ts`](src/engine/artifactMeta.ts) —
@@ -150,11 +143,9 @@ in [`src/eval/haloSelfImprovement.ts`](src/eval/haloSelfImprovement.ts)).
   at create/upload time, and that output is exactly the concept frontmatter
   (title/description/tags) that feeds the OKF/RAG embedding.
 - [`src/nodeagent/okf/frontmatter.ts`](src/nodeagent/okf/frontmatter.ts),
-  [`concept.ts`](src/nodeagent/okf/concept.ts),
-  [`producers/cellProducer.ts`](src/nodeagent/okf/producers/cellProducer.ts) /
-  [`roomProducer.ts`](src/nodeagent/okf/producers/roomProducer.ts) /
-  [`sourceProducer.ts`](src/nodeagent/okf/producers/sourceProducer.ts) — OKF
-  bundle producers; `set_artifact_meta` is the live-agent refine path.
+  [`concept.ts`](src/nodeagent/okf/concept.ts) — OKF concept format; the
+  Convex indexer (`convex/okfIndexer.ts`) builds concepts, and
+  `set_artifact_meta` is the live-agent refine path.
 - Retrieval: [`src/nodeagent/retrieval/okf/okfSemanticSearch.ts`](src/nodeagent/retrieval/okf/okfSemanticSearch.ts),
   [`okfFullTextSearch.ts`](src/nodeagent/retrieval/okf/okfFullTextSearch.ts),
   [`okfConceptStore.ts`](src/nodeagent/retrieval/okf/okfConceptStore.ts).
@@ -199,7 +190,7 @@ in [`src/eval/haloSelfImprovement.ts`](src/eval/haloSelfImprovement.ts)).
   change; grep the repo for the receipts):
   - **BOUND** — every in-memory collection has a MAX + eviction (e.g.
     `MAX_NODES = 140` in [`KnowledgeGraph.tsx`](src/ui/panels/KnowledgeGraph.tsx);
-    room noteworthy quota in [`dedup.ts`](src/nodemem/core/dedup.ts)).
+    room noteworthy quota in [`convex/roomActivity.ts`](convex/roomActivity.ts)).
   - **HONEST_STATUS / HONEST_SCORES** — no 2xx on failure paths; no hardcoded
     score floors (the full-suite gate reports `passRate: 0` honestly, §7).
   - **TIMEOUT / SSRF / BOUND_READ** — budget gates, URL validation, response
@@ -241,7 +232,7 @@ tests → build).
 - **No foreground starvation.** Indexing is incremental, coalesced, and
   backgrounded so the critical edit loop is never blocked. (The
   passive-intelligence classifier must run as a debounced background lane —
-  [`src/nodemem/core/debouncer.ts`](src/nodemem/core/debouncer.ts),
+  [`convex/roomActivity.ts`](convex/roomActivity.ts) (`clampQuietMs`),
   [`docs/PASSIVE_CLASSIFIER_PRODUCTION_PATTERN.md`](docs/PASSIVE_CLASSIFIER_PRODUCTION_PATTERN.md) —
   a synchronous passive scanner starves the foreground; keep it off the edit path.)
 

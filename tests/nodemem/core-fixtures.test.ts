@@ -1,40 +1,34 @@
 /**
  * NodeMem core fixture tests — Phase 1 offline benchmark.
  *
- * Verifies that NodeMem produces useful entities/facts/ContextPacks
+ * Verifies that NodeMem produces useful entities and facts
  * from realistic room transcripts, WITHOUT any Convex or LLM calls.
+ *
+ * Covers the modules the production NodeMem path (convex/nodemem.ts,
+ * convex/nodememCompile.ts) uses: classifier, memoryCompiler,
+ * retrievalPlanner, evidenceMemory, freshness.
  *
  * Gate criteria:
  * - Entity precision: correct company/person detection
  * - Entity recall: no missed entities in rich text
- * - Duplicate rate: dedup works
  * - Fact quality: correct predicates, appropriate status
- * - ContextPack size: fits under token budget
- * - ContextPack relevance: evidence vs graph-only partitioning
- * - Assembly time: fast enough for production
+ * - Evidence vs graph-only partitioning
  */
 
 import { describe, it, expect } from "vitest";
-import {
-  classifyNoteworthy,
-  normalizeEntityKey,
-  compileEpisode,
-  mergeEntities,
-  assembleContextPack,
-  planRetrieval,
-  rankFacts,
-  partitionByEvidence,
-  filterValidFacts,
-  computeFreshnessSummary,
-  InMemoryAdapter,
-  type EpisodeInput,
-  type RetrievalRequest,
-} from "../../src/nodemem/index";
+import { classifyNoteworthy, normalizeEntityKey } from "../../src/nodemem/core/classifier";
+import { compileEpisode, mergeEntities } from "../../src/nodemem/core/memoryCompiler";
+import { planRetrieval, rankFacts } from "../../src/nodemem/core/retrievalPlanner";
+import { partitionByEvidence } from "../../src/nodemem/core/evidenceMemory";
+import { filterValidFacts, computeFreshnessSummary } from "../../src/nodemem/core/freshness";
+import type { NodeMemEpisode } from "../../src/nodemem/core/types";
 
 // ─── Fixtures ────────────────────────────────────────────────────────────────
 
 const ROOM_ID = "room_test_001";
 const USER_ID = "user_test_001";
+
+type EpisodeInput = Omit<NodeMemEpisode, "id" | "contentHash" | "createdAt">;
 
 const FIXTURE_EPISODES: EpisodeInput[] = [
   {
@@ -78,6 +72,10 @@ const FIXTURE_EPISODES: EpisodeInput[] = [
     rawText: "https://techcrunch.com/2025/03/15/upscalex-series-a — UpscaleX raises $15M Series A led by a16z for AI sales tools.",
   },
 ];
+
+function fixtureEpisode(index: number): NodeMemEpisode {
+  return { ...FIXTURE_EPISODES[index], id: `ep_fixture_${index}`, contentHash: `fixture_${index}`, createdAt: 0 };
+}
 
 // ─── Tests ───────────────────────────────────────────────────────────────────
 
@@ -130,38 +128,9 @@ describe("NodeMem classifier", () => {
   });
 });
 
-describe("NodeMem episode log + compilation", () => {
-  it("creates episodes with deterministic content hashes", async () => {
-    const adapter = new InMemoryAdapter();
-    const ep1 = await adapter.appendEpisode(
-      await (async () => {
-        const { createEpisode } = await import("../../src/nodemem/core/episodeLog");
-        return createEpisode(FIXTURE_EPISODES[0]);
-      })(),
-    );
-    expect(ep1).toBeTruthy();
-
-    const { createEpisode } = await import("../../src/nodemem/core/episodeLog");
-    const ep2 = await createEpisode(FIXTURE_EPISODES[0]);
-    expect(ep2.contentHash).toBeTruthy();
-  });
-
-  it("deduplicates episodes with same content hash", async () => {
-    const { appendEpisode } = await import("../../src/nodemem/core/episodeLog");
-    const adapter = new InMemoryAdapter();
-    const r1 = await appendEpisode(adapter, FIXTURE_EPISODES[0]);
-    const r2 = await appendEpisode(adapter, FIXTURE_EPISODES[0]);
-    expect(r1.duplicate).toBe(false);
-    expect(r2.duplicate).toBe(true);
-    expect(r1.id).toBe(r2.id);
-  });
-
-  it("compiles episode into entities + facts", async () => {
-    const { createEpisode } = await import("../../src/nodemem/core/episodeLog");
-    const adapter = new InMemoryAdapter();
-    const ep = await createEpisode(FIXTURE_EPISODES[0]);
-    await adapter.appendEpisode(ep);
-    const compiled = compileEpisode(ep);
+describe("NodeMem compilation", () => {
+  it("compiles episode into entities + facts", () => {
+    const compiled = compileEpisode(fixtureEpisode(0));
     expect(compiled.entities.length).toBeGreaterThan(0);
     const upscalex = compiled.entities.find((e) => e.canonicalName === "UpscaleX");
     expect(upscalex).toBeDefined();
@@ -169,16 +138,9 @@ describe("NodeMem episode log + compilation", () => {
     expect(compiled.finding.score).toBeGreaterThanOrEqual(0.35);
   });
 
-  it("merges entities from multiple episodes without duplicates", async () => {
-    const { createEpisode } = await import("../../src/nodemem/core/episodeLog");
-    const adapter = new InMemoryAdapter();
-    const ep1 = await createEpisode(FIXTURE_EPISODES[0]);
-    const ep2 = await createEpisode(FIXTURE_EPISODES[2]);
-    await adapter.appendEpisode(ep1);
-    await adapter.appendEpisode(ep2);
-
-    const c1 = compileEpisode(ep1);
-    const c2 = compileEpisode(ep2);
+  it("merges entities from multiple episodes without duplicates", () => {
+    const c1 = compileEpisode(fixtureEpisode(0));
+    const c2 = compileEpisode(fixtureEpisode(2));
     const merged = mergeEntities(c1.entities, c2.entities);
     // Both episodes mention UpscaleX, so the merged entity should have 2+ source refs
     const upscalex = merged.find((e) => e.canonicalName === "UpscaleX");
@@ -222,123 +184,6 @@ describe("NodeMem retrieval + ranking", () => {
     expect(evidence.length).toBe(1);
     expect(graphOnly.length).toBe(1);
     expect(rejected.length).toBe(1);
-  });
-});
-
-describe("NodeMem ContextPack assembly", () => {
-  it("assembles a ContextPack from fixture episodes", async () => {
-    const { createEpisode } = await import("../../src/nodemem/core/episodeLog");
-    const adapter = new InMemoryAdapter();
-
-    // Record all fixture episodes
-    for (const input of FIXTURE_EPISODES) {
-      const ep = await createEpisode(input);
-      await adapter.appendEpisode(ep);
-      const compiled = compileEpisode(ep);
-      for (const ent of compiled.entities) {
-        await adapter.upsertEntity(ent);
-      }
-      for (const fact of compiled.facts) {
-        await adapter.insertFact(fact);
-      }
-    }
-
-    const request: RetrievalRequest = {
-      goal: "Research UpscaleX: funding, product, competitors, people",
-      roomId: ROOM_ID,
-      userId: USER_ID,
-      entityKeys: ["ent_upscalex_room_test_001"],
-      visibility: "room",
-    };
-
-    const pack = await assembleContextPack({
-      port: adapter,
-      request,
-      liveState: { roomId: ROOM_ID },
-    });
-
-    expect(pack.packId).toBeTruthy();
-    expect(pack.taskKind).toBe("company_research");
-    expect(pack.evidence.length + pack.graphFacts.length).toBeGreaterThan(0);
-    expect(pack.retrievalTrace.length).toBeGreaterThan(0);
-    expect(pack.allowedActions).toContain("fetch_source");
-    expect(pack.prohibitedActions).toContain("delete_entity");
-  });
-
-  it("ContextPack fits under token budget (approx 4 chars/token)", async () => {
-    const { createEpisode } = await import("../../src/nodemem/core/episodeLog");
-    const adapter = new InMemoryAdapter();
-
-    for (const input of FIXTURE_EPISODES) {
-      const ep = await createEpisode(input);
-      await adapter.appendEpisode(ep);
-      const compiled = compileEpisode(ep);
-      for (const ent of compiled.entities) await adapter.upsertEntity(ent);
-      for (const fact of compiled.facts) await adapter.insertFact(fact);
-    }
-
-    const pack = await assembleContextPack({
-      port: adapter,
-      request: {
-        goal: "Research UpscaleX",
-        roomId: ROOM_ID,
-        userId: USER_ID,
-        visibility: "room",
-        maxFacts: 10,
-      },
-    });
-
-    const packJson = JSON.stringify(pack);
-    const approxTokens = Math.ceil(packJson.length / 4);
-    // Gate: ContextPack must fit under 1200 tokens (the bounded injection budget)
-    expect(approxTokens).toBeLessThan(1200);
-  });
-
-  it("ContextPack marks graph-only facts as needs_review", async () => {
-    const { createEpisode } = await import("../../src/nodemem/core/episodeLog");
-    const adapter = new InMemoryAdapter();
-
-    const ep = await createEpisode(FIXTURE_EPISODES[0]);
-    await adapter.appendEpisode(ep);
-    const compiled = compileEpisode(ep);
-    for (const ent of compiled.entities) await adapter.upsertEntity(ent);
-    for (const fact of compiled.facts) await adapter.insertFact(fact);
-
-    const pack = await assembleContextPack({
-      port: adapter,
-      request: {
-        goal: "Research UpscaleX",
-        roomId: ROOM_ID,
-        userId: USER_ID,
-        visibility: "room",
-      },
-    });
-
-    // All compiled facts start as manual or needs_review (no source captures yet)
-    for (const gf of pack.graphFacts) {
-      expect(gf.status).toMatch(/manual|needs_review|graph_inferred/);
-    }
-  });
-
-  it("assembly is fast (p95 < 50ms for 5 episodes)", async () => {
-    const { createEpisode } = await import("../../src/nodemem/core/episodeLog");
-    const adapter = new InMemoryAdapter();
-
-    for (const input of FIXTURE_EPISODES) {
-      const ep = await createEpisode(input);
-      await adapter.appendEpisode(ep);
-      const compiled = compileEpisode(ep);
-      for (const ent of compiled.entities) await adapter.upsertEntity(ent);
-      for (const fact of compiled.facts) await adapter.insertFact(fact);
-    }
-
-    const t0 = Date.now();
-    await assembleContextPack({
-      port: adapter,
-      request: { goal: "Research UpscaleX", roomId: ROOM_ID, userId: USER_ID, visibility: "room" },
-    });
-    const elapsed = Date.now() - t0;
-    expect(elapsed).toBeLessThan(50);
   });
 });
 

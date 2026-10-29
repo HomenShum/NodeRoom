@@ -261,7 +261,7 @@ not as a replacement for the NodeAgent harness:
 | Component | What the official component provides | How NodeRoom adapts it |
 |---|---|---|
 | [`@convex-dev/workflow`](https://www.convex.dev/components/workflow) | Durable multi-step execution with persisted state, delays, retries, cancellation, and reactive status. | Runs long agent jobs in slices while `agentJobs` remains the user-facing system of record. |
-| [`@convex-dev/workpool`](https://www.convex.dev/components/workpool) | Queued action/mutation execution with parallelism limits, retries/backoff, and completion callbacks. | Caps and schedules background agent slices through the named `agentWorkpool`. |
+| [`@convex-dev/workpool`](https://www.convex.dev/components/workpool) | Queued action/mutation execution with parallelism limits, retries/backoff, and completion callbacks. | Caps and schedules background agent slices through the workflow components' `workpoolOptions` (the unused standalone `agentWorkpool` mount was removed 2026-10-29). |
 | [`@convex-dev/persistent-text-streaming`](https://www.convex.dev/components/persistent-text-streaming) | Streams generated text while persisting chunks to Convex for recovery and later reads. | Powers private text streaming; structured room writes still go through CAS/proposal/job tools. |
 | [`@convex-dev/agent`](https://www.convex.dev/components/agent) | Agent building blocks: message threads, vector search, and long-running workflows. | Researched as an adjacent reference. NodeRoom keeps NodeAgent as canonical because the app needs custom lock/CAS/evidence/proposal semantics. |
 

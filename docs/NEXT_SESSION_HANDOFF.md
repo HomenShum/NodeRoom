@@ -28,7 +28,7 @@ Major buckets reviewed before commit:
   privacy/security docs, shipped tools docs, and local `plans/<slug>/plan.mdx`
   artifacts now tell one connected battlefield story.
 - Security, accessibility, and production-readiness slice:
-  `src/security/*`, `src/accessibility/*`, `convex/auditLog.ts`,
+  `src/security/*`, `src/accessibility/liveRegion.tsx`, `convex/auditLog.ts`,
   `convex/securityEvents.ts`, `convex/usageLimits.ts`,
   `convex/exportDelete.ts`, and `docs/SECURITY_PRODUCTION_READINESS.md`.
   These are primitives and regression surfaces, not a compliance claim.

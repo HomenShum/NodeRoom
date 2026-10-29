@@ -29,7 +29,7 @@ Ordered by how likely you are to need them, not alphabetically.
 | `src/nodeagent/` | 190 | The agent. `core/runtime.ts` is the loop; `core/types.ts` defines the `RoomTools` port; `skills/` holds tools; `models/` holds provider adapters, pricing and failover. |
 | `src/components/ui/`, `src/components/ai-elements/` | 13 + 7 | shadcn-style primitives and the Vercel AI Elements subset the chat actually renders. `src/design/uiLayerPolicy.ts` enforces that Radix behaviour is only wrapped here. |
 | `src/eval/` | 94 | Benchmark harnesses (SpreadsheetBench, BankerToolBench, ProofLoop). **Not on the user path.** Large, self-contained, and safe to skip while learning the product. |
-| `src/benchmarks/`, `src/proofloop/`, `src/noderl/`, `src/nodemem/`, `src/alwayson/`, `src/solo/`, `src/voice/`, `src/notebook/` | 22–14 each | Feature areas layered on the room. Read them only when you are working in them. |
+| `src/benchmarks/`, `src/proofloop/`, `src/nodemem/`, `src/alwayson/`, `src/solo/`, `src/voice/`, `src/notebook/` | 22–14 each | Feature areas layered on the room. Read them only when you are working in them. |
 
 ## Everything outside those four folders
 
