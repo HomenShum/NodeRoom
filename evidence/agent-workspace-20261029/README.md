@@ -72,7 +72,7 @@ Curated frames are in `key-screens/`.
 - `timelapse.mp4`: the whole run sped up, with the speed factor printed in the frame.
 - every milestone screenshot.
 
-Their hashes are in each `manifest.json`. The quickstart proof was served by an earlier tarball build (sha256 `e43c859b…`). The committed tarball (`1dba5c36…`) adds the package README and a CSS change; it was checked only by a no-cost smoke test (worker health, UI render).
+Their hashes are in each `manifest.json`. The quickstart proof was served by an earlier tarball build (sha256 `e43c859b…`). The committed tarball (`3aa403b5…`) also carries the package README, a CSS change and the adversarial-review fixes; it was checked only by a no-cost smoke test (worker health, UI render).
 
 To replay the packaging and the independent check yourself:
 

@@ -13,4 +13,4 @@ Open the page, create a project from the "SMB-lending diligence pack" template, 
 
 The whole app is `src/main.tsx` (mount the component) and `vite.config.ts` (proxy `/agent-api` to the worker). To use your own worker port, set `NODE_AGENT_WORKER_PORT` for both commands.
 
-Tarball: `vendor/homenshum-nodeagent-engines-0.1.0.tgz`, sha256 `1dba5c367a8a1b17b9faf56a3e36b14fac6e114bcc3ea26aef7bbd77798671f0`, built with `npm pack` from `packages/nodeagent-engines`. Rebuild it after changing the package and update the hash here.
+Tarball: `vendor/homenshum-nodeagent-engines-0.1.0.tgz`, sha256 `3aa403b5cdeb6a43e6a56c6843730145d27de13599941067386c9180a5394905`, built with `npm pack` from `packages/nodeagent-engines`. Rebuild it after changing the package and update the hash here.
