@@ -1,0 +1,148 @@
+{
+  "id": "run-6a761b51-b4c0-42a5-b387-b09f91993ffb",
+  "projectId": "prj-49099984-af0c-4fa0-931e-dc41da8a6768",
+  "engine": "claude-agent-sdk",
+  "model": "claude-sonnet-5-5",
+  "helperModel": "claude-haiku-5-5",
+  "prompt": "Two new companies arrived in sources/inbox/ (a profile, a financial statement and diligence call notes for each). Add both to analysis/comparison.json, analysis/comparison.md (table and runway ranking) and analysis/diligence.ipynb, with every figure cited to the exact line in sources/inbox/ and runway = cash / monthly burn. Keep the existing rows, the exceptions section and all citations intact. Re-run the 'report' check with the run_checks tool. Then load the project's citation-validation skill, run it on analysis/comparison.md and fix any failure it reports. Finish with a short summary of where the two companies rank, their top risks and which checks passed.",
+  "status": "completed",
+  "createdAt": "2026-10-29T13:25:14.071Z",
+  "lastSeq": 101,
+  "usage": {
+    "inputTokens": 12,
+    "outputTokens": 6416,
+    "cacheReadTokens": 140453,
+    "cacheWriteTokens": 34002,
+    "costUsd": 0.1632343,
+    "costSource": "engine",
+    "modelTurns": 6
+  },
+  "goals": [],
+  "counters": {
+    "toolCalls": 23,
+    "toolCallsOk": 22,
+    "toolCallsFailed": 1,
+    "nativeToolCalls": 20,
+    "nodeToolCalls": 3,
+    "toolSearches": 1,
+    "toolsLoaded": 4,
+    "skillsLoaded": 2,
+    "skillLifecycleEvents": 0,
+    "helpersStarted": 0,
+    "helpersCompleted": 0,
+    "compactions": 0,
+    "artifactsWritten": 6,
+    "uniqueFilesRead": 9,
+    "checksRun": 19,
+    "permissionDenials": 1
+  },
+  "budget": {
+    "maxUsd": 30,
+    "maxWallMs": 7200000
+  },
+  "context": {
+    "autoCompactTokens": 100000
+  },
+  "startedAt": "2026-10-29T13:25:14.072Z",
+  "nativeSessionId": "e83f108b-3fe4-4f44-943c-005ae91796ea",
+  "finalText": "I added Kestrelmoor Capital and Solvane Trade Credit to `analysis/comparison.json`, `analysis/comparison.md` and `analysis/diligence.ipynb`. The `report` check passed (13 passed, 0 failed), and citation validation on `analysis/comparison.md` found no failures, so nothing needed fixing.\n\nEvery new figure cites its exact line in `sources/inbox/`. Runway is cash divided by monthly burn.\n\n**Rankings by runway (10 companies)**\n- **Kestrelmoor Capital: 3rd, 18.0 months.** Cash is $23.4M and monthly burn is $1.3M, so it clears the 12-month proceed threshold.\n- **Solvane Trade Credit: 8th, 12.0 months.** Cash is $9.6M and monthly burn is $0.8M. That is exactly at the 12-month threshold, with no cushion. Only Marrowfield (8.5) and Tessaly (8.0) rank below it.\n\n**Top risks**\n- **Kestrelmoor:** Brand correlation. 31% of loans are to franchisees of two quick-service brands, so a downturn at either would hit about a third of the book.\n- **Solvane:** Unseasoned credit. It has only 14 months of vintage history, so the 2.6% annualized net charge-off rate hasn't been tested through a downturn. Its 42% gross margin is also the lowest of the new pair.\n\n**Checks**\n- **`report` check:** 13 passed, 0 failed.\n- **Citation validation on `analysis/comparison.md`:** the `citation-validation` skill's script reported 66 citations valid. The Node `check_citations` tool agreed (66 valid, 0 invalid).\n\n**Restated, superseded and unavailable documents**\n- **Restated:** Neither new company has a diligence-call exception or restatement. The existing Tessaly restatement is unchanged.\n- **Superseded:** Neither new company has a superseded document. The existing Marrowfield v1 note is unchanged.\n- **Unavailable:** Neither new company references a restricted document. The existing Halvorine and Tessaly restricted references are unchanged.\n\nThe notebook now has a new cell summarizing the two additions. I didn't run the notebook's code cells.",
+  "endedAt": "2026-10-29T13:25:57.510Z",
+  "verification": {
+    "ranAt": "2026-10-29T13:25:59.119Z",
+    "verifier": "diligence-pack.verify.mjs",
+    "passed": 18,
+    "failed": 0,
+    "checks": [
+      {
+        "id": "comparison.json",
+        "ok": true,
+        "detail": "10 rows"
+      },
+      {
+        "id": "comparison.companies",
+        "ok": true,
+        "detail": "all 10 companies for stage inbox"
+      },
+      {
+        "id": "metrics.values",
+        "ok": true,
+        "detail": "every metric matches ground truth within tolerance"
+      },
+      {
+        "id": "metrics.restated-arr",
+        "ok": true,
+        "detail": "Tessaly Credit uses restated ARR 11.6 and growth 40%"
+      },
+      {
+        "id": "runway.formula",
+        "ok": true,
+        "detail": "runwayMonths = cash / burn on every row"
+      },
+      {
+        "id": "risks.exceptions",
+        "ok": true,
+        "detail": "restatement and concentration exceptions are the top risks"
+      },
+      {
+        "id": "sources.no-restricted",
+        "ok": true,
+        "detail": "no citation into sources/restricted/"
+      },
+      {
+        "id": "sources.no-superseded",
+        "ok": true,
+        "detail": "nothing taken from marrowfield-financials-v1.md"
+      },
+      {
+        "id": "citations.resolve",
+        "ok": true,
+        "detail": "146 citations resolve; every metric citation's line contains its value"
+      },
+      {
+        "id": "comparison-md.table",
+        "ok": true,
+        "detail": "10 companies, 66 citations"
+      },
+      {
+        "id": "comparison-md.exceptions",
+        "ok": true,
+        "detail": "names the restatement, the superseded document and the unavailable restricted documents"
+      },
+      {
+        "id": "report.tests-intact",
+        "ok": true,
+        "detail": "2 template test files unchanged"
+      },
+      {
+        "id": "report.tests-pass",
+        "ok": true,
+        "detail": "node --test: 13 passed, 0 failed"
+      },
+      {
+        "id": "notebook.valid",
+        "ok": true,
+        "detail": "nbformat 4, 8 cells (3 code, 5 markdown)"
+      },
+      {
+        "id": "skill.active",
+        "ok": true,
+        "detail": "active with script .claude/skills/citation-validation/scripts/validate.mjs"
+      },
+      {
+        "id": "skill.ledger",
+        "ok": true,
+        "detail": "active files match the Node activation a247b6b8c0ea"
+      },
+      {
+        "id": "skill.accepts-table",
+        "ok": true,
+        "detail": "exit 0 on analysis/comparison.md"
+      },
+      {
+        "id": "skill.rejects-corrupted",
+        "ok": true,
+        "detail": "exit 1 on a corrupted copy, exit 0 on an unmodified copy"
+      }
+    ]
+  }
+}

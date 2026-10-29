@@ -1,0 +1,185 @@
+{
+  "id": "run-d5d593f2-6cc3-4993-a934-fe25ec9442e1",
+  "projectId": "prj-80b2617b-6061-4e06-90bc-8cf175b207b7",
+  "engine": "nodeagent-universal",
+  "model": "google:gemini-3.5-flash",
+  "helperModel": "google:gemini-3.5-flash-lite",
+  "prompt": "You are supporting a startup-banking diligence team preparing the Q3 2026 credit committee. The workspace holds a synthetic data room under sources/ for eight SMB-lending fintech startups (ignore sources/inbox/ for this task). Follow CLAUDE.md / AGENTS.md and use the skills in .claude/skills/.\n\n1. Review the whole pack using parallel helpers, one per source folder (sources/companies, sources/financials, sources/diligence-calls, sources/market). Each helper returns the figures it found with [src:<path>#L<line>] citations plus any superseded documents, diligence-call exceptions and references to restricted documents. Treat sources/restricted/ as unavailable and do not try to read it.\n2. Build analysis/comparison.json (schema in analysis/README.md and report/src/table.mjs) and analysis/comparison.md with one row per company: ARR (restated where a diligence call restates it), YoY ARR growth, gross margin, average monthly net burn, cash, runway months = cash / monthly burn (one decimal), and the top risk from the company's diligence call. Every number carries a citation to the exact line that contains it, and no figure may come from a superseded document. comparison.md ends with a section 'Exceptions and data availability' that names the restated company, the superseded document by path and the restricted documents by path as unavailable, followed by a ranking by runway.\n3. Write analysis/diligence.ipynb (valid nbformat 4, at least 6 cells, both markdown and code) that loads comparison.json, recomputes runway, ranks the companies and explains the ranking in markdown.\n4. Implement report/src/export.mjs until the 'report' check passes. Run it with the run_checks tool. Do not edit report/test/.\n5. Create a reusable skill named citation-validation with draft_skill, then validate_skill, test_skill and activate_skill. It must contain a Node script that takes a markdown file path as its first argument, resolves citation paths against the current working directory (the workspace root), and exits 0 only when every [src:...] citation resolves to an existing line that contains the number written before it, non-zero otherwise. Give it at least one passing example and one failing counterexample as test cases. Test cases run under Node's permission model and can read only the draft folder and the files passed as arguments, so keep the examples self-contained inside the draft (for example a --root=<dir> option and a small example source file in the draft). After activation, run the skill on analysis/comparison.md and fix anything it reports.\n6. Finish with a short summary that names the restated company, the superseded document and the unavailable restricted documents, and states which checks passed.",
+  "status": "completed",
+  "createdAt": "2026-10-29T13:26:06.868Z",
+  "lastSeq": 464,
+  "usage": {
+    "inputTokens": 397678,
+    "outputTokens": 61873,
+    "cacheReadTokens": 2804450,
+    "cacheWriteTokens": 0,
+    "costUsd": null,
+    "costSource": "unknown",
+    "modelTurns": 88
+  },
+  "goals": [
+    {
+      "id": "sources_review",
+      "title": "Review source pack using parallel helpers per folder",
+      "status": "done",
+      "claimedBy": "engine"
+    },
+    {
+      "id": "build_comparison",
+      "title": "Build analysis/comparison.json and analysis/comparison.md",
+      "status": "done",
+      "claimedBy": "engine"
+    },
+    {
+      "id": "build_notebook",
+      "title": "Build analysis/diligence.ipynb",
+      "status": "done",
+      "claimedBy": "engine"
+    },
+    {
+      "id": "export_report",
+      "title": "Implement report/src/export.mjs and pass report check",
+      "status": "done",
+      "claimedBy": "engine"
+    },
+    {
+      "id": "citation_skill",
+      "title": "Create, test, activate citation-validation skill and run on comparison.md",
+      "status": "done",
+      "claimedBy": "engine"
+    },
+    {
+      "id": "final_summary",
+      "title": "Provide final summary",
+      "status": "done",
+      "claimedBy": "engine"
+    }
+  ],
+  "counters": {
+    "toolCalls": 100,
+    "toolCallsOk": 99,
+    "toolCallsFailed": 1,
+    "nativeToolCalls": 4,
+    "nodeToolCalls": 96,
+    "toolSearches": 3,
+    "toolsLoaded": 14,
+    "skillsLoaded": 3,
+    "skillLifecycleEvents": 4,
+    "helpersStarted": 4,
+    "helpersCompleted": 4,
+    "compactions": 0,
+    "artifactsWritten": 22,
+    "uniqueFilesRead": 40,
+    "checksRun": 21,
+    "permissionDenials": 0
+  },
+  "budget": {
+    "maxUsd": 30,
+    "maxWallMs": 7200000
+  },
+  "context": {
+    "autoCompactTokens": 100000
+  },
+  "startedAt": "2026-10-29T13:26:06.869Z",
+  "nativeSessionId": "run-d5d593f2-6cc3-4993-a934-fe25ec9442e1",
+  "finalText": "### Summary\n\n1. **Source Pack Review**: Reviewed all source files across `sources/companies/`, `sources/financials/`, `sources/diligence-calls/`, and `sources/market/` using parallel helper subtasks to extract figures, line citations, superseded documents, restatements/exceptions, and restricted document references.\n2. **Comparison Artifacts Built**:\n   - `analysis/comparison.json`: Valid `diligence.comparison/v1` document covering all 8 active SMB-lending fintech startups with exact `[src:...]` citations for every metric and top risk.\n   - `analysis/comparison.md`: Markdown comparison table, an *Exceptions and data availability* section, and ranking by cash runway.\n3. **Diligence Notebook**: Created `analysis/diligence.ipynb` (nbformat 4.5, 7 cells) that loads `comparison.json`, recomputes cash runway (`cash / monthly burn`), asserts equality against stored values within 0.1 month, ranks companies, and maps them against credit committee decision thresholds.\n4. **Report Export Implementation**: Implemented `report/src/export.mjs` supporting CSV, Markdown, and JSON export formats with proper RFC 4180 quoting, pipe escaping, and citation validation.\n5. **Reusable Citation Validation Skill**: Created, validated, tested (2/2 passing cases under Node permission model), and activated `.claude/skills/citation-validation/`. Verified all 58 citations in `analysis/comparison.md`.\n\n---\n\n### Key Diligence Findings\n\n- **Restated Company**: **Tessaly Credit** — Reported ARR of $14.2M was restated downward during the diligence call to **$11.6M** `[src:sources/diligence-calls/tessaly-call-notes.md#L29]` (and YoY ARR growth restated from 71% to **40%** `[src:sources/diligence-calls/tessaly-call-notes.md#L31]`) after removing $0.65M in Q2 one-time implementation fees ($2.6M annualized) for a non-renewing restaurant pilot.\n- **Superseded Document**: **`sources/financials/marrowfield-financials-v1.md`** `[src:sources/financials/marrowfield-financials-v1.md#L7]` — Superseded by `sources/financials/marrowfield-financials-v2.md` `[src:sources/financials/marrowfield-financials-v2.md#L7]`; no figures were taken from the draft v1.\n- **Unavailable Restricted Documents**:\n  - `sources/restricted/halvorine-litigation-memo.md` `[src:sources/diligence-calls/halvorine-call-notes.md#L37]`\n  - `sources/restricted/tessaly-board-minutes-2026-06.md` `[src:sources/diligence-calls/tessaly-call-notes.md#L34]`\n\n---\n\n### Runway Ranking\n\n1. **Quillmark Lending**: 22.0 months ($24.2M cash / $1.1M burn)\n2. **Pellucid Ledger**: 20.5 months ($41.0M cash / $2.0M burn)\n3. **Brindlewood Finance**: 17.0 months ($15.3M cash / $0.9M burn)\n4. **Ynderra Lending**: 15.5 months ($27.9M cash / $1.8M burn)\n5. **Halvorine Funding**: 14.0 months ($19.6M cash / $1.4M burn)\n6. **Corvane Capital**: 13.8 months ($31.7M cash / $2.3M burn)\n7. **Marrowfield Credit**: 8.5 months ($10.2M cash / $1.2M burn)\n8. **Tessaly Credit**: 8.0 months ($12.8M cash / $1.6M burn)\n\n---\n\n### Checks Passed\n\n- **`report` Check Suite**: Passed **13/13** tests in `report/test/` via `run_checks`.\n- **Skill Test Suite**: Passed **2/2** test cases (`valid citation check passes`, `mismatched number fails validation`) during `test_skill` for `citation-validation`.\n- **Citation Verification**: All 58 `[src:...]` citations in `analysis/comparison.md` were verified against line contents using `check_citations` and the `citation-validation` tool.",
+  "endedAt": "2026-10-29T13:31:15.988Z",
+  "verification": {
+    "ranAt": "2026-10-29T13:31:16.594Z",
+    "verifier": "diligence-pack.verify.mjs",
+    "passed": 17,
+    "failed": 1,
+    "checks": [
+      {
+        "id": "comparison.json",
+        "ok": true,
+        "detail": "8 rows"
+      },
+      {
+        "id": "comparison.companies",
+        "ok": true,
+        "detail": "all 8 companies for stage full"
+      },
+      {
+        "id": "metrics.values",
+        "ok": true,
+        "detail": "every metric matches ground truth within tolerance"
+      },
+      {
+        "id": "metrics.restated-arr",
+        "ok": true,
+        "detail": "Tessaly Credit uses restated ARR 11.6 and growth 40%"
+      },
+      {
+        "id": "runway.formula",
+        "ok": true,
+        "detail": "runwayMonths = cash / burn on every row"
+      },
+      {
+        "id": "risks.exceptions",
+        "ok": true,
+        "detail": "restatement and concentration exceptions are the top risks"
+      },
+      {
+        "id": "sources.no-restricted",
+        "ok": true,
+        "detail": "no citation into sources/restricted/"
+      },
+      {
+        "id": "sources.no-superseded",
+        "ok": false,
+        "detail": "comparison.md: [src:sources/financials/marrowfield-financials-v1.md#L7]"
+      },
+      {
+        "id": "citations.resolve",
+        "ok": true,
+        "detail": "122 citations resolve; every metric citation's line contains its value"
+      },
+      {
+        "id": "comparison-md.table",
+        "ok": true,
+        "detail": "8 companies, 58 citations"
+      },
+      {
+        "id": "comparison-md.exceptions",
+        "ok": true,
+        "detail": "names the restatement, the superseded document and the unavailable restricted documents"
+      },
+      {
+        "id": "report.tests-intact",
+        "ok": true,
+        "detail": "2 template test files unchanged"
+      },
+      {
+        "id": "report.tests-pass",
+        "ok": true,
+        "detail": "node --test: 13 passed, 0 failed"
+      },
+      {
+        "id": "notebook.valid",
+        "ok": true,
+        "detail": "nbformat 4, 7 cells (3 code, 4 markdown)"
+      },
+      {
+        "id": "skill.active",
+        "ok": true,
+        "detail": "active with script .claude/skills/citation-validation/validate-citations.mjs"
+      },
+      {
+        "id": "skill.ledger",
+        "ok": true,
+        "detail": "active files match the Node activation 4d8cae22f98d"
+      },
+      {
+        "id": "skill.accepts-table",
+        "ok": true,
+        "detail": "exit 0 on analysis/comparison.md"
+      },
+      {
+        "id": "skill.rejects-corrupted",
+        "ok": true,
+        "detail": "exit 1 on a corrupted copy, exit 0 on an unmodified copy"
+      }
+    ]
+  }
+}

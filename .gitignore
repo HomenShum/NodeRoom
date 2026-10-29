@@ -114,3 +114,15 @@ docs/qa/prod-dogfood/
 
 # Frozen UI build used while recording agent-workspace proofs
 .proof-dist/
+
+# Agent workspace proof media: every file is sha256-bound in its run's manifest.json and
+# kept out of git for size; curated screens live in evidence/agent-workspace-*/key-screens/.
+evidence/agent-workspace-*/**/raw-recording.*
+evidence/agent-workspace-*/**/video-raw/
+evidence/agent-workspace-*/**/playwright/
+evidence/agent-workspace-*/**/highlights.mp4
+evidence/agent-workspace-*/**/timelapse.mp4
+evidence/agent-workspace-*/**/screenshots/
+evidence/agent-workspace-*/**/*.inputs.txt
+evidence/agent-workspace-*/**/highlights.filter.txt
+evidence/agent-workspace-*/run-claude/trace.zip

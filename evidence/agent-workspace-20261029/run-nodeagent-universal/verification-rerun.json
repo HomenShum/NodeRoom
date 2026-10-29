@@ -1,0 +1,98 @@
+{
+  "ranAt": "2026-10-29T13:33:59.396Z",
+  "verifier": "diligence-pack.verify.mjs (stage inbox)",
+  "passed": 17,
+  "failed": 1,
+  "checks": [
+    {
+      "id": "comparison.json",
+      "ok": true,
+      "detail": "10 rows"
+    },
+    {
+      "id": "comparison.companies",
+      "ok": true,
+      "detail": "all 10 companies for stage inbox"
+    },
+    {
+      "id": "metrics.values",
+      "ok": true,
+      "detail": "every metric matches ground truth within tolerance"
+    },
+    {
+      "id": "metrics.restated-arr",
+      "ok": true,
+      "detail": "Tessaly Credit uses restated ARR 11.6 and growth 40%"
+    },
+    {
+      "id": "runway.formula",
+      "ok": true,
+      "detail": "runwayMonths = cash / burn on every row"
+    },
+    {
+      "id": "risks.exceptions",
+      "ok": true,
+      "detail": "restatement and concentration exceptions are the top risks"
+    },
+    {
+      "id": "sources.no-restricted",
+      "ok": true,
+      "detail": "no citation into sources/restricted/"
+    },
+    {
+      "id": "sources.no-superseded",
+      "ok": false,
+      "detail": "comparison.md: [src:sources/financials/marrowfield-financials-v1.md#L7]"
+    },
+    {
+      "id": "citations.resolve",
+      "ok": true,
+      "detail": "154 citations resolve; every metric citation's line contains its value"
+    },
+    {
+      "id": "comparison-md.table",
+      "ok": true,
+      "detail": "10 companies, 74 citations"
+    },
+    {
+      "id": "comparison-md.exceptions",
+      "ok": true,
+      "detail": "names the restatement, the superseded document and the unavailable restricted documents"
+    },
+    {
+      "id": "report.tests-intact",
+      "ok": true,
+      "detail": "2 template test files unchanged"
+    },
+    {
+      "id": "report.tests-pass",
+      "ok": true,
+      "detail": "node --test: 13 passed, 0 failed"
+    },
+    {
+      "id": "notebook.valid",
+      "ok": true,
+      "detail": "nbformat 4, 7 cells (3 code, 4 markdown)"
+    },
+    {
+      "id": "skill.active",
+      "ok": true,
+      "detail": "active with script .claude/skills/citation-validation/validate-citations.mjs"
+    },
+    {
+      "id": "skill.ledger",
+      "ok": true,
+      "detail": "active files match the Node activation 4d8cae22f98d"
+    },
+    {
+      "id": "skill.accepts-table",
+      "ok": true,
+      "detail": "exit 0 on analysis/comparison.md"
+    },
+    {
+      "id": "skill.rejects-corrupted",
+      "ok": true,
+      "detail": "exit 1 on a corrupted copy, exit 0 on an unmodified copy"
+    }
+  ]
+}
