@@ -98,7 +98,11 @@ describe("workspace boundary (adversarial paths)", () => {
   it("path helpers: inside paths resolve (case-insensitive on Windows), globs match **, *, ?", () => {
     const { ws } = setup();
     assert.ok(resolveInside(ws, "a/b/../c.txt"));
-    assert.equal(resolveInside(ws, ""), null);
+    // Was: resolveInside(ws, "") === null. A real Codex run (2026-10-29) called list_files
+    // {"path": ""}, got "is outside the workspace", concluded the workspace was read-only and
+    // stopped. "" now means the workspace root; NUL bytes are still refused.
+    assert.equal(resolveInside(ws, ""), path.resolve(ws));
+    assert.equal(resolveInside(ws, "a\0b"), null);
     assert.equal(toRel(ws, path.join(ws, "a", "b.txt")), "a/b.txt");
     if (process.platform === "win32") {
       assert.ok(resolveInside(ws, path.join(ws.toUpperCase(), "x.txt")), "drive/case-insensitive compare");

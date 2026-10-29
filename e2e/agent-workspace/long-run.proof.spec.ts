@@ -103,7 +103,7 @@ async function driveTask(page: Page, request: APIRequestContext, projectId: stri
     else await page.getByTestId("naw-suggested-task").nth(taskId === FIRST_TASK ? 0 : 1).click();
     await expect(page.getByTestId("naw-composer")).not.toHaveValue("");
     await milestone(page, `${label}-task-entered`, `suggested task "${taskId}" placed in the composer`);
-    await page.getByTestId("naw-send").click();
+    await page.getByTestId("naw-send").click({ timeout: 60_000 });
   }
 
   let runId = "";
@@ -150,6 +150,8 @@ async function driveTask(page: Page, request: APIRequestContext, projectId: stri
       const item = page.locator(`[data-testid="naw-run-item"][data-run-id="${runId}"]`);
       if (await item.count()) await item.first().click();
       await expect(page.getByTestId("naw-timeline")).toBeVisible({ timeout: 60_000 });
+      // The viewer's engine choice and project must survive the reload (regression: both reset).
+      await expect(page.getByTestId("naw-engine-select")).toHaveValue(ENGINE);
       const after = await api<RunRecord>(request, `/runs/${runId}`);
       expect(after.counters.toolCalls).toBeGreaterThanOrEqual(toolCallsBefore);
       await milestone(page, `${label}-after-reload`, `restored from the worker; run still ${after.status} with ${after.counters.toolCalls} tool calls`, runId);
@@ -161,11 +163,11 @@ async function driveTask(page: Page, request: APIRequestContext, projectId: stri
       const files = await api<Array<{ path: string }>>(request, `/projects/${projectId}/files`).catch(() => []);
       if (files.some((f) => f.path === "analysis/comparison.json")) {
         await milestone(page, `${label}-before-interrupt`, "comparison.json exists; stopping the run", runId);
-        await page.getByTestId("naw-stop").click();
+        await page.getByTestId("naw-stop").click({ timeout: 60_000 });
         await expect.poll(async () => (await api<RunRecord>(request, `/runs/${runId}`)).status, { timeout: 120_000 }).toBe("interrupted");
         await milestone(page, `${label}-interrupted`, "run interrupted by the user", runId);
         const runsBefore = await api<RunRecord[]>(request, `/runs?projectId=${projectId}`);
-        await page.getByTestId("naw-resume").click();
+        await page.getByTestId("naw-resume").click({ timeout: 60_000 });
         let resumedId = "";
         await expect
           .poll(async () => {
@@ -233,7 +235,7 @@ test("agent workspace long-run proof", async ({ browser, request }) => {
       await page.getByTestId("naw-template-select").click();
       await page.getByRole("option", { name: new RegExp(TEMPLATE, "i") }).click();
     });
-    await page.getByTestId("naw-new-project").click();
+    await page.getByTestId("naw-new-project").click({ timeout: 60_000 });
     let projectId = "";
     await expect
       .poll(async () => {
@@ -265,10 +267,10 @@ test("agent workspace long-run proof", async ({ browser, request }) => {
       await notebook.first().click();
       await shot(page, "task1-artifact-notebook");
     }
-    await page.getByTestId("naw-dev-toggle").click();
+    await page.getByTestId("naw-dev-toggle").click({ timeout: 60_000 });
     await expect(page.getByTestId("naw-dev-drawer")).toBeVisible();
     await shot(page, "task1-developer-drawer");
-    await page.getByTestId("naw-dev-toggle").click();
+    await page.getByTestId("naw-dev-toggle").click({ timeout: 60_000 });
 
     if (DO_SECOND) {
       allRuns.push(...(await driveTask(page, request, projectId, SECOND_TASK, "task2", false)));
@@ -283,7 +285,7 @@ test("agent workspace long-run proof", async ({ browser, request }) => {
         ...(await driveTask(page, request, projectId, "handoff", "handoff", false, async () => {
           await target.selectOption(HANDOFF_ENGINE);
           await milestone(page, "handoff-target-selected", `handing the finished run to ${HANDOFF_ENGINE}`);
-          await page.getByTestId("naw-handoff").click();
+          await page.getByTestId("naw-handoff").click({ timeout: 60_000 });
         })),
       );
       await shot(page, "handoff-final-overview");

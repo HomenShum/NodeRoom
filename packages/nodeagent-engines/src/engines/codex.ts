@@ -28,8 +28,10 @@ import { createTranslator } from "./codex/translate.js";
 
 const SDK_NAME = "@openai/codex";
 const DEFAULT_MODEL = "gpt-5.5";
-const DEFAULT_HELPER_MODEL = "gpt-5.4-mini";
-const MODELS = ["gpt-5.5", "gpt-5.4", "gpt-5.4-mini", "gpt-5.4-nano", "gpt-5.3-codex", "gpt-6-sol"];
+// Only models the pinned codex 0.165.0 binary ships metadata for. Others (gpt-5.4-mini,
+// gpt-5.3-codex) run on "fallback metadata" without apply_patch — observed in real runs.
+const DEFAULT_HELPER_MODEL = "gpt-6-luna";
+const MODELS = ["gpt-5.5", "gpt-6-sol", "gpt-6.1-sol", "gpt-5.6-sol", "gpt-6-luna"];
 const NAMESPACE = "node";
 const DELTA_MS = 100;
 const RPC_TIMEOUT_MS = 30_000;

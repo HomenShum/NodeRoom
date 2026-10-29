@@ -118,6 +118,27 @@ function Unavailable({ apiBase, error, onRetry, compact }: { apiBase: string; er
 
 const newestFirst = <T extends { createdAt: string }>(xs: T[] | undefined): T[] | undefined => xs?.slice().sort((a, b) => b.createdAt.localeCompare(a.createdAt));
 
+type Selection = { projectId?: string; runId?: string; engine?: EngineId; model?: string };
+
+/** Per-viewer convenience only; storage may be unavailable (private mode, previews). */
+function readSelection(apiBase: string): Selection {
+  try {
+    const raw = window.localStorage.getItem(`naw:selection:${apiBase}`);
+    const v = raw ? (JSON.parse(raw) as Selection) : {};
+    return v && typeof v === "object" ? v : {};
+  } catch {
+    return {};
+  }
+}
+
+function writeSelection(apiBase: string, s: Selection): void {
+  try {
+    window.localStorage.setItem(`naw:selection:${apiBase}`, JSON.stringify(s));
+  } catch {
+    /* storage unavailable: selection just won't survive a reload */
+  }
+}
+
 function Workspace(props: NodeAgentWorkspaceProps & { health: HealthResponse; devOpen: boolean; onPicked(): void }) {
   const { health, apiBase } = props;
   const client = useMemo(() => createWorkerClient(apiBase), [apiBase]);
@@ -132,8 +153,11 @@ function Workspace(props: NodeAgentWorkspaceProps & { health: HealthResponse; de
     if (!list) return undefined;
     return newestFirst(createdProject && !list.some((p) => p.id === createdProject.id) ? [createdProject, ...list] : list);
   }, [projectsQ.data, createdProject]);
-  const [projectChoice, setProjectChoice] = useState(props.projectId);
-  const projectId = projectChoice ?? projects?.[0]?.id;
+  // The viewer's selection survives a reload; without it a reload jumped to whichever project
+  // was newest (another user's) and reset the engine picker (observed in the proof runs).
+  const saved = useMemo(() => readSelection(apiBase), [apiBase]);
+  const [projectChoice, setProjectChoice] = useState(props.projectId ?? saved.projectId);
+  const projectId = projectChoice && (!projects || projects.some((p) => p.id === projectChoice)) ? projectChoice : projects?.[0]?.id;
   const project = projects?.find((p) => p.id === projectId);
 
   const [pollFast, setPollFast] = useState(false);
@@ -145,7 +169,9 @@ function Workspace(props: NodeAgentWorkspaceProps & { health: HealthResponse; de
     if (!runsQ.data && extra.length === 0) return undefined;
     return newestFirst([...extra, ...(runsQ.data ?? [])]);
   }, [runsQ.data, extraRun, projectId]);
-  const [runChoice, setRunChoice] = useState<{ projectId?: string; runId: string }>();
+  const [runChoice, setRunChoice] = useState<{ projectId?: string; runId: string } | undefined>(
+    saved.projectId && saved.runId ? { projectId: saved.projectId, runId: saved.runId } : undefined,
+  );
   const runId = runChoice && runChoice.projectId === projectId ? runChoice.runId : runs?.[0]?.id;
   const run = runs?.find((r) => r.id === runId);
   useEffect(() => setPollFast(Boolean(runs?.some((r) => r.status === "queued" || r.status === "running"))), [runs]);
@@ -156,11 +182,14 @@ function Workspace(props: NodeAgentWorkspaceProps & { health: HealthResponse; de
   const live = status === "queued" || status === "running";
   const now = useNow(live);
 
-  const [engineChoice, setEngineChoice] = useState<EngineId | "">(props.defaultEngine ?? "");
+  const [engineChoice, setEngineChoice] = useState<EngineId | "">(saved.engine ?? props.defaultEngine ?? "");
   const engineId: EngineId | "" = health.engines.some((e) => e.descriptor.id === engineChoice)
     ? engineChoice
     : health.engines.find((e) => e.availability.ok)?.descriptor.id ?? health.engines[0]?.descriptor.id ?? "";
-  const [model, setModel] = useState("");
+  const [model, setModel] = useState(saved.model ?? "");
+  useEffect(() => {
+    writeSelection(apiBase, { projectId: projectChoice, runId: runChoice?.runId, engine: engineChoice || undefined, model: model || undefined });
+  }, [apiBase, projectChoice, runChoice?.runId, engineChoice, model]);
   const [filterAgentId, setFilterAgentId] = useState<string>();
   const [artifactPath, setArtifactPath] = useState<string>();
   const [verification, setVerification] = useState<{ runId: string; report: VerificationReport }>();

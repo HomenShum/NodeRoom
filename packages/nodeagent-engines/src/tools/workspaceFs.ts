@@ -20,7 +20,8 @@ function contains(root: string, target: string): boolean {
  * realpath-ing the nearest existing ancestor; a dangling link is refused.
  */
 export function resolveInside(workspaceDir: string, p: string): string | null {
-  if (typeof p !== "string" || p.length === 0 || p.includes("\0")) return null;
+  // "" is the workspace root (models list it as path: ""); only non-strings and NULs are refused.
+  if (typeof p !== "string" || p.includes("\0")) return null;
   const root = path.resolve(workspaceDir);
   const target = path.resolve(root, p);
   if (!contains(root, target)) return null;
