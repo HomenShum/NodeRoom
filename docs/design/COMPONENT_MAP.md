@@ -16,7 +16,7 @@ should absorb presentation changes before feature files are touched.
 - Preferred migration pattern: add wrapper/adaptor components that preserve
   current props, callbacks, state transitions, store calls, Convex calls, and
   DOM test contracts.
-- Do not change `convex/**`, `backend/**`, `src/engine/**`, `src/nodeagent/**`,
+- Do not change `convex/**`, `src/engine/**`, `src/nodeagent/**`,
   auth/session logic, database schemas, or durable trace/proofloop contracts for
   visual parity work.
 

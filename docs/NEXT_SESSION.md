@@ -25,7 +25,7 @@ The release is bound to annotated tag object
 - `NodeRoomNodeSlideStudioMount.tsx` mounts the packed
   `@nodeslide/react` controlled shell inside the real deck workbench. Members
   can propose; only hosts can patch or decide.
-- `artifacts/nodeslide-mounted-ui-proof-20260720/` contains the literal browser
+- `evidence/nodeslide-mounted-ui-proof-20260720/` contains the literal browser
   camera and a11y receipt for the real Artifacts surface. It proves edit,
   persistence via **Make live**, reopen, the 0.2.2 mounted DOM boundary, command
   controls, and fail-closed memory behavior with zero local application console

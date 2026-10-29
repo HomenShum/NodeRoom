@@ -242,7 +242,7 @@ tests → build).
   backgrounded so the critical edit loop is never blocked. (The
   passive-intelligence classifier must run as a debounced background lane —
   [`src/nodemem/core/debouncer.ts`](src/nodemem/core/debouncer.ts),
-  [`6-18-2026-passive-classifier-production-pattern.txt`](6-18-2026-passive-classifier-production-pattern.txt) —
+  [`docs/PASSIVE_CLASSIFIER_PRODUCTION_PATTERN.md`](docs/PASSIVE_CLASSIFIER_PRODUCTION_PATTERN.md) —
   a synchronous passive scanner starves the foreground; keep it off the edit path.)
 
 ---

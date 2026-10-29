@@ -112,7 +112,7 @@ Major user actions to preserve:
 
 High-risk files and folders for visual migration:
 
-- Do not change backend or durable behavior: `convex/**`, `backend/**`,
+- Do not change backend or durable behavior: `convex/**`,
   `src/engine/**`, `src/nodeagent/**`, `src/security/**`, `src/notifications/**`,
   `src/app/store.tsx`, `src/app/roomStore.ts`, or API/auth/session contracts.
 - Treat these as behavior-bearing UI files: `src/ui/App.tsx`,

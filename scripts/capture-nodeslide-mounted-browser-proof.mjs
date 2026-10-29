@@ -3,7 +3,7 @@ import { copyFile, mkdir, readFile, rename, rm, stat, writeFile } from "node:fs/
 import { resolve } from "node:path";
 
 const baseUrl = process.env.NODEROOM_PROOF_URL ?? "http://127.0.0.1:5317";
-const outputRoot = resolve(process.argv[2] ?? "artifacts/nodeslide-mounted-browser-proof");
+const outputRoot = resolve(process.argv[2] ?? ".tmp-qa/nodeslide-mounted-browser-proof");
 const docsRoot = resolve("docs/demo");
 const screenshotPath = resolve(docsRoot, "nodeslide-i7-mounted-browser.png");
 const videoPath = resolve(docsRoot, "nodeslide-i7-mounted-browser.webm");

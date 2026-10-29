@@ -165,7 +165,7 @@ Gemini/visual judge → cost/latency telemetry → fresh-room receipt
 | M4 | Reduced motion | all surfaces | manual | Respects prefers-reduced-motion | P2 | partial |
 | M5 | Screen-reader labels | key controls | manual | aria-labels on buttons, tabs | P1 | partial |
 | M6 | Mobile/mid-width overflow | responsive | `e2e/mobile-room.spec.ts` | No horizontal overflow | P1 | partial |
-| M7 | Gemini/visual judge scorecard | screenshots, video | `npm run gemini:judge` | No P0/P1 defects | P1 | shipped |
+| M7 | Gemini/visual judge scorecard | screenshots, video | `npm run media:gemini-judge` | No P0/P1 defects | P1 | shipped |
 
 ## Practical Dogfood Order
 

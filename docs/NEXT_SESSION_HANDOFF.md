@@ -47,7 +47,8 @@ Major buckets reviewed before commit:
 - `.kilo/plans/` contains local planning notes for first-time banker and native
   notebook/coach mode work. It was previously intentionally untracked, but this
   commit includes it because the explicit instruction was to commit all current
-  work to `main`.
+  work to `main`. (Both notes were removed in the 2026-10-29 cleanup; read them
+  at commit `6f1af0f7`.)
 - The repo secret scan surfaced many expected documentation/env-var/test-token
   references. `npm run security:gate` initially failed on one real gate issue:
   frontend `import.meta.env.VITE_NOTEBOOK_SYNC` was not in the allowlist. That

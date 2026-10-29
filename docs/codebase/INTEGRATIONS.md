@@ -69,7 +69,6 @@ a first-run terminal.
 | | |
 |---|---|
 | Primary | Vercel — `vercel.json`, including the production Content-Security-Policy |
-| Also present | `netlify.toml` |
 | Build gate | `scripts/verify-build-provenance.ts` runs inside `npm run build` and fails unless the emitted HTML carries the exact commit it was built from |
 | CSP | Inline scripts are allowed by hash. `scripts/lib/cspIntegrity.ts` audits the deployed header against the HTML, and `tests/cspIntegrity.test.ts` fails a release whose inline route-guard changed but whose header hash did not |
 

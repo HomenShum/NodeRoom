@@ -3,6 +3,7 @@
 > Question: *does the agent harness **architecture** and **tools** need to change?*
 > Reviewed against `6-14-2026-deep-review.txt` (the harness-engineering doc) and `6-15-2026-deep-review.txt`
 > (the newest "Banker Coach Mode" / Trace Lens vision), mapped to the live `src/nodeagent/**` + `convex/agent.ts`.
+> Both transcripts were removed from the tree; read them with `git show 6f1af0f7:<file>`.
 
 ## Verdict
 
@@ -11,7 +12,7 @@ touched. **Tools: the change is ADDITIVE and concentrated in the OUTPUT/EVIDENCE
 tools already exist and are wired, but their **outputs are ephemeral** (not persisted, not telemetered). The
 one genuinely net-new primitive 6-15 asks for is **Trace Lens** (a click-to-context inspector), which is absent.
 
-This matches 6-15's own instruction ([L860](../../6-15-2026-deep-review.txt#L860)): *"I would **not** reorganize
+This matches 6-15's own instruction (L860 of `6-15-2026-deep-review.txt` at commit `6f1af0f7`): *"I would **not** reorganize
 everything… add a thin coach-artifact layer."*
 
 ### "pi-agent-core" — clarified

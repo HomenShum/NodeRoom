@@ -2,7 +2,8 @@
 
 Date: 2026-06-14
 
-The `6-14-2026-Deep-Review.txt` architecture expected a signature engine under
+The `6-14-2026-deep-review.txt` architecture (removed from the tree; read it at
+commit `6f1af0f7`) expected a signature engine under
 `src/nodeagent/**`. The product runtime already existed under `src/nodeagent`,
 `src/engine`, `src/shared`, and `convex`, so the alignment layer now exposes the
 reviewed structure without forking the runtime.

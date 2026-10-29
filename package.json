@@ -188,7 +188,6 @@
     "episode:assemble": "tsx scripts/walkthroughs/episode.ts",
     "episode:render": "tsx scripts/walkthroughs/render-episode.ts",
     "episode:judge": "tsx scripts/walkthroughs/judge-video.ts",
-    "episode:publish": "tsx scripts/walkthroughs/publish-episode.ts",
     "docs:code-visuals": "tsx scripts/generate-doc-code-visuals.ts",
     "media:gemini-judge": "tsx scripts/gemini-demo-media-judge.ts",
     "media:attach-btb-gemini-judge": "tsx scripts/attach-btb-gemini-judge.ts",

@@ -72,7 +72,7 @@ checkout with no private registry access.
 
 ## Hosting
 
-Vercel (`vercel.json` — including the production Content-Security-Policy) with a
-Netlify config also present (`netlify.toml`). `scripts/verify-build-provenance.ts`
+Vercel (`vercel.json` — including the production Content-Security-Policy).
+`scripts/verify-build-provenance.ts`
 runs as part of `npm run build` and fails the build unless the emitted HTML
 carries the exact commit it was built from.

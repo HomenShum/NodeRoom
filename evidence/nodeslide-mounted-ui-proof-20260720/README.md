@@ -1,5 +1,7 @@
 # Mounted NodeSlide UI proof — 2026-07-20 PDT
 
+> **Historical (memory-sample era).** Moved from `artifacts/` to `evidence/` on 2026-10-29. It records a NodeRoom memory-mode sample from before the single `#workspace` agent path; read it as a dated record, not as current behaviour.
+
 This folder is the literal browser-camera companion to the deterministic mounted-component journey. It records a real NodeRoom memory sample because the live Convex deployment correctly rejected the disposable unauthenticated sample with `production_identity_required`; no identity check was bypassed.
 
 - `mounted-artifact-command-surface-clean.jpg` shows the persisted `Q3 diligence readout` after editing `Capture Notebook — mounted v0.2.2`, clicking **Make live**, reopening the artifact, and observing the mounted NodeSlide command controls inside the real NodeRoom Artifacts surface.
