@@ -1,0 +1,25 @@
+{
+  "capturedAt": "2026-10-30T21:47:08.698Z",
+  "tarballSha256": "3aa403b5cdeb6a43e6a56c6843730145d27de13599941067386c9180a5394905",
+  "installedPackageMatchesTarball": true,
+  "providerCalls": 0,
+  "templates": [
+    "blank",
+    "diligence-pack"
+  ],
+  "engineRail": [
+    "ENGINES",
+    "Claude Agent SDK",
+    "setup required",
+    "Codex (app-server)",
+    "setup required",
+    "OpenAI Agents SDK",
+    "setup required",
+    "Google ADK",
+    "setup required",
+    "NodeAgent universal (AI SDK)",
+    "setup required"
+  ],
+  "settledText": "No runs yet. Describe a task below to start one.",
+  "loadingRunsVisibleAfterSettle": 0
+}

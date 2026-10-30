@@ -72,7 +72,7 @@ Curated frames are in `key-screens/`.
 - `timelapse.mp4`: the whole run sped up, with the speed factor printed in the frame.
 - every milestone screenshot.
 
-Their hashes are in each `manifest.json`. The quickstart proof was served by an earlier tarball build (sha256 `e43c859b…`). The committed tarball (`3aa403b5…`) also carries the package README, a CSS change and the adversarial-review fixes; it was checked only by a no-cost smoke test (worker health, UI render).
+Their hashes are in each `manifest.json`. The quickstart proof was served by an earlier tarball build (sha256 `e43c859b…`). The committed tarball (`3aa403b5…`) also carries the package README, a CSS change and the adversarial-review fixes. It was checked only by a no-cost smoke test on 2026-10-30, with no keys and no run started. The installed package's integrity matched the tarball. The worker's health came back through the quickstart's proxy, and a project was created from the template. The UI settled on "No runs yet" and "Setup required … ANTHROPIC_API_KEY is not set" (`run-quickstart-consumer-adk/final-tarball-smoke.png` and `.json`). An earlier screenshot under that name showed a previous tarball build.
 
 To replay the packaging and the independent check yourself:
 
