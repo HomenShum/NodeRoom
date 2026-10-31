@@ -15,6 +15,22 @@
   flipEligible): `docs/GLOSSARY.md`. Benchmark lane-to-command matrix:
   `docs/eval/BENCHMARK_RUNBOOK.md`.
 
+## Agent workspace (start here for agent work)
+
+- The one agent path is the `#workspace` route
+  (`src/ui/workspace/AgentWorkspaceRoute.tsx`) backed by
+  `packages/nodeagent-engines`. Run `npm run agent:worker` (worker on
+  `http://127.0.0.1:4317`) next to `npm run dev`, then open `/#workspace`.
+- Engines and their qualified capabilities live in
+  `packages/nodeagent-engines/qualification/*.json`; check them before claiming an
+  engine can do something.
+- The keyless scripted room (`?mode=memory`) exists only as the isolated test
+  harness that immutable CI (`prod:gate`, design-gate, proofloop suites) drives. A
+  build without `VITE_CONVEX_URL` (CI) runs only that room; a build with it ignores
+  `?mode=memory` unless it was built with `VITE_NODEROOM_HARNESS=1` (set only by
+  `test:product:memory` and the Playwright webServer), so production never reaches it.
+  It is never the product: do not route users to it, demo it, or build features on it.
+
 ## The two canonical gates
 
 - `npm run floor` — fast per-change floor (root typecheck + convex typecheck +
@@ -147,8 +163,7 @@ design system BEFORE editing — never guess tokens, class names, or chrome:
   wrong-semantics colors, missing receipt chips, undismissable chrome). Run it after
   every UI edit; it is part of `prod:gate`.
 - Visual authority order: `docs/design/UI_CONTRACT.md` plus the surface taste
-  contracts it names. `docs/design/DESIGN_PARITY_PLAN.md` is HISTORICAL — do not
-  work its queue.
+  contracts it names.
 - Tokens: the canonical bundle `design-reference/assets/colors_and_type.css` is
   GITIGNORED and may be absent (it is absent right now). When absent, the tokens in
   `src/app/styles.css` are the ONLY allowed source — never introduce a hex value,

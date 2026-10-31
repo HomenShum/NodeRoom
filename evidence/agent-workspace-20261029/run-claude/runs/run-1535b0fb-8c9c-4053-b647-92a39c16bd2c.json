@@ -1,0 +1,148 @@
+{
+  "id": "run-1535b0fb-8c9c-4053-b647-92a39c16bd2c",
+  "projectId": "prj-df2eb797-8db3-4c48-8a32-f07ddfaa6dd2",
+  "engine": "claude-agent-sdk",
+  "model": "claude-sonnet-5-5",
+  "helperModel": "claude-haiku-5-5",
+  "prompt": "Two new companies arrived in sources/inbox/ (a profile, a financial statement and diligence call notes for each). Add both to analysis/comparison.json, analysis/comparison.md (table and runway ranking) and analysis/diligence.ipynb, with every figure cited to the exact line in sources/inbox/ and runway = cash / monthly burn. Keep the existing rows, the exceptions section and all citations intact. Re-run the 'report' check with the run_checks tool. Then load the project's citation-validation skill, run it on analysis/comparison.md and fix any failure it reports. Finish with a short summary of where the two companies rank, their top risks and which checks passed.",
+  "status": "completed",
+  "createdAt": "2026-10-29T13:13:38.216Z",
+  "lastSeq": 95,
+  "usage": {
+    "inputTokens": 14,
+    "outputTokens": 5973,
+    "cacheReadTokens": 188324,
+    "cacheWriteTokens": 29647,
+    "costUsd": 0.1527079,
+    "costSource": "engine",
+    "modelTurns": 7
+  },
+  "goals": [],
+  "counters": {
+    "toolCalls": 19,
+    "toolCallsOk": 18,
+    "toolCallsFailed": 1,
+    "nativeToolCalls": 16,
+    "nodeToolCalls": 3,
+    "toolSearches": 1,
+    "toolsLoaded": 5,
+    "skillsLoaded": 3,
+    "skillLifecycleEvents": 0,
+    "helpersStarted": 0,
+    "helpersCompleted": 0,
+    "compactions": 0,
+    "artifactsWritten": 4,
+    "uniqueFilesRead": 7,
+    "checksRun": 19,
+    "permissionDenials": 1
+  },
+  "budget": {
+    "maxUsd": 30,
+    "maxWallMs": 7200000
+  },
+  "context": {
+    "autoCompactTokens": 100000
+  },
+  "startedAt": "2026-10-29T13:13:38.217Z",
+  "nativeSessionId": "aa6bcba7-e1b0-4a86-a68d-3325cf8ef1b0",
+  "finalText": "Both companies are added to `analysis/comparison.json`, `analysis/comparison.md` (table and runway ranking) and `analysis/diligence.ipynb`. All their figures are cited to exact lines in `sources/inbox/`. The existing rows, exceptions section and citations are unchanged.\n\n**Where they rank (runway = cash / monthly burn)**\n- **Kestrelmoor Capital** is 3rd of 10, with 23.4 / 1.3 = 18.0 months.\n- **Solvane Trade Credit** is 8th of 10, with 9.6 / 0.8 = 12.0 months. That is exactly at the committee's 12-month proceed threshold.\n\n**Top risks**\n- **Kestrelmoor:** brand correlation. 31% of outstanding loans go to franchisees of two quick-service brands, so a downturn at either brand would hit about a third of the book. The call notes recommend proceeding.\n- **Solvane:** unseasoned credit. There are only 14 months of vintage history, so the 2.6% annualized net charge-off rate hasn't been tested through a downturn. The call notes recommend proceeding with conditions.\n\n**Checks**\n- **`report` suite:** 13 passed, 0 failed.\n- **Citation validation on `analysis/comparison.md`:** 64 citations checked, 0 failed, so nothing needed fixing.\n\n**Restatements, superseded and unavailable documents**\n- The new companies have no restatements, no superseded documents and no restricted references.\n- I did not add a notebook cell to the ranking code. The existing recompute and ranking cells read `comparison.json`, so they pick up the new rows automatically. I appended one markdown cell with the two companies' derivations. I haven't executed the notebook.",
+  "endedAt": "2026-10-29T13:14:18.155Z",
+  "verification": {
+    "ranAt": "2026-10-29T13:14:19.582Z",
+    "verifier": "diligence-pack.verify.mjs",
+    "passed": 18,
+    "failed": 0,
+    "checks": [
+      {
+        "id": "comparison.json",
+        "ok": true,
+        "detail": "10 rows"
+      },
+      {
+        "id": "comparison.companies",
+        "ok": true,
+        "detail": "all 10 companies for stage inbox"
+      },
+      {
+        "id": "metrics.values",
+        "ok": true,
+        "detail": "every metric matches ground truth within tolerance"
+      },
+      {
+        "id": "metrics.restated-arr",
+        "ok": true,
+        "detail": "Tessaly Credit uses restated ARR 11.6 and growth 40%"
+      },
+      {
+        "id": "runway.formula",
+        "ok": true,
+        "detail": "runwayMonths = cash / burn on every row"
+      },
+      {
+        "id": "risks.exceptions",
+        "ok": true,
+        "detail": "restatement and concentration exceptions are the top risks"
+      },
+      {
+        "id": "sources.no-restricted",
+        "ok": true,
+        "detail": "no citation into sources/restricted/"
+      },
+      {
+        "id": "sources.no-superseded",
+        "ok": true,
+        "detail": "nothing taken from marrowfield-financials-v1.md"
+      },
+      {
+        "id": "citations.resolve",
+        "ok": true,
+        "detail": "144 citations resolve; every metric citation's line contains its value"
+      },
+      {
+        "id": "comparison-md.table",
+        "ok": true,
+        "detail": "10 companies, 64 citations"
+      },
+      {
+        "id": "comparison-md.exceptions",
+        "ok": true,
+        "detail": "names the restatement, the superseded document and the unavailable restricted documents"
+      },
+      {
+        "id": "report.tests-intact",
+        "ok": true,
+        "detail": "2 template test files unchanged"
+      },
+      {
+        "id": "report.tests-pass",
+        "ok": true,
+        "detail": "node --test: 13 passed, 0 failed"
+      },
+      {
+        "id": "notebook.valid",
+        "ok": true,
+        "detail": "nbformat 4, 8 cells (3 code, 5 markdown)"
+      },
+      {
+        "id": "skill.active",
+        "ok": true,
+        "detail": "active with script .claude/skills/citation-validation/validate.mjs"
+      },
+      {
+        "id": "skill.ledger",
+        "ok": true,
+        "detail": "active files match the Node activation 6238b534db70"
+      },
+      {
+        "id": "skill.accepts-table",
+        "ok": true,
+        "detail": "exit 0 on analysis/comparison.md"
+      },
+      {
+        "id": "skill.rejects-corrupted",
+        "ok": true,
+        "detail": "exit 1 on a corrupted copy, exit 0 on an unmodified copy"
+      }
+    ]
+  }
+}

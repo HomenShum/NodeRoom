@@ -130,9 +130,10 @@ NodeAgent run; Convex rows store the cognition state.
 
 The frame loop's phase separation (`intake` → `plan` → `execute` → `verify` →
 `synthesize`) naturally supports per-phase model assignment. The orchestrator
-model handles planning/verification/synthesis; the worker model handles
-execution. See [`ORCHESTRATOR_WORKER_ROUTING.md`](ORCHESTRATOR_WORKER_ROUTING.md)
-for the full design record, cost profile, and industry references.
+model (`AGENT_ORCHESTRATOR_MODEL`) handles planning/verification/synthesis; the
+worker model (`AGENT_WORKER_MODEL`) handles execution; with neither set, every
+phase uses the job's model. See [`ORCHESTRATOR_WORKER_ROUTING.md`](ORCHESTRATOR_WORKER_ROUTING.md)
+for what is wired.
 
 ## Verification Pointers
 

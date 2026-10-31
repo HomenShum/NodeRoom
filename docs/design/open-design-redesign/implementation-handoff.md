@@ -80,7 +80,8 @@ Deeper polish pass after user review:
 Parallel review reconciliation on 2026-06-15:
 
 - Ran parallel subagent reads against `6-14-2026-deep-review.txt` and
-  `6-15-2026-deep-review.txt`; both reviews pointed to product-truth gaps more
+  `6-15-2026-deep-review.txt` (both now removed; read them at commit
+  `6f1af0f7`); both reviews pointed to product-truth gaps more
   than pure visual polish.
 - Removed public JPM-affiliation wording from the prototype. The current room is
   `Northstar MMB · Startup Diligence Pool`; owner copy uses

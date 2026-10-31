@@ -1,0 +1,1051 @@
+{
+  "schema": "nodeagent.proof-package/v1",
+  "generatedAt": "2026-10-29T14:56:58.401Z",
+  "source": {
+    "gitHead": "f217ce0fee3ebd949e8d0dd3208e4f602c7ba306",
+    "dirtyFiles": 39,
+    "package": "@homenshum/nodeagent-engines@0.1.0",
+    "sdkPins": {
+      "@ai-sdk/anthropic": "4.0.91",
+      "@ai-sdk/google": "4.0.107",
+      "@ai-sdk/openai": "4.0.104",
+      "@anthropic-ai/claude-agent-sdk": "0.3.312",
+      "@google/adk": "2.4.0",
+      "@google/genai": "2.32.0",
+      "@openai/agents": "0.21.0",
+      "@openai/codex": "0.165.0",
+      "ai": "6.0.280",
+      "lucide-react": "0.515.0",
+      "zod": "4.6.7"
+    }
+  },
+  "recording": {
+    "startedAt": "2026-10-29T14:48:06.770Z",
+    "endedAt": "2026-10-29T14:56:15.051Z",
+    "durationSec": 488.08,
+    "rawVideo": "raw-recording.webm",
+    "rawVideoMp4": "raw-recording.mp4",
+    "speed": "1x unedited",
+    "trace": "trace.zip"
+  },
+  "editedMedia": {
+    "highlights": {
+      "file": "highlights.mp4",
+      "edited": true,
+      "windows": [
+        {
+          "start": 0,
+          "end": 20.6,
+          "labels": [
+            "workspace-open",
+            "project-created",
+            "task1-task-entered",
+            "task1-run-accepted",
+            "task1-tool-search",
+            "task1-goals",
+            "task1-tool-loaded",
+            "task1-skill-used"
+          ]
+        },
+        {
+          "start": 25.8,
+          "end": 36.2,
+          "labels": [
+            "task1-first-helper",
+            "task1-helpers-overlap",
+            "task1-before-reload",
+            "task1-after-reload"
+          ]
+        },
+        {
+          "start": 51.6,
+          "end": 61.6,
+          "labels": [
+            "task1-first-check"
+          ]
+        },
+        {
+          "start": 127.6,
+          "end": 137.6,
+          "labels": [
+            "task1-first-artifact"
+          ]
+        },
+        {
+          "start": 234.2,
+          "end": 244.4,
+          "labels": [
+            "task1-skill-drafted",
+            "task1-skill-validated",
+            "task1-citation-skill-card"
+          ]
+        },
+        {
+          "start": 254.60000000000002,
+          "end": 264.7,
+          "labels": [
+            "task1-skill-tested",
+            "task1-skill-activated"
+          ]
+        },
+        {
+          "start": 290.3,
+          "end": 301.4,
+          "labels": [
+            "task1-terminal-completed",
+            "task1-verified",
+            "task2-task-entered",
+            "task2-run-accepted"
+          ]
+        },
+        {
+          "start": 301.6,
+          "end": 311.7,
+          "labels": [
+            "task2-skill-used",
+            "task2-goals"
+          ]
+        },
+        {
+          "start": 337.1,
+          "end": 352.2,
+          "labels": [
+            "task2-first-check",
+            "task2-tool-search",
+            "task2-citation-skill-card"
+          ]
+        },
+        {
+          "start": 402.9,
+          "end": 412.9,
+          "labels": [
+            "task2-first-artifact"
+          ]
+        },
+        {
+          "start": 484,
+          "end": 488.08,
+          "labels": [
+            "task2-terminal-completed",
+            "task2-verified"
+          ]
+        }
+      ]
+    },
+    "timelapse": {
+      "file": "timelapse.mp4",
+      "speedFactor": 3
+    }
+  },
+  "runs": [
+    {
+      "id": "run-4bdd65cc-9a7b-4b06-bced-f355b2b2c7aa",
+      "engine": "google-adk",
+      "model": "gemini-3.5-flash",
+      "helperModel": "gemini-3.5-flash-lite",
+      "status": "completed",
+      "relation": null,
+      "parentRunId": null,
+      "createdAt": "2026-10-29T14:48:09.551Z",
+      "endedAt": "2026-10-29T14:52:55.222Z",
+      "usage": {
+        "inputTokens": 316432,
+        "outputTokens": 55931,
+        "cacheReadTokens": 1714358,
+        "cacheWriteTokens": 0,
+        "costUsd": null,
+        "costSource": "unknown",
+        "modelTurns": 66
+      },
+      "counters": {
+        "toolCalls": 83,
+        "toolCallsOk": 81,
+        "toolCallsFailed": 2,
+        "nativeToolCalls": 1,
+        "nodeToolCalls": 82,
+        "toolSearches": 2,
+        "toolsLoaded": 4,
+        "skillsLoaded": 3,
+        "skillLifecycleEvents": 7,
+        "helpersStarted": 4,
+        "helpersCompleted": 4,
+        "compactions": 0,
+        "artifactsWritten": 19,
+        "uniqueFilesRead": 16,
+        "checksRun": 21,
+        "permissionDenials": 0
+      },
+      "verification": {
+        "ranAt": "2026-10-29T14:52:55.910Z",
+        "verifier": "diligence-pack.verify.mjs",
+        "passed": 18,
+        "failed": 0,
+        "checks": [
+          {
+            "id": "comparison.json",
+            "ok": true,
+            "detail": "8 rows"
+          },
+          {
+            "id": "comparison.companies",
+            "ok": true,
+            "detail": "all 8 companies for stage full"
+          },
+          {
+            "id": "metrics.values",
+            "ok": true,
+            "detail": "every metric matches ground truth within tolerance"
+          },
+          {
+            "id": "metrics.restated-arr",
+            "ok": true,
+            "detail": "Tessaly Credit uses restated ARR 11.6 and growth 40%"
+          },
+          {
+            "id": "runway.formula",
+            "ok": true,
+            "detail": "runwayMonths = cash / burn on every row"
+          },
+          {
+            "id": "risks.exceptions",
+            "ok": true,
+            "detail": "restatement and concentration exceptions are the top risks"
+          },
+          {
+            "id": "sources.no-restricted",
+            "ok": true,
+            "detail": "no citation into sources/restricted/"
+          },
+          {
+            "id": "sources.no-superseded",
+            "ok": true,
+            "detail": "nothing taken from marrowfield-financials-v1.md"
+          },
+          {
+            "id": "citations.resolve",
+            "ok": true,
+            "detail": "114 citations resolve; every metric citation's line contains its value"
+          },
+          {
+            "id": "comparison-md.table",
+            "ok": true,
+            "detail": "8 companies, 50 citations"
+          },
+          {
+            "id": "comparison-md.exceptions",
+            "ok": true,
+            "detail": "names the restatement, the superseded document and the unavailable restricted documents"
+          },
+          {
+            "id": "report.tests-intact",
+            "ok": true,
+            "detail": "2 template test files unchanged"
+          },
+          {
+            "id": "report.tests-pass",
+            "ok": true,
+            "detail": "node --test: 13 passed, 0 failed"
+          },
+          {
+            "id": "notebook.valid",
+            "ok": true,
+            "detail": "nbformat 4, 7 cells (3 code, 4 markdown)"
+          },
+          {
+            "id": "skill.active",
+            "ok": true,
+            "detail": "active with script .claude/skills/citation-validation/scripts/validate-citations.mjs"
+          },
+          {
+            "id": "skill.ledger",
+            "ok": true,
+            "detail": "active files match the Node activation 40dddcab226c"
+          },
+          {
+            "id": "skill.accepts-table",
+            "ok": true,
+            "detail": "exit 0 on analysis/comparison.md"
+          },
+          {
+            "id": "skill.rejects-corrupted",
+            "ok": true,
+            "detail": "exit 1 on a corrupted copy, exit 0 on an unmodified copy"
+          }
+        ]
+      }
+    },
+    {
+      "id": "run-9a5fba86-0380-492a-af47-eb9b80ce1f27",
+      "engine": "google-adk",
+      "model": "gemini-3.5-flash",
+      "helperModel": "gemini-3.5-flash-lite",
+      "status": "completed",
+      "relation": null,
+      "parentRunId": null,
+      "createdAt": "2026-10-29T14:53:01.125Z",
+      "endedAt": "2026-10-29T14:56:09.734Z",
+      "usage": {
+        "inputTokens": 127056,
+        "outputTokens": 34406,
+        "cacheReadTokens": 1160301,
+        "cacheWriteTokens": 0,
+        "costUsd": null,
+        "costSource": "unknown",
+        "modelTurns": 37
+      },
+      "counters": {
+        "toolCalls": 36,
+        "toolCallsOk": 36,
+        "toolCallsFailed": 0,
+        "nativeToolCalls": 0,
+        "nodeToolCalls": 36,
+        "toolSearches": 2,
+        "toolsLoaded": 0,
+        "skillsLoaded": 3,
+        "skillLifecycleEvents": 0,
+        "helpersStarted": 0,
+        "helpersCompleted": 0,
+        "compactions": 0,
+        "artifactsWritten": 4,
+        "uniqueFilesRead": 17,
+        "checksRun": 22,
+        "permissionDenials": 0
+      },
+      "verification": {
+        "ranAt": "2026-10-29T14:56:10.427Z",
+        "verifier": "diligence-pack.verify.mjs",
+        "passed": 18,
+        "failed": 0,
+        "checks": [
+          {
+            "id": "comparison.json",
+            "ok": true,
+            "detail": "10 rows"
+          },
+          {
+            "id": "comparison.companies",
+            "ok": true,
+            "detail": "all 10 companies for stage inbox"
+          },
+          {
+            "id": "metrics.values",
+            "ok": true,
+            "detail": "every metric matches ground truth within tolerance"
+          },
+          {
+            "id": "metrics.restated-arr",
+            "ok": true,
+            "detail": "Tessaly Credit uses restated ARR 11.6 and growth 40%"
+          },
+          {
+            "id": "runway.formula",
+            "ok": true,
+            "detail": "runwayMonths = cash / burn on every row"
+          },
+          {
+            "id": "risks.exceptions",
+            "ok": true,
+            "detail": "restatement and concentration exceptions are the top risks"
+          },
+          {
+            "id": "sources.no-restricted",
+            "ok": true,
+            "detail": "no citation into sources/restricted/"
+          },
+          {
+            "id": "sources.no-superseded",
+            "ok": true,
+            "detail": "nothing taken from marrowfield-financials-v1.md"
+          },
+          {
+            "id": "citations.resolve",
+            "ok": true,
+            "detail": "142 citations resolve; every metric citation's line contains its value"
+          },
+          {
+            "id": "comparison-md.table",
+            "ok": true,
+            "detail": "10 companies, 62 citations"
+          },
+          {
+            "id": "comparison-md.exceptions",
+            "ok": true,
+            "detail": "names the restatement, the superseded document and the unavailable restricted documents"
+          },
+          {
+            "id": "report.tests-intact",
+            "ok": true,
+            "detail": "2 template test files unchanged"
+          },
+          {
+            "id": "report.tests-pass",
+            "ok": true,
+            "detail": "node --test: 13 passed, 0 failed"
+          },
+          {
+            "id": "notebook.valid",
+            "ok": true,
+            "detail": "nbformat 4, 7 cells (3 code, 4 markdown)"
+          },
+          {
+            "id": "skill.active",
+            "ok": true,
+            "detail": "active with script .claude/skills/citation-validation/scripts/validate-citations.mjs"
+          },
+          {
+            "id": "skill.ledger",
+            "ok": true,
+            "detail": "active files match the Node activation 40dddcab226c"
+          },
+          {
+            "id": "skill.accepts-table",
+            "ok": true,
+            "detail": "exit 0 on analysis/comparison.md"
+          },
+          {
+            "id": "skill.rejects-corrupted",
+            "ok": true,
+            "detail": "exit 1 on a corrupted copy, exit 0 on an unmodified copy"
+          }
+        ]
+      }
+    }
+  ],
+  "totalCostUsd": null,
+  "eventCounts": {
+    "message": 8,
+    "run.started": 2,
+    "tool.call": 119,
+    "goals.updated": 12,
+    "tool.result": 119,
+    "context.usage": 103,
+    "usage": 105,
+    "tool.search": 4,
+    "tool.loaded": 1,
+    "skill.loaded": 6,
+    "helper.started": 4,
+    "helper.progress": 17,
+    "helper.completed": 4,
+    "check.result": 43,
+    "artifact.written": 23,
+    "skill.lifecycle": 7,
+    "message.delta": 84,
+    "run.completed": 2
+  },
+  "milestones": [
+    {
+      "name": "workspace-open",
+      "at": "2026-10-29T14:48:07.436Z",
+      "videoOffsetSec": 0.7,
+      "detail": "normal #workspace route, worker reachable",
+      "screenshot": "screenshots/01-workspace-open.png"
+    },
+    {
+      "name": "project-created",
+      "at": "2026-10-29T14:48:09.322Z",
+      "videoOffsetSec": 2.6,
+      "detail": "fresh project prj-1d8fbdcc-22af-42b8-98c3-bfe225e5d1b5 from template diligence-pack",
+      "screenshot": "screenshots/02-project-created.png"
+    },
+    {
+      "name": "task1-task-entered",
+      "at": "2026-10-29T14:48:09.458Z",
+      "videoOffsetSec": 2.7,
+      "detail": "suggested task \"full-diligence\" placed in the composer",
+      "screenshot": "screenshots/03-task1-task-entered.png"
+    },
+    {
+      "name": "task1-run-accepted",
+      "at": "2026-10-29T14:48:09.909Z",
+      "videoOffsetSec": 3.1,
+      "runId": "run-4bdd65cc-9a7b-4b06-bced-f355b2b2c7aa",
+      "detail": "run run-4bdd65cc-9a7b-4b06-bced-f355b2b2c7aa persisted by the worker",
+      "screenshot": "screenshots/04-task1-run-accepted.png"
+    },
+    {
+      "name": "task1-tool-search",
+      "at": "2026-10-29T14:48:15.061Z",
+      "videoOffsetSec": 8.3,
+      "runId": "run-4bdd65cc-9a7b-4b06-bced-f355b2b2c7aa",
+      "detail": "a tool was found by search",
+      "screenshot": "screenshots/05-task1-tool-search.png"
+    },
+    {
+      "name": "task1-goals",
+      "at": "2026-10-29T14:48:15.150Z",
+      "videoOffsetSec": 8.4,
+      "runId": "run-4bdd65cc-9a7b-4b06-bced-f355b2b2c7aa",
+      "detail": "goal outline visible",
+      "screenshot": "screenshots/06-task1-goals.png"
+    },
+    {
+      "name": "task1-tool-loaded",
+      "at": "2026-10-29T14:48:20.272Z",
+      "videoOffsetSec": 13.5,
+      "runId": "run-4bdd65cc-9a7b-4b06-bced-f355b2b2c7aa",
+      "detail": "a searched tool became callable",
+      "screenshot": "screenshots/07-task1-tool-loaded.png"
+    },
+    {
+      "name": "task1-skill-used",
+      "at": "2026-10-29T14:48:20.341Z",
+      "videoOffsetSec": 13.6,
+      "runId": "run-4bdd65cc-9a7b-4b06-bced-f355b2b2c7aa",
+      "detail": "a skill card appeared",
+      "screenshot": "screenshots/08-task1-skill-used.png"
+    },
+    {
+      "name": "task1-first-helper",
+      "at": "2026-10-29T14:48:35.609Z",
+      "videoOffsetSec": 28.8,
+      "runId": "run-4bdd65cc-9a7b-4b06-bced-f355b2b2c7aa",
+      "detail": "4 helper(s) visible",
+      "screenshot": "screenshots/09-task1-first-helper.png"
+    },
+    {
+      "name": "task1-helpers-overlap",
+      "at": "2026-10-29T14:48:35.672Z",
+      "videoOffsetSec": 28.9,
+      "runId": "run-4bdd65cc-9a7b-4b06-bced-f355b2b2c7aa",
+      "detail": "4 helpers running at once",
+      "screenshot": "screenshots/10-task1-helpers-overlap.png"
+    },
+    {
+      "name": "task1-before-reload",
+      "at": "2026-10-29T14:48:35.773Z",
+      "videoOffsetSec": 29,
+      "runId": "run-4bdd65cc-9a7b-4b06-bced-f355b2b2c7aa",
+      "detail": "reloading the tab at 44 tool calls",
+      "screenshot": "screenshots/11-task1-before-reload.png"
+    },
+    {
+      "name": "task1-after-reload",
+      "at": "2026-10-29T14:48:35.933Z",
+      "videoOffsetSec": 29.2,
+      "runId": "run-4bdd65cc-9a7b-4b06-bced-f355b2b2c7aa",
+      "detail": "restored from the worker; run still running with 44 tool calls",
+      "screenshot": "screenshots/12-task1-after-reload.png"
+    },
+    {
+      "name": "task1-first-check",
+      "at": "2026-10-29T14:49:01.362Z",
+      "videoOffsetSec": 54.6,
+      "runId": "run-4bdd65cc-9a7b-4b06-bced-f355b2b2c7aa",
+      "detail": "first check result visible",
+      "screenshot": "screenshots/13-task1-first-check.png"
+    },
+    {
+      "name": "task1-first-artifact",
+      "at": "2026-10-29T14:50:17.397Z",
+      "videoOffsetSec": 130.6,
+      "runId": "run-4bdd65cc-9a7b-4b06-bced-f355b2b2c7aa",
+      "detail": "first artifact listed",
+      "screenshot": "screenshots/14-task1-first-artifact.png"
+    },
+    {
+      "name": "task1-skill-drafted",
+      "at": "2026-10-29T14:52:03.992Z",
+      "videoOffsetSec": 237.2,
+      "runId": "run-4bdd65cc-9a7b-4b06-bced-f355b2b2c7aa",
+      "detail": "skill lifecycle stage drafted",
+      "screenshot": "screenshots/16-task1-skill-drafted.png"
+    },
+    {
+      "name": "task1-skill-validated",
+      "at": "2026-10-29T14:52:04.047Z",
+      "videoOffsetSec": 237.3,
+      "runId": "run-4bdd65cc-9a7b-4b06-bced-f355b2b2c7aa",
+      "detail": "skill lifecycle stage validated",
+      "screenshot": "screenshots/17-task1-skill-validated.png"
+    },
+    {
+      "name": "task1-citation-skill-card",
+      "at": "2026-10-29T14:52:04.128Z",
+      "videoOffsetSec": 237.4,
+      "runId": "run-4bdd65cc-9a7b-4b06-bced-f355b2b2c7aa",
+      "detail": "citation-validation skill card visible",
+      "screenshot": "screenshots/18-task1-citation-skill-card.png"
+    },
+    {
+      "name": "task1-skill-tested",
+      "at": "2026-10-29T14:52:24.413Z",
+      "videoOffsetSec": 257.6,
+      "runId": "run-4bdd65cc-9a7b-4b06-bced-f355b2b2c7aa",
+      "detail": "skill lifecycle stage tested",
+      "screenshot": "screenshots/19-task1-skill-tested.png"
+    },
+    {
+      "name": "task1-skill-activated",
+      "at": "2026-10-29T14:52:24.497Z",
+      "videoOffsetSec": 257.7,
+      "runId": "run-4bdd65cc-9a7b-4b06-bced-f355b2b2c7aa",
+      "detail": "skill lifecycle stage activated",
+      "screenshot": "screenshots/20-task1-skill-activated.png"
+    },
+    {
+      "name": "task1-terminal-completed",
+      "at": "2026-10-29T14:53:00.112Z",
+      "videoOffsetSec": 293.3,
+      "runId": "run-4bdd65cc-9a7b-4b06-bced-f355b2b2c7aa",
+      "detail": "run run-4bdd65cc-9a7b-4b06-bced-f355b2b2c7aa ended completed",
+      "screenshot": "screenshots/21-task1-terminal-completed.png"
+    },
+    {
+      "name": "task1-verified",
+      "at": "2026-10-29T14:53:00.249Z",
+      "videoOffsetSec": 293.5,
+      "runId": "run-4bdd65cc-9a7b-4b06-bced-f355b2b2c7aa",
+      "detail": "independent verifier: 18 passed, 0 failed",
+      "screenshot": "screenshots/22-task1-verified.png"
+    },
+    {
+      "name": "task2-task-entered",
+      "at": "2026-10-29T14:53:01.043Z",
+      "videoOffsetSec": 294.3,
+      "detail": "suggested task \"inbox-update\" placed in the composer",
+      "screenshot": "screenshots/27-task2-task-entered.png"
+    },
+    {
+      "name": "task2-run-accepted",
+      "at": "2026-10-29T14:53:01.170Z",
+      "videoOffsetSec": 294.4,
+      "runId": "run-9a5fba86-0380-492a-af47-eb9b80ce1f27",
+      "detail": "run run-9a5fba86-0380-492a-af47-eb9b80ce1f27 persisted by the worker",
+      "screenshot": "screenshots/28-task2-run-accepted.png"
+    },
+    {
+      "name": "task2-skill-used",
+      "at": "2026-10-29T14:53:11.355Z",
+      "videoOffsetSec": 304.6,
+      "runId": "run-9a5fba86-0380-492a-af47-eb9b80ce1f27",
+      "detail": "a skill card appeared",
+      "screenshot": "screenshots/29-task2-skill-used.png"
+    },
+    {
+      "name": "task2-goals",
+      "at": "2026-10-29T14:53:11.429Z",
+      "videoOffsetSec": 304.7,
+      "runId": "run-9a5fba86-0380-492a-af47-eb9b80ce1f27",
+      "detail": "goal outline visible",
+      "screenshot": "screenshots/30-task2-goals.png"
+    },
+    {
+      "name": "task2-first-check",
+      "at": "2026-10-29T14:53:46.864Z",
+      "videoOffsetSec": 340.1,
+      "runId": "run-9a5fba86-0380-492a-af47-eb9b80ce1f27",
+      "detail": "first check result visible",
+      "screenshot": "screenshots/31-task2-first-check.png"
+    },
+    {
+      "name": "task2-tool-search",
+      "at": "2026-10-29T14:53:51.945Z",
+      "videoOffsetSec": 345.2,
+      "runId": "run-9a5fba86-0380-492a-af47-eb9b80ce1f27",
+      "detail": "a tool was found by search",
+      "screenshot": "screenshots/32-task2-tool-search.png"
+    },
+    {
+      "name": "task2-citation-skill-card",
+      "at": "2026-10-29T14:53:52.014Z",
+      "videoOffsetSec": 345.2,
+      "runId": "run-9a5fba86-0380-492a-af47-eb9b80ce1f27",
+      "detail": "citation-validation skill card visible",
+      "screenshot": "screenshots/33-task2-citation-skill-card.png"
+    },
+    {
+      "name": "task2-first-artifact",
+      "at": "2026-10-29T14:54:52.716Z",
+      "videoOffsetSec": 405.9,
+      "runId": "run-9a5fba86-0380-492a-af47-eb9b80ce1f27",
+      "detail": "first artifact listed",
+      "screenshot": "screenshots/34-task2-first-artifact.png"
+    },
+    {
+      "name": "task2-terminal-completed",
+      "at": "2026-10-29T14:56:13.780Z",
+      "videoOffsetSec": 487,
+      "runId": "run-9a5fba86-0380-492a-af47-eb9b80ce1f27",
+      "detail": "run run-9a5fba86-0380-492a-af47-eb9b80ce1f27 ended completed",
+      "screenshot": "screenshots/36-task2-terminal-completed.png"
+    },
+    {
+      "name": "task2-verified",
+      "at": "2026-10-29T14:56:13.894Z",
+      "videoOffsetSec": 487.1,
+      "runId": "run-9a5fba86-0380-492a-af47-eb9b80ce1f27",
+      "detail": "independent verifier: 18 passed, 0 failed",
+      "screenshot": "screenshots/37-task2-verified.png"
+    }
+  ],
+  "verificationRerun": {
+    "ranAt": "2026-10-29T14:56:58.166Z",
+    "verifier": "diligence-pack.verify.mjs (stage inbox)",
+    "passed": 18,
+    "failed": 0,
+    "checks": [
+      {
+        "id": "comparison.json",
+        "ok": true,
+        "detail": "10 rows"
+      },
+      {
+        "id": "comparison.companies",
+        "ok": true,
+        "detail": "all 10 companies for stage inbox"
+      },
+      {
+        "id": "metrics.values",
+        "ok": true,
+        "detail": "every metric matches ground truth within tolerance"
+      },
+      {
+        "id": "metrics.restated-arr",
+        "ok": true,
+        "detail": "Tessaly Credit uses restated ARR 11.6 and growth 40%"
+      },
+      {
+        "id": "runway.formula",
+        "ok": true,
+        "detail": "runwayMonths = cash / burn on every row"
+      },
+      {
+        "id": "risks.exceptions",
+        "ok": true,
+        "detail": "restatement and concentration exceptions are the top risks"
+      },
+      {
+        "id": "sources.no-restricted",
+        "ok": true,
+        "detail": "no citation into sources/restricted/"
+      },
+      {
+        "id": "sources.no-superseded",
+        "ok": true,
+        "detail": "nothing taken from marrowfield-financials-v1.md"
+      },
+      {
+        "id": "citations.resolve",
+        "ok": true,
+        "detail": "142 citations resolve; every metric citation's line contains its value"
+      },
+      {
+        "id": "comparison-md.table",
+        "ok": true,
+        "detail": "10 companies, 62 citations"
+      },
+      {
+        "id": "comparison-md.exceptions",
+        "ok": true,
+        "detail": "names the restatement, the superseded document and the unavailable restricted documents"
+      },
+      {
+        "id": "report.tests-intact",
+        "ok": true,
+        "detail": "2 template test files unchanged"
+      },
+      {
+        "id": "report.tests-pass",
+        "ok": true,
+        "detail": "node --test: 13 passed, 0 failed"
+      },
+      {
+        "id": "notebook.valid",
+        "ok": true,
+        "detail": "nbformat 4, 7 cells (3 code, 4 markdown)"
+      },
+      {
+        "id": "skill.active",
+        "ok": true,
+        "detail": "active with script .claude/skills/citation-validation/scripts/validate-citations.mjs"
+      },
+      {
+        "id": "skill.ledger",
+        "ok": true,
+        "detail": "active files match the Node activation 40dddcab226c"
+      },
+      {
+        "id": "skill.accepts-table",
+        "ok": true,
+        "detail": "exit 0 on analysis/comparison.md"
+      },
+      {
+        "id": "skill.rejects-corrupted",
+        "ok": true,
+        "detail": "exit 1 on a corrupted copy, exit 0 on an unmodified copy"
+      }
+    ]
+  },
+  "files": [
+    {
+      "path": "contact-sheet.inputs.txt",
+      "bytes": 8238,
+      "sha256": "48080d613a78b4455140ee05f3beac90ad810d4bffd2f89773b14ff717fdb6d9"
+    },
+    {
+      "path": "contact-sheet.png",
+      "bytes": 1568807,
+      "sha256": "fd9e790db9d8f6eb0406736c74361708e0187e1d891d6c1640508523c86bb35a"
+    },
+    {
+      "path": "events/run-4bdd65cc-9a7b-4b06-bced-f355b2b2c7aa.jsonl",
+      "bytes": 222468,
+      "sha256": "cdc541bdacdb4e7d654ec6d45cc14146dc860bd599e7c578dd5f90236914f83e"
+    },
+    {
+      "path": "events/run-9a5fba86-0380-492a-af47-eb9b80ce1f27.jsonl",
+      "bytes": 104044,
+      "sha256": "0e2d4f96a23e027ab51d3dcd95ae016d51fecb95fb0dff8ebd031077eca2c814"
+    },
+    {
+      "path": "highlights.filter.txt",
+      "bytes": 3090,
+      "sha256": "8a1f8a4f85af65e654fdf4455a39df04f6385668b69d84b57e28aa8793979964"
+    },
+    {
+      "path": "highlights.mp4",
+      "bytes": 5097900,
+      "sha256": "3c8963ba8a222fa24cdc483bc7663b7dff8527c1b2c1ee63dfe39df74877cc28"
+    },
+    {
+      "path": "project.json",
+      "bytes": 304,
+      "sha256": "acf4c6fa74d78dc20398fc593d17b639eec7342bc025080ba5f3b05b04cfc0a2"
+    },
+    {
+      "path": "raw-recording.mp4",
+      "bytes": 23072398,
+      "sha256": "25b88d6cd3459232b2f9490f60dbe62c3c9859e9d2a38a6a66b95994edaa9ee7"
+    },
+    {
+      "path": "raw-recording.webm",
+      "bytes": 45492466,
+      "sha256": "337344284319755f13ae076ab638a892fe570141dc1b6b2406e2ec50f453c211"
+    },
+    {
+      "path": "recording.json",
+      "bytes": 9595,
+      "sha256": "f03515022fec397abbc284b229be7404020d49f1329a9b3e08507ec7a8a0cb32"
+    },
+    {
+      "path": "runs/run-4bdd65cc-9a7b-4b06-bced-f355b2b2c7aa.json",
+      "bytes": 11219,
+      "sha256": "eb9f6f4a61c8a0221641a442a1ae357ba149cb7026bb6c378cb53d0fe1b81027"
+    },
+    {
+      "path": "runs/run-9a5fba86-0380-492a-af47-eb9b80ce1f27.json",
+      "bytes": 8653,
+      "sha256": "537a76c07b0df492e0772ec223382e8f3a186a71dfe2280f9fdda70ac0f31627"
+    },
+    {
+      "path": "screenshots/01-workspace-open.png",
+      "bytes": 11404,
+      "sha256": "242ca90b0bb1029ebf34153c817fbc025da374ae8243f8372282e2290b33731d"
+    },
+    {
+      "path": "screenshots/02-project-created.png",
+      "bytes": 67759,
+      "sha256": "2281dda5f50d4c24125a7d9dafece3790a1236c02b200fd91fbdacc646db08ff"
+    },
+    {
+      "path": "screenshots/03-task1-task-entered.png",
+      "bytes": 76941,
+      "sha256": "92c6cf5e25e6b8de33c4a908bbf0449caf365d3f3c5d4a1338ec9a4ac43ec552"
+    },
+    {
+      "path": "screenshots/04-task1-run-accepted.png",
+      "bytes": 94450,
+      "sha256": "de286bc738c9a75822c3ea3585a1d9435d2732c799a59e7d61a1780afe200670"
+    },
+    {
+      "path": "screenshots/05-task1-tool-search.png",
+      "bytes": 147316,
+      "sha256": "1f0554c0206145efc462460e7cc6d6a5701535c6a8fc49187faf0303fda09e96"
+    },
+    {
+      "path": "screenshots/06-task1-goals.png",
+      "bytes": 147273,
+      "sha256": "4e829b6b49fb614f575534d7c93990a687e87836785dc0c4f2e040916fcd712f"
+    },
+    {
+      "path": "screenshots/07-task1-tool-loaded.png",
+      "bytes": 141473,
+      "sha256": "e797042db6c505dc1574915241a98913e0402cdd9dcc4d569250d62e9361c78e"
+    },
+    {
+      "path": "screenshots/08-task1-skill-used.png",
+      "bytes": 141446,
+      "sha256": "c539cbeed3caf1f9c72bb3e95db06b74af8f09de182db449642e22e359873636"
+    },
+    {
+      "path": "screenshots/09-task1-first-helper.png",
+      "bytes": 155765,
+      "sha256": "bb573d9485bd68d727fca218a339546db6e2e52a3a537f2b0d955a65b4d08c17"
+    },
+    {
+      "path": "screenshots/10-task1-helpers-overlap.png",
+      "bytes": 155770,
+      "sha256": "9db54bf30a6e5c97e06698078a3040b7979229d3b65f0eb10c1de73acfcd2638"
+    },
+    {
+      "path": "screenshots/11-task1-before-reload.png",
+      "bytes": 155731,
+      "sha256": "7373328738e975da06b341adc1b60fad36d11f2ca328ac51d2cb2107b8d9c8fc"
+    },
+    {
+      "path": "screenshots/12-task1-after-reload.png",
+      "bytes": 111567,
+      "sha256": "95f3d87f2e6380e43e15510f9f4be9e3988fc149cb1d9ae430a113a804222acc"
+    },
+    {
+      "path": "screenshots/13-task1-first-check.png",
+      "bytes": 214985,
+      "sha256": "8d83f033bc0be7d6706b79e5a15d99178ce798673b62a97662222419e15f426b"
+    },
+    {
+      "path": "screenshots/14-task1-first-artifact.png",
+      "bytes": 216035,
+      "sha256": "b80f6a68fd36199a05fc7c3234e421e52c8fb04fc9d6ad56d0e76ae4868e7089"
+    },
+    {
+      "path": "screenshots/15-task1-progress-187s.png",
+      "bytes": 213474,
+      "sha256": "34ff65e523727129f29c7c94fea71ab81d725790646db95be5ffd6da600c5da3"
+    },
+    {
+      "path": "screenshots/16-task1-skill-drafted.png",
+      "bytes": 213665,
+      "sha256": "65cc05895a5b85aa061a06fc8a7726bdd494882ac1274482eaf173acb93da6ae"
+    },
+    {
+      "path": "screenshots/17-task1-skill-validated.png",
+      "bytes": 213664,
+      "sha256": "84a7e4b8aeccbc9793113b5f8c87b0acf3bba066b4b8e74f5e6ed6c6b62a656a"
+    },
+    {
+      "path": "screenshots/18-task1-citation-skill-card.png",
+      "bytes": 213634,
+      "sha256": "55877ffda1af87f23023266f27ae48423c806c27247b23e81665468ed9505b71"
+    },
+    {
+      "path": "screenshots/19-task1-skill-tested.png",
+      "bytes": 213369,
+      "sha256": "d6db1ff41a84fec796676f1822e7d27184c0c4d7869314cf58d40bad1f052e86"
+    },
+    {
+      "path": "screenshots/20-task1-skill-activated.png",
+      "bytes": 213341,
+      "sha256": "26e0a61a9d6a8fb54e5818e26616e5b92b6269384fdac5e24af3c3ea2be88152"
+    },
+    {
+      "path": "screenshots/21-task1-terminal-completed.png",
+      "bytes": 191858,
+      "sha256": "190bc960f43fdcb61ff3f3ff6292cce9ddfc6fbff3b715107dc068f90b753f1a"
+    },
+    {
+      "path": "screenshots/22-task1-verified.png",
+      "bytes": 195348,
+      "sha256": "48474c2703e94c0b19040fe2877ab66a97a725cbad3c3059999a11a398d84886"
+    },
+    {
+      "path": "screenshots/23-task1-final-overview.png",
+      "bytes": 195348,
+      "sha256": "48474c2703e94c0b19040fe2877ab66a97a725cbad3c3059999a11a398d84886"
+    },
+    {
+      "path": "screenshots/24-task1-artifact-comparison-table.png",
+      "bytes": 181389,
+      "sha256": "935d583cfd8c98f4f7eb9d151254325277e8c808ba14b3b53628323b708c8155"
+    },
+    {
+      "path": "screenshots/25-task1-artifact-notebook.png",
+      "bytes": 181417,
+      "sha256": "2964aedfdc9ad48a79b2bfb7dad4c5a14e423d07e4d306c5516beb4a9eb9ff90"
+    },
+    {
+      "path": "screenshots/26-task1-developer-drawer.png",
+      "bytes": 147650,
+      "sha256": "b4e2a281148b3654b9489c59c5ecb1dc8221ad3bbb9dc9036f78e40f0f21d7f8"
+    },
+    {
+      "path": "screenshots/27-task2-task-entered.png",
+      "bytes": 192630,
+      "sha256": "edc643f6685c92491b1023be744b69411b92070bd28fc1deb861be32655cff97"
+    },
+    {
+      "path": "screenshots/28-task2-run-accepted.png",
+      "bytes": 94802,
+      "sha256": "1581dfa615eabaa8d9b6403cac75fe603af473ef49075a19368b8c3a8b7f424f"
+    },
+    {
+      "path": "screenshots/29-task2-skill-used.png",
+      "bytes": 142393,
+      "sha256": "68405480e692bc078668a91e4ee76cab23c68e43bd37712c29315a8dd5a079b6"
+    },
+    {
+      "path": "screenshots/30-task2-goals.png",
+      "bytes": 142353,
+      "sha256": "685d5ab0187ada072ba470eb5964390d483186daed8243e4e623ec3e8bf776fa"
+    },
+    {
+      "path": "screenshots/31-task2-first-check.png",
+      "bytes": 153223,
+      "sha256": "77553c11d30b7a2d72a0b449d30eeb58fcda4f2bdf1c0f40aedd3597e88c5067"
+    },
+    {
+      "path": "screenshots/32-task2-tool-search.png",
+      "bytes": 135212,
+      "sha256": "f661cf1864e359498d7210d1770382c2a1c7e0bcfd918e94fd23d8669d093b8e"
+    },
+    {
+      "path": "screenshots/33-task2-citation-skill-card.png",
+      "bytes": 135178,
+      "sha256": "98a4bfcdba14b0fa73ba040e210dcc259f22f7a1ddf46e05aaa0e18eaacd3763"
+    },
+    {
+      "path": "screenshots/34-task2-first-artifact.png",
+      "bytes": 143689,
+      "sha256": "4d4c504a3eda4398de505c80a8d7df30b8236a4efd0cb7f5ac7922ce5c53e7c6"
+    },
+    {
+      "path": "screenshots/35-task2-progress-477s.png",
+      "bytes": 156587,
+      "sha256": "daa48926c8536df940926d54f3ab39db7583e80cf413ed066e9bc51fcaba0ab8"
+    },
+    {
+      "path": "screenshots/36-task2-terminal-completed.png",
+      "bytes": 184489,
+      "sha256": "1b2d95509e4b16ad9292438d675a51e545976038ac27ddce019f46a962908bfd"
+    },
+    {
+      "path": "screenshots/37-task2-verified.png",
+      "bytes": 189614,
+      "sha256": "2a0e46a695cfdc83afeb4fe3cc9abb270dbe49001c8383495c16605d829b1723"
+    },
+    {
+      "path": "screenshots/38-task2-final-overview.png",
+      "bytes": 189639,
+      "sha256": "ec686a24ad69e26fc4b0c817d2fd0a62f4bd6b66ffef5a6f3b9edb87f2ac0ff5"
+    },
+    {
+      "path": "timelapse.mp4",
+      "bytes": 6070851,
+      "sha256": "08a7d13668b936cb535013c22129e0639518f6a5eaf307217ed45f29940b9501"
+    },
+    {
+      "path": "timeline.json",
+      "bytes": 129820,
+      "sha256": "2702325579ee23eb687d8cde506cf707d157b3da053c3985951406692e846f70"
+    },
+    {
+      "path": "trace.zip",
+      "bytes": 60852,
+      "sha256": "ad4cb2680c0b77a8b914f146ce4d9eff234277c483e2eea048beb28091002d72"
+    },
+    {
+      "path": "verification-rerun.json",
+      "bytes": 2482,
+      "sha256": "991977e5fe0bda26d137a7b25fcf94a43b1b58aebac7ad4dd2abd97e7ce5999a"
+    }
+  ]
+}

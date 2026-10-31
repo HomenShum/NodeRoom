@@ -1,6 +1,6 @@
 # Official Benchmark UI Coverage
 
-Generated: 2026-07-05T01:18:55.574Z
+Generated: 2026-10-29T15:13:10.064Z
 
 This ledger answers the live-browser question directly: has NodeRoom driven official benchmark tasks through a fresh room, public @nodeagent chat, UI upload/export, downloaded artifacts, and scorer/verifier handoff?
 
@@ -61,7 +61,7 @@ This ledger answers the live-browser question directly: has NodeRoom driven offi
 | `fresh_room_join` | covered | `e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NRJNGW6LELB)` |
 | `official_fixture_upload` | covered | `e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NRJNGW6LELB)` |
 | `public_nodeagent_invocation` | covered | `e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NRJNGW6LELB)` |
-| `visible_streaming_progress` | covered | `e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NRJNGW6LELB); model z-ai/glm-5.2; runtime benchmark_completion; job detail visible; room trace visible; agent live loop proven` |
+| `visible_streaming_progress` | covered | `e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NRJNGW6LELB); model z-ai/glm-5.2; runtime benchmark_completion; job detail visible; room trace visible; agent live loop proven; $0.007238` |
 | `deliverable_export_download` | covered | `e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NRJNGW6LELB); downloaded .xlsx, .xlsm, .pptx, .docx, .pdf` |
 | `artifact_reopen_validation` | covered | `e2e/benchmark-ui-bankertoolbench.spec.ts (proof: docs/eval/fresh-room/FR-020/latest.json, room NRJNGW6LELB); reopened OOXML/PDF package files before scoring` |
 | `official_scorer_handoff` | covered | `BankerToolBench proof verifier (npm run benchmark:bankertoolbench:proof)` |
@@ -70,7 +70,7 @@ This ledger answers the live-browser question directly: has NodeRoom driven offi
 
 ### SpreadsheetBench V1 live browser workbook run
 
-- Current evidence: `tests/ui-benchmark-drive.spec.ts`, `src/eval/spreadsheetBenchRunner.ts`, `src/eval/spreadsheetBenchScorer.ts`, `docs/qa/browser-e2e-flow-inventory.json`, `e2e/benchmark-ui-spreadsheetbench.spec.ts`, `docs/eval/spreadsheetbench-live-room-proof.json`
+- Current evidence: `src/eval/spreadsheetBenchRunner.ts`, `src/eval/spreadsheetBenchScorer.ts`, `docs/qa/browser-e2e-flow-inventory.json`, `e2e/benchmark-ui-spreadsheetbench.spec.ts`, `docs/eval/spreadsheetbench-live-room-proof.json`
 - Missing deliverables: none
 
 | Gate | Status | Evidence / blocker |
@@ -87,14 +87,14 @@ This ledger answers the live-browser question directly: has NodeRoom driven offi
 
 ### SpreadsheetBench 2 live browser workbook and chart workflow
 
-- Current evidence: `tests/ui-benchmark-drive.spec.ts`, `src/eval/spreadsheetBenchRunner.ts`, `src/eval/spreadsheetBenchChartVisualProbe.ts`, `docs/qa/browser-e2e-flow-inventory.json`
+- Current evidence: `src/eval/spreadsheetBenchRunner.ts`, `src/eval/spreadsheetBenchChartVisualProbe.ts`, `docs/qa/browser-e2e-flow-inventory.json`
 - Missing deliverables: `workbook`
 
 | Gate | Status | Evidence / blocker |
 |---|---:|---|
 | `fresh_room_join` | missing | e2e/benchmark-ui-spreadsheetbench.spec.ts is not implemented for spreadsheetbench-v2. |
 | `official_fixture_upload` | missing | e2e/benchmark-ui-spreadsheetbench.spec.ts is not implemented for spreadsheetbench-v2. |
-| `public_nodeagent_invocation` | partial | `tests/ui-benchmark-drive.spec.ts` |
+| `public_nodeagent_invocation` | missing | No live-room benchmark run has proven the public @nodeagent invocation. |
 | `visible_streaming_progress` | missing | e2e/benchmark-ui-spreadsheetbench.spec.ts is not implemented for spreadsheetbench-v2. |
 | `deliverable_export_download` | missing | e2e/benchmark-ui-spreadsheetbench.spec.ts cannot download a workbook: the live desktop room has no sheet->.xlsx export. |
 | `artifact_reopen_validation` | missing | e2e/benchmark-ui-spreadsheetbench.spec.ts has no exported file to reopen from disk; grading is cell-read. |

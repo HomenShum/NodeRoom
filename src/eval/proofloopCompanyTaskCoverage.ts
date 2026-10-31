@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { validateFreshRoomProofReceipt } from "./freshRoomProofReceipts";
 
 export type CompanyTaskCoverageStatus =
   | "prod_browser_proven"
@@ -307,7 +308,8 @@ function liveFlowAccountingEntry(root: string): CompanyTaskCoverageEntry {
   const liveAccounting = readJson<RunResult>(root, ".proofloop/live/latest/run-result.json");
   const livePassed = liveAccounting?.suite === "live-accounting" && liveAccounting.passed === true;
   const browserReceipt = readJson<LiveBrowserProofReceipt>(root, "docs/eval/proofloop-live-room-proof.json");
-  const prodBrowser = browserReceipt?.passed === true && browserReceipt.baseUrl === "https://noderoom.live";
+  // A receipt promotes only if the shared validator accepts it (e.g. a paid route must record cost and tokens > 0).
+  const prodBrowser = browserReceipt?.baseUrl === "https://noderoom.live" && validateFreshRoomProofReceipt(browserReceipt).ok;
   const individualReceiptPaths = [
     "docs/eval/proofloop-live-room-smoke-proof.json",
     "docs/eval/proofloop-live-room-runway-proof.json",
@@ -319,7 +321,7 @@ function liveFlowAccountingEntry(root: string): CompanyTaskCoverageEntry {
     .filter((entry): entry is { path: string; receipt: LiveBrowserProofReceipt } => !!entry.receipt);
   const prodIndividualReceipts = individualReceipts.filter((entry) => entry.receipt.baseUrl === "https://noderoom.live");
   const passedIndividualTaskIds = prodIndividualReceipts.flatMap((entry) =>
-    entry.receipt.passed === true
+    entry.receipt.passed === true && validateFreshRoomProofReceipt(entry.receipt).ok
       ? (entry.receipt.scorer?.details?.taskProofs ?? []).filter((task) => task.passed === true).map((task) => task.taskId ?? entry.path)
       : []
   );

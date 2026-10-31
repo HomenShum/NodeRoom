@@ -2,7 +2,7 @@ import { useMemo, useState } from "react";
 import { Download, FileCheck2, ShieldCheck } from "lucide-react";
 
 import { useStore } from "../../app/store";
-import { SMB_LENDING_PROPOSAL, SMB_LENDING_VERIFIED_BUNDLE } from "../../app/smbLendingRoomSeed";
+import { SMB_LENDING_PROPOSAL } from "../../app/smbLendingRoomSeed";
 import { reopenLendingPacketBundle } from "../../domains/smbLending";
 
 export function LendingProofBar({ roomId }: { roomId: string }) {
@@ -14,7 +14,7 @@ export function LendingProofBar({ roomId }: { roomId: string }) {
   const source = String(evidence?.elements[`${SMB_LENDING_PROPOSAL.documentId}__source`]?.value ?? "not supplied");
   const verified = status === "verified";
   const persistedBundle = String(exportArtifact?.elements.doc?.value ?? "");
-  const bundleText = persistedBundle.startsWith("{") ? persistedBundle : store.mode === "memory" && verified ? SMB_LENDING_VERIFIED_BUNDLE : "";
+  const bundleText = persistedBundle.startsWith("{") ? persistedBundle : "";
   const reopened = useMemo(() => {
     if (!verified || !bundleText) return null;
     try { return reopenLendingPacketBundle(bundleText); } catch { return null; }

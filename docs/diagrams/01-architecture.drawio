@@ -51,16 +51,16 @@
         <mxCell id="30" value="③  NodeAgent engine — src/nodeagent  (Convex action — default V8 runtime, Node-dep-free)" style="swimlane;startSize=30;html=1;whiteSpace=wrap;fillColor=#e1d5e7;strokeColor=#9673a6;fontStyle=1;fontSize=13;verticalAlign=top;" vertex="1" parent="1">
           <mxGeometry x="40" y="450" width="1280" height="200" as="geometry" />
         </mxCell>
-        <mxCell id="31" value="core&#xa;&#xa;orchestrator · adaptiveRouter&#xa;streamManager · worldModel&#xa;memory · contextCompactor" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3ecf8;strokeColor=#9673a6;fontSize=12;align=left;spacingLeft=10;verticalAlign=top;spacingTop=8;fontStyle=0;" vertex="1" parent="30">
+        <mxCell id="31" value="core&#xa;&#xa;runtime · frameRunner&#xa;worldModel · contextCompactor&#xa;journal · hooks" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3ecf8;strokeColor=#9673a6;fontSize=12;align=left;spacingLeft=10;verticalAlign=top;spacingTop=8;fontStyle=0;" vertex="1" parent="30">
           <mxGeometry x="20" y="42" width="300" height="146" as="geometry" />
         </mxCell>
         <mxCell id="32" value="models&#xa;&#xa;adapter&#xa;openRouterClient&#xa;piAiAdapter" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3ecf8;strokeColor=#9673a6;fontSize=12;align=left;spacingLeft=10;verticalAlign=top;spacingTop=8;" vertex="1" parent="30">
           <mxGeometry x="340" y="42" width="250" height="146" as="geometry" />
         </mxCell>
-        <mxCell id="33" value="skills&#xa;&#xa;finance: runway · bulkIngest · milestone&#xa;search: linkup · fetch_source&#xa;spreadsheet: CAS · semanticRebase&#xa;integration: downstreamPublish · mcp" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3ecf8;strokeColor=#9673a6;fontSize=12;align=left;spacingLeft=10;verticalAlign=top;spacingTop=8;" vertex="1" parent="30">
+        <mxCell id="33" value="skills&#xa;&#xa;finance: runway · bulkIngest · creditRatios&#xa;search: fetch_source&#xa;spreadsheet: CAS · semanticRebase&#xa;integration: downstreamPublish · omnigentAdapter" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3ecf8;strokeColor=#9673a6;fontSize=12;align=left;spacingLeft=10;verticalAlign=top;spacingTop=8;" vertex="1" parent="30">
           <mxGeometry x="610" y="42" width="360" height="146" as="geometry" />
         </mxCell>
-        <mxCell id="34" value="guardrails&#xa;&#xa;egressPolicy · providerEgress&#xa;circuitBreaker · dataSanitizer&#xa;approval · evaluator" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3ecf8;strokeColor=#9673a6;fontSize=12;align=left;spacingLeft=10;verticalAlign=top;spacingTop=8;" vertex="1" parent="30">
+        <mxCell id="34" value="guardrails&#xa;&#xa;egressPolicy · gateway&#xa;providerHealth · workbookWorkflow" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#f3ecf8;strokeColor=#9673a6;fontSize=12;align=left;spacingLeft=10;verticalAlign=top;spacingTop=8;" vertex="1" parent="30">
           <mxGeometry x="990" y="42" width="270" height="146" as="geometry" />
         </mxCell>
 

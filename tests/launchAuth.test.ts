@@ -33,8 +33,6 @@ describe("launch authentication contract", () => {
     const launchSurfaces = [
       "index.html",
       "src/ui/Landing.tsx",
-      "src/landing/roomTour/RoomTourFlows.tsx",
-      "src/landing/roomTour/roomTourData.ts",
       "src/ui/mobile/MobileRoot.tsx",
       "src/ui/mobile/RoomJoinConsent.tsx",
       "src/ui/mobile/MobileGapSheets.tsx",
@@ -46,7 +44,8 @@ describe("launch authentication contract", () => {
 
     expect(launchSurfaces).toContain("Sign-in required");
     expect(launchSurfaces).toContain("Sign in, then join with a six-character room code");
-    expect(launchSurfaces).toContain("membership is bound to the signed-in account");
+    // "membership is bound to the signed-in account" was asserted here too; its only
+    // carrier was the scripted #room-tour code peek, deleted with that walkthrough.
     expect(launchSurfaces).not.toContain("Public by default");
     expect(launchSurfaces).not.toContain("No account needed");
     expect(launchSurfaces).not.toContain("no account · join as guest");

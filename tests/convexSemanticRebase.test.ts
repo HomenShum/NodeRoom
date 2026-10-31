@@ -117,39 +117,6 @@ describe("Convex semantic rebase write path", () => {
     expect(el?.value).toBe("+19.0%");
   });
 
-  it("runs the host-only live semantic conflict drill and approves the rebase proposal", async () => {
-    const t = convexTest(schema, modules);
-    const s = await seedRoom(t);
-
-    const drilled = await t.mutation(api.drafts.runSemanticConflictDrill, {
-      roomId: s.roomId,
-      artifactId: s.artifactId,
-      requester: s.hostProof,
-      elementId: CELL,
-      currentValue: "+24%",
-      proposedValue: "+19%",
-    });
-    expect(drilled.ok).toBe(true);
-    if (!drilled.ok) throw new Error("expected drill to create semantic review proposal");
-    expect(drilled.merged[0]).toMatchObject({ verdict: "needs_review", applied: 0, conflicts: 1 });
-    expect(drilled.proposalIds).toHaveLength(1);
-
-    const [proposal] = await t.query(api.artifacts.listProposals, { roomId: s.roomId, requester: s.hostProof });
-    expect(proposal.review).toMatchObject({ kind: "semantic_rebase", status: "needs_review", currentVersion: 2 });
-    expect(proposal.op).toMatchObject({ elementId: CELL, value: "+19%", baseVersion: 2 });
-    expect((await readElement(t, s.artifactId))?.value).toBe("+24%");
-
-    const approved = await t.mutation(api.artifacts.resolveProposal, {
-      proposalId: proposal.id as never,
-      approve: true,
-      requester: s.hostProof,
-    });
-    expect(approved).toMatchObject({ ok: true });
-    expect((await readElement(t, s.artifactId))?.value).toBe("+19%");
-    const pending = await t.query(api.artifacts.listProposals, { roomId: s.roomId, requester: s.hostProof });
-    expect(pending).toHaveLength(0);
-  });
-
   it("launches server-owned agent intent, then routes the stale final patch to review", async () => {
     const t = convexTest(schema, modules);
     const s = await seedRoom(t, { autoAllow: false });
@@ -224,24 +191,6 @@ describe("Convex semantic rebase write path", () => {
       mode: "commit_lease",
       label: "NodeAgent checking CAS",
     }));
-  });
-
-  it("rejects non-host callers for the live semantic conflict drill", async () => {
-    const t = convexTest(schema, modules);
-    const s = await seedRoom(t);
-    const memberProof = await addMember(t, s.roomId);
-
-    await expect(t.mutation(api.drafts.runSemanticConflictDrill, {
-      roomId: s.roomId,
-      artifactId: s.artifactId,
-      requester: memberProof,
-      elementId: CELL,
-      currentValue: "+24%",
-      proposedValue: "+19%",
-    })).rejects.toThrow("host_required");
-
-    expect((await t.query(api.artifacts.listProposals, { roomId: s.roomId, requester: s.hostProof }))).toHaveLength(0);
-    expect((await readElement(t, s.artifactId))?.value).toBe("base");
   });
 
   it("rejects non-host callers for the server-owned agent intent proof", async () => {

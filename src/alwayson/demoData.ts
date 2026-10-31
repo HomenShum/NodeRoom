@@ -1,6 +1,7 @@
 /**
- * Always-On Rooms — demo dataset for the public room page, landing cards, and
- * ops panel when no Convex data is available (memory mode / cold landing).
+ * Always-On Rooms — seed dataset. convex/alwaysOn.ts writes it into the flagship
+ * room; the page renders only live Convex bundles (no client-side demo fallback).
+ * The ops panel still reads AO_OUTBOX directly.
  * Mirrors design-reference/alwayson/ao-data.js — keep the two in sync when the
  * design bundle is refreshed.
  */

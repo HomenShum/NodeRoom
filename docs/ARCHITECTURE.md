@@ -136,8 +136,10 @@ agentJobs.start mutation
 
 Built guarantees:
 
-- Each slice uses a default 9-minute budget under Convex's 10-minute cap, with
-  a 30-second reserve and a lease that outlives the slice.
+- Each slice uses a default 7-minute budget (`FREE_AUTO_JOB_SLICE_BUDGET_MS`,
+  code default in `convex/agentJobRunner.ts`; env may override) under Convex's
+  10-minute cap, with a 60-second reserve (`FREE_AUTO_JOB_RESERVE_MS`) and a
+  lease of slice + reserve + 60 seconds, so the lease outlives the slice.
 - `finishSlice` records attempts and checkpoints in the mutation that updates
   job state; legacy scheduler continuation is only used for old
   `runtime="scheduler"` jobs.

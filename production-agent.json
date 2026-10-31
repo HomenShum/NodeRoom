@@ -12,7 +12,7 @@
       "rationale": "scripts/slo-gate.ts thresholds.completionRate = 1 over minRuns = 8"
     },
     "decomposition": [
-      "goal_decomposition (src/noderl/loop/loopPolicy.ts requiredLoops)",
+      "goal_decomposition (src/nodeagent/core/reasoningFrames.ts intake -> plan frames)",
       "constraint_satisfaction",
       "plan_execute_replan",
       "score_retry",

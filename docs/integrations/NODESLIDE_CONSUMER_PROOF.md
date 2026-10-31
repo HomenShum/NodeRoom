@@ -38,7 +38,7 @@ The product implementation is separate from that fixture proof:
   `requestDigest` out of NodeRoom receipts.
 - `tests/nodeSlideStudioMount.test.tsx` proves host/member command gating and CAS
   clocks at the React mount.
-- `artifacts/nodeslide-mounted-ui-proof-20260720/` records a literal browser and
+- `evidence/nodeslide-mounted-ui-proof-20260720/` records a literal browser and
   accessibility-tree pass through NodeRoom's real Artifacts surface: edit,
   **Make live**, reopen, mounted package/authority DOM attributes, command
   controls, fail-closed memory write, and a clean local application console.

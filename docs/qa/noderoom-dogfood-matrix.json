@@ -161,7 +161,7 @@
         { "id": "M4", "userStory": "Reduced motion", "surfaces": ["all-surfaces"], "commands": [], "passCriteria": "Respects prefers-reduced-motion", "severity": "P2", "status": "partial" },
         { "id": "M5", "userStory": "Screen-reader labels", "surfaces": ["key-controls"], "commands": [], "passCriteria": "aria-labels on buttons, tabs", "severity": "P1", "status": "partial" },
         { "id": "M6", "userStory": "Mobile/mid-width overflow", "surfaces": ["responsive"], "commands": ["e2e/mobile-room.spec.ts"], "passCriteria": "No horizontal overflow", "severity": "P1", "status": "partial" },
-        { "id": "M7", "userStory": "Gemini/visual judge scorecard", "surfaces": ["screenshots", "video"], "commands": ["npm run gemini:judge"], "passCriteria": "No P0/P1 defects", "severity": "P1", "status": "shipped" }
+        { "id": "M7", "userStory": "Gemini/visual judge scorecard", "surfaces": ["screenshots", "video"], "commands": ["npm run media:gemini-judge"], "passCriteria": "No P0/P1 defects", "severity": "P1", "status": "shipped" }
       ]
     }
   ]

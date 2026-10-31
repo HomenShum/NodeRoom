@@ -5,8 +5,12 @@ import { expect, test } from "./fixtures";
  * that makes /.well-known/agent-ui.json a CONTRACT instead of documentation:
  *
  *  1. The built app must SERVE the contract (an agent needs no repo access).
- *  2. Every journey must complete using only the contract's own steps.
- *  3. Every element must resolve in its declared context.
+ *  2. Every element must resolve in its declared context.
+ *  3. Every journey must complete using only the contract's own steps.
+ *
+ * Contexts are reached through the keyless e2e harness (the memory landing's sample-room CTA,
+ * #mobile in memory mode). That harness is test infrastructure: the published contract does not
+ * advertise it.
  *
  * If a testid is renamed or a surface is restructured without updating
  * src/design/uiContract.ts (and re-emitting), this spec fails — that is the point.
@@ -17,7 +21,7 @@ type Contract = {
   contractVersion: string;
   states: Array<{ id: string; enter: ContractStep[]; exit?: ContractStep[] }>;
   elements: Array<{ id: string; selector: string; availableIn: string[]; assertions: string[] }>;
-  journeys: Array<{ id: string; steps: ContractStep[] }>;
+  journeys: Array<{ id: string; startContext: string; steps: ContractStep[] }>;
 };
 
 async function runStep(page: import("@playwright/test").Page, step: ContractStep) {
@@ -35,16 +39,19 @@ test("the built app serves its agent UI contract and the rendered DOM honors it"
 
   const byContext = (ctx: string) => contract.elements.filter((e) => e.availableIn.includes(ctx));
 
-  // Context: landing (memory mode)
+  // The published contract must not route agents to the keyless harness.
+  expect(JSON.stringify(contract)).not.toContain("mode=memory");
+  expect(JSON.stringify(contract)).not.toContain("start-demo-room");
+
+  // Context: landing (harness)
   await page.goto("/?mode=memory&surface=desktop", { waitUntil: "domcontentloaded" });
   for (const el of byContext("landing")) {
     await expect(page.locator(el.selector).first(), `landing element ${el.id}`).toBeVisible({ timeout: 30_000 });
   }
 
-  // Journey: enter-demo-room (drives the app FROM the contract's own steps)
-  const enter = contract.journeys.find((j) => j.id === "enter-demo-room");
-  expect(enter, "contract must declare the enter-demo-room journey").toBeTruthy();
-  for (const step of enter!.steps) await runStep(page, step);
+  // Context: room (harness entry, not a contract journey)
+  await page.locator('[data-testid="start-demo-room"]').first().click({ timeout: 15_000 });
+  await expect(page.getByTestId("artifact-panel")).toBeVisible({ timeout: 30_000 });
   const skip = page.getByTestId("tour-skip");
   if (await skip.count()) await skip.click().catch(() => {});
 
@@ -63,6 +70,11 @@ test("the built app serves its agent UI contract and the rendered DOM honors it"
     await expect(page.locator(el.selector).first(), `palette element ${el.id}`).toBeVisible({ timeout: 10_000 });
   }
   for (const step of palette!.exit ?? []) await runStep(page, step);
+
+  // Journeys whose start context is the room run from the contract's own steps.
+  for (const journey of contract.journeys.filter((j) => j.startContext === "room")) {
+    for (const step of journey.steps) await runStep(page, step);
+  }
 
   // Context: mobile (distinct surface)
   await page.setViewportSize({ width: 390, height: 844 });

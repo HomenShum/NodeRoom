@@ -3,6 +3,7 @@
 > Question: *does the agent harness **architecture** and **tools** need to change?*
 > Reviewed against `6-14-2026-deep-review.txt` (the harness-engineering doc) and `6-15-2026-deep-review.txt`
 > (the newest "Banker Coach Mode" / Trace Lens vision), mapped to the live `src/nodeagent/**` + `convex/agent.ts`.
+> Both transcripts were removed from the tree; read them with `git show 6f1af0f7:<file>`.
 
 ## Verdict
 
@@ -11,7 +12,7 @@ touched. **Tools: the change is ADDITIVE and concentrated in the OUTPUT/EVIDENCE
 tools already exist and are wired, but their **outputs are ephemeral** (not persisted, not telemetered). The
 one genuinely net-new primitive 6-15 asks for is **Trace Lens** (a click-to-context inspector), which is absent.
 
-This matches 6-15's own instruction ([L860](../../6-15-2026-deep-review.txt#L860)): *"I would **not** reorganize
+This matches 6-15's own instruction (L860 of `6-15-2026-deep-review.txt` at commit `6f1af0f7`): *"I would **not** reorganize
 everything… add a thin coach-artifact layer."*
 
 ### "pi-agent-core" — clarified
@@ -27,7 +28,7 @@ and durable lanes). Treat any "orchestrated via pi-agent-core" framing as a wrap
 |---|---|
 | "LLM routes intent, harness schedules work, ledger commits truth" | `core/runtime.ts` single loop; `intakePreflight.ts` typed `IntakeEvent` + `PlanPreview` (readSet/writeSet/affectedSet), gated at `convex/agent.ts:178` (`scheduling===run_now`) |
 | Agent writes nothing directly; emits patch bundles; harness owns durable CAS writes | `MANAGED_LOCK_TOOLS` (`write_locked_cell(s)`, `write_locked_cell_result(s)`); model never touches the DB |
-| Adaptive OpenRouter routing in the *harness*, not the UI; logs model/cost/latency | `core/adaptiveRouter.ts` (4-lane: extract/speed/deep/coding) |
+| Adaptive OpenRouter routing in the *harness*, not the UI; logs model/cost/latency | `convex/agentJobs.ts` model resolution from `AGENT_*_MODEL` env (the unwired `core/adaptiveRouter.ts` 4-lane router was deleted 2026-10-29) |
 | Context engineering / world model (chunk, semantic search, compact, checkpoint) | `core/worldModel.ts` (JIT render + UNTRUSTED fence), `core/contextCompactor.ts`, `search_sheet_context` tool |
 | Semantic rebase = structured review, CAS commits the final write | `convex` semanticConflicts/proposals/locks/drafts tables; `skills/spreadsheet/semanticRebase.ts` |
 | Exactly-once across resume boundaries | `core/journal.ts` (replay completed steps instead of re-billing) |

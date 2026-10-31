@@ -1,20 +1,19 @@
 "use node";
 
 /**
- * The agent runtime on Convex.
+ * Inline room-agent action for the private agent's publish-to-room path.
  *
- * This is the production entry point. It is intentionally tiny: build a
- * ConvexRoomTools (the Convex-backed port), pick the real model, and call the
- * SAME runAgent the demo/tests use. The action returns a summary; the live
+ * `runRoomAgent` is reached only from `askPrivateAgent({ publish: true })` in
+ * src/app/store.tsx. The public `@nodeagent` path is durable instead:
+ * agentJobs.startPublicAsk -> the Workflow/Workpool slice runner
+ * (agentJobRunner.runFreeAutoJobSlice), which already handles retries past the
+ * 10-min action cap. This action builds a ConvexRoomTools (the Convex-backed
+ * port), picks the model, and calls the same runAgent the tests use; the live
  * effects (locks, edits, traces, chat) are written through the mutations and
  * stream to every client via their reactive useQuery subscriptions.
  *
  * Requires the selected provider key in the Convex environment, e.g.
  *   npx convex env set OPENROUTER_API_KEY sk-or-...
- *
- * For thread/message persistence, retries past the 10-min action cap, and RAG,
- * wrap this with `@convex-dev/agent` + `@convex-dev/workflow` (see docs/STACK.md);
- * the harness below is the same loop those components run.
  */
 
 import { v } from "convex/values";

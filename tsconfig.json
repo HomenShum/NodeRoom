@@ -26,10 +26,9 @@
       "@nodeagent/core/*": ["./src/nodeagent/core/*"],
       "@nodeagent/models/*": ["./src/nodeagent/models/*"],
       "@nodeagent/skills/*": ["./src/nodeagent/skills/*"],
-      "@nodeagent/guardrails/*": ["./src/nodeagent/guardrails/*"],
-      "@nodeagent/components/*": ["./src/nodeagent/components/*"]
+      "@nodeagent/guardrails/*": ["./src/nodeagent/guardrails/*"]
     }
   },
   "include": ["src", "demo", "tests", "packages", "vite.config.ts", "vitest.config.ts"],
-  "exclude": ["node_modules", "tests/fixtures"]
+  "exclude": ["node_modules", "tests/fixtures", "packages/nodeagent-engines"]
 }

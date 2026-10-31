@@ -9,7 +9,7 @@ applies it (plus a safety strip of the SEC contact email).
 ```bash
 # 1. Verify the manifest still resolves against the source (no writes):
 node noderl/scripts/extract-from-noderoom.mjs --dry-run
-#    -> "18 file(s) resolved, 0 missing"  (verified 2026-06-28)
+#    -> "17 file(s) resolved, 0 missing"  (verified 2026-10-29)
 
 # 2. Generate (vendor) the package sources:
 node noderl/scripts/extract-from-noderoom.mjs --src .
@@ -37,8 +37,11 @@ The visual-judge harness (`packages/walkthrough-review-cli` in NodeRoom) is alre
 **reference/copy it directly**, it is not part of this manifest. The proof-receipt **contract**
 (`spec/proof-receipt-contract.md`) and **anti-cheat doctrine** ship as specs, not code.
 
-## Status (2026-06-28)
+## Status (2026-10-29)
 
-Mechanism built + dry-run verified (18/18 resolve). Generation + per-package `npm i`/tsc is the
+Mechanism built + dry-run verified (17/17 resolve). The nodetrace barrel `src/index.ts` was
+removed from the NodeRoom source (`src/nodeagent/capture/index.ts`), so it left the manifest and
+`packages/nodetrace/package.json` `main` needs a new barrel before publishing. Until step 2 runs,
+`packages/*/src` holds only `.gitkeep` and `npm run typecheck` reports no inputs. Generation + per-package `npm i`/tsc is the
 remaining publish step — intentionally not committed here so the worktree carries no unverified,
 un-dep-wired generated source.

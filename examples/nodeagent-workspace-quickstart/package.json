@@ -1,0 +1,19 @@
+{
+  "name": "nodeagent-workspace-quickstart",
+  "private": true,
+  "type": "module",
+  "description": "Smallest app that runs the Node agent workspace from the packed @homenshum/nodeagent-engines tarball: a worker plus one React component.",
+  "scripts": {
+    "worker": "nodeagent-worker",
+    "dev": "vite --port 5280 --strictPort"
+  },
+  "dependencies": {
+    "@homenshum/nodeagent-engines": "file:vendor/homenshum-nodeagent-engines-0.1.0.tgz",
+    "react": "19.2.0",
+    "react-dom": "19.2.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "4.3.4",
+    "vite": "6.0.7"
+  }
+}

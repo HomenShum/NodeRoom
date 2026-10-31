@@ -83,7 +83,7 @@ approves structured changes, and the final state is explainable later.
 | Prompt-injection fencing | `src/security/promptInjectionFence.ts` | Untrusted notebook, spreadsheet, chat, or source text becoming instructions. |
 | Audit hashing | `src/security/auditHash.ts`, `convex/auditLog.ts` | Receipt rows drifting away from deterministic, hashable payloads. |
 | Rate/usage limits | `src/security/rateLimit.ts`, `convex/usageLimits.ts` | Quota logic becoming ad hoc across UI, agent, and backend paths. |
-| Accessibility helpers | `src/accessibility/*` | Live regions, keyboard grid movement, focus containment, and reduced motion drifting out of product surfaces. |
+| Accessibility helpers | `src/accessibility/liveRegion.tsx` | Live-region status announcements drifting out of product surfaces. |
 | Security events | `convex/securityEvents.ts` | Security-relevant events disappearing into generic logs. |
 | Export/delete boundary | `convex/exportDelete.ts` | Product claiming physical deletion before the operator-runbook path is implemented and verified. |
 | Telemetry retention policy | `convex/retention.ts` | Telemetry pruning accidentally being described as product-data deletion. |
@@ -105,6 +105,8 @@ authority to low-level sync callbacks, and never let the model bypass the
 checked authorization and approval path.
 
 ## Visual Plans
+
+Historical June 2026 snapshots (rationale only; statuses may be stale):
 
 - [`plans/security-production-readiness/plan.mdx`](../plans/security-production-readiness/plan.mdx)
 - [`plans/accessibility-wcag22/plan.mdx`](../plans/accessibility-wcag22/plan.mdx)

@@ -26,7 +26,7 @@ semantic/dependency index.
 
 ## Wired Now
 
-- `@convex-dev/workflow` and `@convex-dev/workpool` are installed and configured in `convex/convex.config.ts`.
+- `@convex-dev/workflow` is mounted in `convex/convex.config.ts`; `@convex-dev/workpool` is configured through each workflow's `workpoolOptions` in `convex/agentWorkflows.ts`.
 - `@convex-dev/persistent-text-streaming` is installed and configured in `convex/convex.config.ts`; message history stores the final text while stream ids remain runtime metadata.
 - `/ask`, `/free`, research, collaboration, and top-model jobs start through `agentJobs.start`; route/model/approval/evidence policies choose behavior while the shared workflow runs bounded `runFreeAutoJobSlice` action steps.
 - `agentJobs` remains the user-facing durable system of record. Workflow ids are runtime metadata.

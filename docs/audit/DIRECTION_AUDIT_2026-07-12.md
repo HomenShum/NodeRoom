@@ -60,7 +60,7 @@ The repo's facts are mostly right; its **lifecycle hygiene is broken**. The domi
 | C32 | ship skill hardcodes "Co-Authored-By: Claude Opus 4.8" + a dead CLAUDE.md merge-policy citation | PARTIAL low | Harness wins. Make the trailer generic; drop the citation. |
 | C33 | "certified" enum leaking into buyer-visible release doc vs buyer-validation rule ("verification you run, not certification") | PARTIAL low | Buyer rule wins outward. Fix `proofReleasePublishing.ts` rendering; keep the internal enum. |
 | C34 | MEMORY.md "proofloop@0.2.0" vs body "0.1.0" — live npm is 0.3.0 | PARTIAL low | Neither. ✅ FIXED: hardcoded versions dropped; `npm view proofloop version` is authoritative. |
-| C35 | DEMO.md teaches `/ask` as primary vs DESIGN/ARCHITECTURE (@nodeagent primary, /ask hidden alias) | PARTIAL low | Shipped UI wins. Update DEMO.md. |
+| C35 | DEMO.md teaches `/ask` as primary vs DESIGN/ARCHITECTURE (@nodeagent primary, /ask hidden alias) | PARTIAL low | Shipped UI wins. Resolved by removal (2026-10-29): DEMO.md was deleted. |
 
 **REFUTED (no action):** desktop light-vs-dark palette; scaffold-handoff advisory warning; eval:real Anthropic vs provider-agnostic prod; proof-ledger aromatic-bass row; nodemem dormant-in-prod (properly labeled "(Historical, pre-fix)").
 

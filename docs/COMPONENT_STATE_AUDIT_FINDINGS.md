@@ -49,7 +49,6 @@ marked fixed.
 | P2 | F2 | C4 | App.tsx | join/create effect has no AbortController/timeout/budget gate |
 | P2 | F3 | C2 | Landing.tsx | error-surface wiring gap in live mode |
 | P2 | LR-2 | A4 | LeftRail.tsx | `onUpload` sets `uploading` after await, no alive-ref |
-| P2 | CE-1 | A3 | CellEditor.tsx | `draft` resync effect — prop/local-state sync edge |
 
 ## Top-priority fixes (with exact patches the audit produced)
 

@@ -17,7 +17,7 @@ silent overwrite.**
 
 [Why Convex](#why-convex-and-why-not) · [Architecture evolution](#collaboration-architecture-evolution) · [Audience fluency](#audience-world-proof-artifacts) · [Solo automation](#how-i-automated-the-process-as-a-single-person) · [Lessons](#lessons-from-building-noderoom) · [Managed writes](#managed-writes-legacy-lock-proof-and-next-lease-layer) · [Multi-user proof](docs/eval/MULTI_USER_COORDINATION_PROOF.md) · [June 2026 target](docs/TARGET_2026_06.md) · [Sequences](#live-collaboration-sequence) · [Harness reasoning](docs/HARNESS_RECURSIVE_REASONING.md) · [Orchestrator-worker routing](docs/ORCHESTRATOR_WORKER_ROUTING.md) · [Adoption](docs/NODEAGENT_ADOPTION.md) · [Why & HALO](docs/WHY_NODEAGENT_AND_HALO.md) · [Quickstart](#quickstart) · [Agent runtime](docs/AGENT_RUNTIME.md) · [NodeAgent source map](docs/NODEAGENT_SOURCE_MAP.md) · [Agent eval](docs/AGENT_EVAL.md) · [Model eval matrix](docs/eval/MODEL_EVAL_MATRIX.md) · [Feature eval backlog](docs/eval/FEATURE_EVAL_BACKLOG.md) · [Agent wiki](docs/AGENT_WIKI.md) · [Design](docs/DESIGN.md) · [Stack](docs/STACK.md) · [Walkthrough](docs/WALKTHROUGH.md) · [Architecture](docs/ARCHITECTURE.md) · [Diagrams](docs/diagrams/README.md) · [Open gaps](docs/GAPS_NOT_DONE.md)
 
-[Interview notes](docs/INTERVIEW_NOTES.md) · [Over-engineering audit](docs/OVERENGINEERING_AUDIT.md) · [Improvement roadmap](docs/IMPROVEMENT_ROADMAP.md) · [Next priorities](docs/NEXT_STEPS_PRIORITY.md) · [Operating budget](docs/OPERATING_BUDGET.md) · [Audience workloads](docs/AUDIENCE_WORKLOADS.md)
+[Over-engineering audit](docs/OVERENGINEERING_AUDIT.md) · [Improvement roadmap (historical)](docs/IMPROVEMENT_ROADMAP.md) · [Next priorities](docs/NEXT_STEPS_PRIORITY.md) · [Operating budget](docs/OPERATING_BUDGET.md) · [Audience workloads](docs/AUDIENCE_WORKLOADS.md)
 
 [Deal workplan](#deal-workplan-human-readable-ownership) | [Semantic rebase](#semantic-rebase-compare-reason-swap) | [Research map](#research-backed-design-map)
 
@@ -36,11 +36,25 @@ This README is 2,500+ lines of proof and history. It is **not** the way in.
 | [.tours/](.tours/) | The same walk, clickable, with the VS Code CodeTour extension. Every step carries the `pattern` its cited line must match, and `tests/walkthroughCitations.test.ts` asserts it — a line number alone would prove the anchor is in range, never that it is the right one. |
 | [docs/SIMPLIFICATION_REPORT.md](docs/SIMPLIFICATION_REPORT.md) | What the last reduction pass deleted, what it measured, and every finding it deliberately left alone. |
 
-Run it with no keys and no database:
+**Agent work starts at the agent workspace — the one agent path.** A real provider SDK
+(Claude Agent SDK, Codex app-server, OpenAI Agents, Google ADK, or the universal AI SDK
+engine) does the task in a scoped project folder while the page shows the plan, helpers,
+tools, files written, and an independent check:
 
 ```bash
-npm install && npm run dev      # then open /?mode=memory and click "Try sample room"
+npm install
+npm run agent:worker     # Node agent worker (packages/nodeagent-engines) on http://127.0.0.1:4317
+npm run dev              # second shell; then open http://localhost:5260/#workspace
 ```
+
+Put the provider keys for the engines you use (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`,
+`GOOGLE_GENERATIVE_AI_API_KEY`, `OPENROUTER_API_KEY`) in `.env.local`; with none, the
+workspace says "Setup required" and never shows sample work. Engines and their qualified
+capabilities: [`packages/nodeagent-engines/qualification/`](packages/nodeagent-engines/qualification/).
+The keyless scripted room at `/?mode=memory` exists only as the isolated test harness that
+immutable CI drives — it is never the product. A build with `VITE_CONVEX_URL` ignores
+`?mode=memory` unless it was built with `VITE_NODEROOM_HARNESS=1` (`test:product:memory` and the
+Playwright webServer set it), so production cannot be switched to it by URL.
 
 > **Benchmark claims come ONLY from the generated Proof Release block below and the
 > live board** ([`docs/eval/PROOFLOOP_BENCHMARK_BOARD.md`](docs/eval/PROOFLOOP_BENCHMARK_BOARD.md)).
@@ -130,7 +144,7 @@ files a real proposal (the NodeAgent intent-proof traces you see), and the graph
 artifact/element nodes come from the `refs` column those trace writes now carry.
 Honest caveats: the clip is keyless — the dev deployment has no model keys, so the
 `__runCollab` agent job enqueues but its model call fails over honestly (`retrying`,
-no fabricated edits), and the live scenario is smaller than the memory-mode script
+no fabricated edits), and the live scenario is smaller than the keyless test-harness script
 (fewer events, so fewer nodes). Gate: `node scripts/capture-live-graph-rail.mjs --live`
 exits nonzero unless the rail shows entities AND at least one edge from Convex rows.
 
@@ -191,29 +205,16 @@ model/harness selection.
 
 ### Orchestrator-Worker Model Routing
 
-NodeRoom uses an **orchestrator-worker** model routing pattern — the same
-architecture that OpenAI, Anthropic, and Claude Code have converged on in
-2025–2026. A high-intelligence orchestrator model (`moonshotai/kimi-k3`, 1M
-context) handles planning, verification, and synthesis. A cheaper worker model
-(`minimax/minimax-m3`, 4x cheaper) executes bounded tool calls, search, and
-evidence gathering. The orchestrator reviews worker output before committing.
-(`z-ai/glm-5.2` remains a demoted fallback route, not the default.)
-
-This maps directly to NodeRoom's five-phase frame loop:
-
-```
-intake      → orchestrator (kimi-k3)   normalize request
-plan        → orchestrator (kimi-k3)   decompose, decide cache vs research
-execute     → worker (minimax-m3)      search, read, write, evidence
-verify      → orchestrator (kimi-k3)   check evidence, freshness, claims
-synthesize  → orchestrator (kimi-k3)   summarize for room trace + UI
-```
-
-The split concentrates spend on the cognitive phases (a frontier orchestrator)
-while keeping bulk execution on a cheap worker; per-job cost is bounded by the
-`AGENT_MAX_USD_PER_SLICE`, `ROOM_MAX_USD_PER_DAY`, and `GLOBAL_MAX_USD_PER_MONTH`
-caps rather than by model choice alone. Full design record in
-[`docs/ORCHESTRATOR_WORKER_ROUTING.md`](docs/ORCHESTRATOR_WORKER_ROUTING.md).
+Durable room-agent jobs can split models by reasoning-frame phase. The slice
+runner (`convex/agentJobRunner.ts`) calls `authorizedModelForFramePhase`
+(`src/nodeagent/models/phaseModel.ts`): `intake` / `plan` / `verify` /
+`synthesize` frames use `AGENT_ORCHESTRATOR_MODEL` and `execute` frames use
+`AGENT_WORKER_MODEL`, each only when set and allowed by the egress policy.
+Otherwise every phase runs on the job's model (default
+`AGENT_ORCHESTRATOR_MODEL` → `AGENT_MODEL` → `gemini-3.5-flash`). No model is
+hard-coded as the orchestrator, and no checked-in receipt measures a cost saving
+from the split; per-slice spend is bounded by `AGENT_MAX_USD_PER_SLICE`. What is
+wired: [`docs/ORCHESTRATOR_WORKER_ROUTING.md`](docs/ORCHESTRATOR_WORKER_ROUTING.md).
 The smallest adoption proof is runnable with:
 
 ```bash
@@ -262,13 +263,12 @@ a privileged route. `nodetrace` now proves a 125-step QA-agent trace fixture, so
 an external team can prompt their coding agent to inject Trace Lens into a demo
 without adopting NodeAgent.
 
-It runs in **two modes from the same code**:
-
-- **No keys** — a deterministic in-memory engine + scripted agents. `npm run demo` / `npm run dev`.
-- **Live** — a real **Convex** backend (reactive, optimistic) + a server-side model-routed LLM
-  agent selected by `AGENT_MODEL`. Routes are promoted by ladder evidence, not provider brand.
-  Verified end-to-end: the agent locks → CAS-edits → releases on real infra and the UI
-  syncs reactively.
+The room runs on a real **Convex** backend (reactive, optimistic) with a server-side
+model-routed LLM agent selected by `AGENT_MODEL`. Routes are promoted by ladder evidence, not
+provider brand. Verified end-to-end: the agent locks → CAS-edits → releases on real infra and
+the UI syncs reactively. The same code also runs keyless against an in-memory engine and a
+scripted model, but only as the isolated test harness that tests and immutable CI drive — never
+as a product mode.
 
 ## Recent Change: Firecrawl Capture In Convex
 
@@ -347,7 +347,7 @@ The full explainer is
 The before/bridge/target code panels are generated with Shiki and checked in at
 [`docs/visuals/passive-notebook-single-source-code.html`](docs/visuals/passive-notebook-single-source-code.html).
 Regenerate them with `npm run docs:code-visuals`.
-The local MDX visual plan is
+The local MDX visual plan (a June 2026 historical snapshot) is
 [`plans/passive-notebook-single-source-fix/plan.mdx`](plans/passive-notebook-single-source-fix/plan.mdx).
 
 The first target backend slice is also shipped:
@@ -510,7 +510,7 @@ URL to `http://localhost:5273`, sets `BTB_LIVE_ROOM_E2E=1`, and launches:
 npx playwright test --config playwright.real-flow.config.ts e2e/benchmark-ui-bankertoolbench.spec.ts --headed
 ```
 
-The successful July 8, 2026 local run used task
+A July 8, 2026 local run (on `localhost`, not noderoom.live) used task
 `707cba99-59a7-47bd-bc4d-7f36212e99f3` (`btb-707cba99`), created fresh room
 `NRRL0J4CHJ9`, uploaded:
 
@@ -518,14 +518,12 @@ The successful July 8, 2026 local run used task
 - `Equity_Risk_Premium_for_WACC.xlsx`
 - `btb-707cba99-official-task-brief.txt`
 
-The agent then emitted a package with all required deliverable extensions:
-`.xlsx`, `.xlsm`, `.pptx`, `.docx`, and `.pdf`. The receipt is
-[`docs/eval/browser-receipts/bankertoolbench-live-room-proof.json`](docs/eval/browser-receipts/bankertoolbench-live-room-proof.json).
-The verifier tail in that receipt shows:
-
-```text
-BankerToolBench proof check passed: stage=1/1 weightedRubric=6 run=0/1 pass positive=1/1 pass candidateBeforeEvaluator=true leaks=0/2+0/3+0/4
-```
+and emitted a package with the required `.xlsx`, `.xlsm`, `.pptx`, `.docx`, and `.pdf`
+extensions. Its browser receipt was deleted on 2026-10-29 because it recorded a paid
+OpenRouter route at $0 cost and 0 tokens, which `validateFreshRoomProofReceipt`
+(`src/eval/freshRoomProofReceipts.ts`) rejects — so that run is not evidence. Re-run the
+command above to write a fresh receipt to
+`docs/eval/browser-receipts/bankertoolbench-live-room-proof.json`.
 
 When driving the same flow through the forked Proofloop CLI, install the CLI
 from the branch under test, then run it inside Noderoom:
@@ -748,10 +746,15 @@ npm run benchmark:proofloop:prod-proxy-longrun -- resume --execute --run-id <run
 | `convex/roomActivity.ts` | Episode recording wired into `scanActivityRow` (gated on `NODEMEM_MODE != off`) |
 | `src/nodemem/memoryContextBuilder.ts` | `buildMemorySystemContext` + `injectMemoryIntoSystemPrompt` (bounded system context, not user message) |
 | `src/nodemem/core/` | Offline core: classifier, compiler, retrieval planner, freshness, evidence, types |
-| `tests/nodemem/core-fixtures.test.ts` | 21 offline fixture tests (entity detection, dedup, compilation, ContextPack assembly, token budget) |
+| `tests/nodemem/core-fixtures.test.ts` | Offline fixture tests for the classifier, compiler, retrieval planner, evidence partitioning and freshness |
 | `e2e/nodemem-benchmark.spec.ts` | Playwright E2E benchmark with four variants (bare / shadow / bounded / full) |
 
 ## Learnable Architecture Visual Plans
+
+> **Historical (June 2026).** The hand-written `plans/<slug>/plan.mdx` files below were all
+> last edited 2026-06-18 and are kept for rationale only: several describe modules that were
+> never built, and the NodeAgent runtime plans describe the room loop, not the agent
+> workspace (`#workspace` + `packages/nodeagent-engines`). They are not a work queue.
 
 NodeRoom's docs are organized around battlefield pain points: a user is moving
 fast in a real room, with sensitive data, collaborators, agent help, and source
@@ -864,7 +867,14 @@ Zoomed to the Trace Lens detail — the agent boxes the exact 10-K line it cited
 ![Slide 10 — The ask](docs/pitch/noderoom-deck/fs/shots/slide-10.png)
 ![Slide 11 — Close](docs/pitch/noderoom-deck/fs/shots/slide-11.png)
 
-## Watch it work — live walkthroughs
+## Watch it work — historical walkthrough captures
+
+> **Historical captures, not the current product path.** These clips predate the agent
+> workspace. Every clip marked "deterministic memory-mode" was recorded against the keyless
+> test harness (`?mode=memory`: in-memory engine, scripted plan, no LLM), which now exists only
+> as isolated test infrastructure for immutable CI; some recorded routes (`#room-tour`, the
+> scale demo room) have since been deleted. For agent work, start at `#workspace`
+> ([Quickstart](#quickstart)).
 
 **Try it yourself → [noderoom.live](https://noderoom.live)** — join with a room code or start a
 room; no account needed. **Status: live beta** on a dev Convex deployment. Production-readiness is
@@ -884,7 +894,7 @@ runs (the paid/adaptive lanes do not use those routes by default).
 
 Every clip below is a **captured walkthrough of the real running app UI** - not a staged hero
 shot. Live-provider clips use noderoom.live + Convex; deterministic clips are explicitly marked
-and use the same browser UI in memory mode so the walkthrough is stable enough to teach. You see
+and were recorded with the same browser UI against the keyless test harness. You see
 the empty state, the cursor glide to each click (with a ripple), the loading state, and the
 result, with step captions and a progress bar. Regenerate and judge any time with
 `npm run walkthroughs:review -- <feature-id> --ui-review` or call the extracted reusable CLI
@@ -922,21 +932,17 @@ Verified two ways — ffmpeg level checks (bed audible, voice ~7 dB on top) **an
 `npm run episode -- noderoom-analyst-room-v1`. If your viewer doesn't autoplay the MP4,
 [download/play it here](episodes/noderoom-analyst-room-v1/renders/short.mp4).</sub>
 
-### Flagship: Startup diligence war room
+### Startup diligence war room (historical scripted capture)
 ![Startup diligence war room: agents research, chart runway, preserve human edits, and prepare handoff drafts](docs/walkthroughs/startup-diligence-war-room.gif)
-<sub>Deterministic memory-mode walkthrough of the startup-diligence product story: CardioNova intake, a five-company banking watchlist, concurrent research/finance/review lanes, cited cells, runway/milestone work, no-clobber proof, private banker lane, and draft-only downstream handoff. This is the flagship product walkthrough; live-provider proof is tracked separately in [`docs/eval/startup-diligence-war-room-live.md`](docs/eval/startup-diligence-war-room-live.md).</sub>
+<sub>Deterministic memory-mode walkthrough of the startup-diligence product story: CardioNova intake, a five-company banking watchlist, concurrent research/finance/review lanes, cited cells, runway/milestone work, no-clobber proof, private banker lane, and draft-only downstream handoff. It was the flagship walkthrough before the agent workspace; live-provider proof is tracked separately in [`docs/eval/startup-diligence-war-room-live.md`](docs/eval/startup-diligence-war-room-live.md).</sub>
 
 ### The seven no-clobber layers — live-interactable (`#story`)
 ![Seven-layer no-clobber walkthrough: a range-lease drill where the agent drafts around the lock and smart-merges, a stale agent write becoming a reviewable semantic-rebase proposal, and a stale-baseline write rejected as conflict-as-data — all on the in-browser engine](docs/walkthroughs/story-seven-layers.gif)
 <sub>The landing `#story` walk teaches the no-clobber collaboration model in seven progressively deeper layers and ends in a REAL grid on the in-browser engine you can drive: Layers 7+4 take a range lease and watch NodeAgent draft around it then smart-merge on release; Layer 6 turns a stale agent write into a reviewable `semantic_rebase` proposal (approve re-applies at the current version, not the stale baseline); Layer 5 rejects a stale-baseline write as conflict-as-data. Presence (L2) and streaming (L3) are honestly labeled "live in the room" — they run on the Convex backend, not the memory engine, so they're illustrated rather than faked. Captured from the live prod `#story`; spec: [`scripts/walkthroughs/specs.ts`](scripts/walkthroughs/specs.ts) (`story-seven-layers`), regression net: [`e2e/mobile-story-surfaces.spec.ts`](e2e/mobile-story-surfaces.spec.ts).</sub>
 
-### The NodeAgent room — scripted product walkthrough (`#room-tour`)
-![Eight-step product walkthrough: landing → host a room (XXX-XXX share code) → enter to a single chat panel → +artifact (versioned spreadsheet) → +navigator and your private agent → live collab drill where the room agent locks rows it’s about to write, the private agent drafts around the lock on the unlocked rows, the room agent commits v41 → v42, smart-merge applies the held draft v42 → v43 — no clobber](docs/walkthroughs/room-tour-walkthrough.gif)
-<sub>The landing `#room-tour` walk-through teaches the room product in 8 scripted steps on real TSX (no Convex, no engine wiring — safe to drive on a public URL with no auth or cost). Landing → Create modal mints a 6-char share code → Enter room opens to one panel (public chat + the Room NodeAgent) → +artifact reveals the versioned spreadsheet → +navigator + your private agent fills the full 4-panel workspace → the Step 08 live-collab drill runs lock → draft → commit → smart-merge through the room trace (v41 → v43). The presence + streaming layers are honestly labelled "live in the room" in `#story`'s sister walkthrough above. Captured from the live prod `#room-tour`; spec: [`scripts/walkthroughs/specs.ts`](scripts/walkthroughs/specs.ts) (`room-tour-walkthrough`), regression net: [`e2e/mobile-story-surfaces.spec.ts`](e2e/mobile-story-surfaces.spec.ts).</sub>
-
 ### Design parity tour — receipts, palette, paper notebook, run trace
 ![Design parity tour: a 1,000-row calm-mode grid with mixed status chips and lock rows, hovering a cite chip opens the evidence receipt popover, Ctrl+K opens the command palette and jumps to the Capture Notebook rendered as ink-on-parchment paper inside the dark room, the Trace tab's Runs view shows one agent run as a span tree, and the people panel lists 62 live members with role groups and Follow](docs/walkthroughs/parity-tour.gif)
-<sub>The design-system parity showcase in one pass, **captured from live prod** (deterministic memory-mode scale room — same UI, scripted agent): dot-status calm grid at 1,000 rows with true scroll virtualization and an honest "rows X–Y rendered" chip · in-cell **evidence receipts** (quoted source, checked time, confidence) · the **⌘K command palette** · the **paper notebook** (agent ink as a terracotta margin dot, needs-review chips, evidence-only citation superscripts) · **Runs trace** as an OTel-style span tree where unknown durations render honestly and failures stay visible · the **people panel** with Follow. Spec: [`scripts/walkthroughs/specs.ts`](scripts/walkthroughs/specs.ts) (`parity-tour`); parity queue + verdicts: [`docs/design/DESIGN_PARITY_PLAN.md`](docs/design/DESIGN_PARITY_PLAN.md); paired design-vs-product screenshots regenerate with `npm run design:parity`.</sub>
+<sub>Historical capture of the design-system parity showcase, recorded on prod against the since-deleted deterministic memory-mode scale room (same UI, scripted agent): dot-status calm grid at 1,000 rows with true scroll virtualization and an honest "rows X–Y rendered" chip · in-cell **evidence receipts** (quoted source, checked time, confidence) · the **⌘K command palette** · the **paper notebook** (agent ink as a terracotta margin dot, needs-review chips, evidence-only citation superscripts) · **Runs trace** as an OTel-style span tree where unknown durations render honestly and failures stay visible · the **people panel** with Follow. Spec: [`scripts/walkthroughs/specs.ts`](scripts/walkthroughs/specs.ts) (`parity-tour`); paired design-vs-product screenshots regenerate with `npm run design:parity`.</sub>
 
 ### The notebook agent lane — governed notes, attributed output
 ![Notebook agent lane: opening the paper Capture Notebook inside the dark room, asking @nodeagent to summarize meeting notes in chat, and a structured report landing under the Agent notes heading — terracotta NodeRoom chip, agent-ink margin dots on attributed blocks, and an amber needs_review chip on the unverified runway claim](docs/walkthroughs/notebook-agent-lane.gif)
@@ -1077,7 +1083,7 @@ preserve, and the eval/trace evidence that gates promotion. Refresh trace
 previews with `npm run workflow:previews`, or refresh both trace previews and
 real DOM captures with `npm run workflow:previews:all`. Evidence levels are
 explicit: `render-workflow-preview.ts` produces trace replays, and
-`workflow:app-previews` captures the real DOM in memory mode. A GIF is visual
+`workflow:app-previews` captures the real DOM against the keyless test harness (scripted model; not a product mode). A GIF is visual
 evidence, not a production gate. Full evidence and research links:
 [`docs/WORKFLOW_PREVIEWS.md`](docs/WORKFLOW_PREVIEWS.md).
 
@@ -1100,8 +1106,8 @@ frame-cited issues live in `docs/eval/gif-judge/`.
 
 The earlier screenshot-slideshow previews were retired after this judge found structural
 honesty defects (frames from different sessions, reversed narratives); the replacements are
-recorded from the REAL app UI driven by the real agent runtime in memory mode
-(`e2e/capture-previews.spec.ts`).
+recorded from the REAL app UI driven by the real agent runtime against the keyless test
+harness with a scripted model (`e2e/capture-previews.spec.ts`).
 
 ### Public `@nodeagent` Spreadsheet Reconciliation
 
@@ -1410,7 +1416,7 @@ unless we explicitly wire that access.
 | Component | What it gives us | How NodeRoom adapts it |
 |---|---|---|
 | [`@convex-dev/workflow`](https://www.convex.dev/components/workflow) | Durable multi-step functions with persisted state, delays, retries, cancellation, and reactive status. | Long agent jobs run as slices, but `agentJobs` stays the user-facing source of truth. Workflow ids are runtime metadata. |
-| [`@convex-dev/workpool`](https://www.convex.dev/components/workpool) | Queues for actions/mutations with parallelism limits, backoff, jitter, and completion callbacks. | Background agent slices go through the named `agentWorkpool` so slow routes do not become unbounded server fan-out. |
+| [`@convex-dev/workpool`](https://www.convex.dev/components/workpool) | Queues for actions/mutations with parallelism limits, backoff, jitter, and completion callbacks. | Used through the workflow components' `workpoolOptions` (`convex/agentWorkflows.ts`) so slow routes do not become unbounded server fan-out. |
 | [`@convex-dev/persistent-text-streaming`](https://www.convex.dev/components/persistent-text-streaming) | Streaming text chunks that are also persisted to Convex for recovery and later reads. | Private text replies can stream; spreadsheet, legacy-note, and wall writes still go through CAS, proposals, and evidence-bearing tools. Native notebook text uses the ProseMirror sidecar path. |
 | [`@ikhrustalev/convex-debouncer`](https://www.convex.dev/components/ikhrustalev/convex-debouncer) | Server-side quiet-window debouncing for expensive operations. | Installed and registered. `roomActivityOutbox` uses it to run passive scans after edits/uploads settle instead of on every keystroke. |
 | [Convex File Storage](https://docs.convex.dev/file-storage/upload-files) | Built-in upload URLs, storage ids, metadata, and storage APIs. | Canonical raw file store. `uploadedFiles.storageId` remains the durable source of truth for room files. |
@@ -1544,8 +1550,7 @@ and [`evals/professionalWorkflows.ts`](evals/professionalWorkflows.ts).
     simpler existing module cannot own it. The current watch list is in
     [`docs/OVERENGINEERING_AUDIT.md`](docs/OVERENGINEERING_AUDIT.md).
 
-The detailed interview version of this story lives in
-[`docs/INTERVIEW_NOTES.md`](docs/INTERVIEW_NOTES.md). The product support map
+The product support map
 for the reviewed GTM and finance files lives in
 [`docs/PROFESSIONAL_SPREADSHEET_WORKFLOWS.md`](docs/PROFESSIONAL_SPREADSHEET_WORKFLOWS.md).
 
@@ -1593,13 +1598,16 @@ hardening where supported.
 ```bash
 npm install
 
-# ── No keys: deterministic engine + scripted agents ──────────────────────────
+# ── Agent workspace: the one agent path ──────────────────────────────────────
+npm run agent:worker    # packages/nodeagent-engines worker → http://127.0.0.1:4317 (keys in .env.local)
+npm run dev             # second shell → http://localhost:5260/#workspace
+
+# ── Test harness only (no keys; never a product mode) ────────────────────────
 npm run demo            # collaboration model: lock → draft → smart-merge, printed
 npm run demo:agent      # the agent harness: lock-prevents vs CAS-catches, live conflict→retry
-npm run eval            # the golden suite (4/4 deterministic cases)
-npm run dev             # the multi-panel app (in-memory) → http://localhost:5260
+npm run eval            # the golden suite (deterministic cases)
 
-# ── Live: real Convex backend + real LLM agent ───────────────────────────────
+# ── Live room: real Convex backend + real LLM agent ──────────────────────────
 npx convex dev                                  # creates a deployment + generates types
 npx convex env set AGENT_MODEL gemini-3.5-flash # or another ladder-approved route
 npx convex env set GOOGLE_GENERATIVE_AI_API_KEY ... # set the key for the selected route
@@ -1616,7 +1624,7 @@ npm run dev             # now reads/writes live Convex (optimistic); the agent r
 # ── Verify ───────────────────────────────────────────────────────────────────
 npm run typecheck   &&   npm test   &&   npm run build      # tsc, full tests, vite build
 npm run qa:story                 # local #story browser gate: editable spreadsheet + local story-agent chat
-npm run test:product:memory      # local browser gate: entry/story, chat, workbook formulas, range fill-down, responsive UX
+npm run test:product:memory      # keyless test-harness browser gate: entry/story, chat, workbook formulas, range fill-down, responsive UX
 npm run test:product:live        # live Convex gate: reactivity, presence, notebook work-plan, privacy/wall/job/proposal, CRS proof
 npm run test:product:live:agent  # live Convex + provider gate: three-user public/private agent and review-mode flow
 ```
@@ -1661,14 +1669,19 @@ flowchart LR
 
   Store["useStore()<br/>src/app/store.tsx"]
 
-  subgraph MemoryMode["No-key mode"]
-    RoomEngine["RoomEngine<br/>CAS + locks + drafts + smart-merge"]
-    ScriptedAgents["Scripted agents"]
+  subgraph Workspace["Agent workspace (#workspace)"]
+    WorkspaceUI["AgentWorkspaceRoute<br/>src/ui/workspace"]
+    Worker["nodeagent-worker<br/>packages/nodeagent-engines<br/>provider SDK engines"]
   end
 
-  subgraph LiveMode["Live mode"]
+  subgraph LiveMode["Live room"]
     Convex["Convex<br/>rooms + artifacts + elements + locks + drafts"]
-    AgentAction["runRoomAgent action<br/>ConvexRoomTools"]
+    AgentAction["agentJobs.startPublicAsk → agentJobRunner<br/>ConvexRoomTools"]
+  end
+
+  subgraph TestHarness["Test harness only (no keys)"]
+    RoomEngine["RoomEngine<br/>CAS + locks + drafts + smart-merge"]
+    ScriptedModel["Scripted model"]
   end
 
   subgraph AgentRuntime["Agent runtime (src/nodeagent)"]
@@ -1687,7 +1700,8 @@ flowchart LR
   Trace --> Store
   Store --> RoomEngine
   Store --> Convex
-  RoomEngine --> ScriptedAgents
+  RoomEngine --> ScriptedModel
+  WorkspaceUI -->|/agent-api| Worker
   Chat --> Loop
   Loop --> Context
   Loop --> Tools
@@ -1703,9 +1717,10 @@ flowchart LR
 ## The three layers
 
 ```
-  UI (src/ui)  ──useStore()──▶  src/app/store.tsx  ──▶  RoomEngine (in-memory)   ← no keys
-                                       └──────────────▶  Convex (useQuery + CAS) ← live
-  Agent (src/nodeagent)  ──RoomTools──▶  InMemoryRoomTools  |  ConvexRoomTools (convex/)
+  Agent workspace (#workspace)  ──/agent-api──▶  npm run agent:worker (packages/nodeagent-engines)
+  Room UI (src/ui)  ──useStore()──▶  src/app/store.tsx  ──▶  Convex (useQuery + CAS)  ← product
+                                            └──────────────▶  RoomEngine (in-memory)   ← test harness only
+  Room agent (src/nodeagent)  ──RoomTools──▶  ConvexRoomTools (convex/)  |  InMemoryRoomTools (tests)
 ```
 
 1. **The collaboration engine** (`src/engine/`) — the checked element layer. Spreadsheets,
@@ -1713,10 +1728,11 @@ flowchart LR
    CAS, drafts, and smart-merge are **one** generic mechanism. Native notebooks add a
    ProseMirror source sidecar plus dirty-event/read-model processing.
 2. **The agent harness** (`src/nodeagent/`) — context engineering + tool construction + a bounded loop
-   with an **injectable model** (scripted or routed real provider) and a **swappable backend** (in-memory
-   or Convex). Context **compaction** keeps long runs bounded. See [`docs/AGENT_RUNTIME.md`](docs/AGENT_RUNTIME.md).
-3. **The store seam** (`src/app/store.tsx`) — the UI calls `useStore()`; one provider is the
-   in-memory engine, the other is live Convex with **optimistic updates**. The components don't change.
+   with an **injectable model** (a routed real provider; scripted only in tests) and a **swappable backend**
+   (Convex; in-memory for tests). Context **compaction** keeps long runs bounded. See [`docs/AGENT_RUNTIME.md`](docs/AGENT_RUNTIME.md).
+3. **The store seam** (`src/app/store.tsx`) — the UI calls `useStore()`; the product provider is
+   live Convex with **optimistic updates**, and the in-memory engine provider is the keyless test harness.
+   The components don't change.
 
 ## The collaboration model
 
@@ -1819,7 +1835,8 @@ sequenceDiagram
 
   Host->>Mutation: send public "@nodeagent" request
   Mutation->>DB: append message and create/reuse agentJobs row
-  Host->>Agent: runRoomAgent(goal, artifact, requester proof)
+  Mutation->>Flow: startPublicAsk enqueues the durable job
+  Flow->>Agent: agentJobRunner slice(goal, artifact, requester proof)
   Agent->>DB: hydrate context from room state
   Agent->>Agent: fence untrusted data, compact context, derive slice key
   Agent->>DB: check model-step journal
@@ -1895,7 +1912,7 @@ designs, lives in
 ## The agent — runtime, context, eval
 
 The agent is the centerpiece, built to be *explained* and *trusted*. **Mention `@nodeagent <goal>`
-in the public chat to drive the Room NodeAgent end-to-end** - it reads current versions, calls checked write/proposal tools, and lets the runtime enforce CAS, policy, receipts, and review boundaries (the real `runRoomAgent` action when on Convex; the real in-memory harness with no keys). The composer model picker records a route preference; the server resolves the final model, approval, evidence, allowlist, and rate-limit policy.
+in the public chat to drive the Room NodeAgent end-to-end** - it reads current versions, calls checked write/proposal tools, and lets the runtime enforce CAS, policy, receipts, and review boundaries (on Convex, `agentJobs.startPublicAsk` hands it to the durable `agentJobRunner` slice runner; tests run the same loop against the in-memory harness). The composer model picker records a route preference; the server resolves the final model, approval, evidence, allowlist, and rate-limit policy.
 
 - **Runtime + context engineering + tool backend** → [`docs/AGENT_RUNTIME.md`](docs/AGENT_RUNTIME.md).
   Three seams (model · tools · RoomTools), the loop, the system-prompt protocol + JIT context, and
@@ -2009,7 +2026,7 @@ Full QA ledger: [`docs/PRODUCTION_GUARANTEE_MATRIX.md`](docs/PRODUCTION_GUARANTE
 
 ## The collaboration ladder (L1–L7)
 
-**Captured live from the running app.** These are the **actual NodeRoom DOM** (memory mode),
+**Captured live from the running app.** These are the **actual NodeRoom DOM** (keyless test harness, scripted model),
 screenshotted frame-by-frame by a Playwright run
 ([`e2e/capture-previews.spec.ts`](e2e/capture-previews.spec.ts) · `npm run workflow:app-previews`) —
 not mockups, not slideshows.
@@ -2046,7 +2063,7 @@ The README uses evidence labels deliberately:
 |---|---|
 | Deterministic catalog proof | A typed professional case passed checks for intake surface, output contract, provenance, trajectory, privacy/long-running/private-gold contracts, and requirement-proof evidence. This is not live model proof. |
 | Deterministic runtime | A local harness executed real NodeRoom logic and checked final artifact state plus trace behavior without provider nondeterminism. |
-| DOM preview | Playwright captured the real NodeRoom UI, usually in memory mode, to verify the visible workflow. |
+| DOM preview | Playwright captured the real NodeRoom UI, usually against the keyless test harness, to verify the visible workflow. |
 | Deterministic replay | A scripted or fixture trace replayed through the real harness without provider nondeterminism. |
 | Live provider | A real model/provider produced the agent trace or media judge result. |
 | Live Convex | The path crossed the deployed Convex backend and reactive clients, not only the in-memory engine. |
@@ -2135,8 +2152,11 @@ the layered-memory pattern; Anthropic *Effective context engineering*.
 
 ## Agent improvement loop
 
-NodeRoom uses the same loop described in OpenAI's Agents SDK cookbook: real traces, human/model
-feedback, reusable evals, a validation gate, and a Codex handoff — then it repeats.
+NodeRoom adapts the agent-improvement-loop pattern from OpenAI's Agents SDK cookbook (source URL
+in `scripts/agent-improvement-loop.ts`): real traces, human/model feedback, reusable evals, a
+validation gate, and a Codex handoff — then it repeats. It is a pattern NodeRoom runs in a
+script; the room agent's runtime is NodeRoom's own loop (`src/nodeagent/core/runtime.ts`), not
+the OpenAI Agents SDK.
 
 **HALO — Hierarchical Agent Loop Optimization**
 

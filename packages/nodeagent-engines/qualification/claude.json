@@ -1,0 +1,151 @@
+{
+  "engine": "claude-agent-sdk",
+  "sdk": "@anthropic-ai/claude-agent-sdk",
+  "sdkVersion": "0.3.312",
+  "model": "claude-haiku-5-5",
+  "helperModel": "claude-haiku-5-5",
+  "ranAt": "2026-10-29T12:37:14.437Z",
+  "wallMs": 76307,
+  "costUsd": 0.240171,
+  "costUsdIsLowerBound": false,
+  "priorAttemptsUsd": 0.099314,
+  "runs": [
+    {
+      "label": "main",
+      "status": "completed",
+      "wallMs": 62935,
+      "costUsd": 0.138153975,
+      "costSource": "engine",
+      "nativeSessionId": "ddb6cbdc-4e46-414d-811f-d78f16e9be7d",
+      "finalText": "Word counts and codewords are below, and `summary.md` is written in the workspace.\n\n**Word counts**\n- `docs/alpha.txt`: 102 words (matches my direct count and helper A)\n- `docs/beta.txt`: 65 words (from helper B; not independently verified)\n\n**Codewords**\n- `corpus/part-1.txt`: HERON\n- `corpus/part-2.txt`: MAPLE\n- `corpus/part-3.txt`: COBALT\n- `corpus/part-4.txt`: QUARTZ\n\n**Notes on the steps**\n- "
+    },
+    {
+      "label": "interrupt",
+      "status": "interrupted",
+      "wallMs": 4683,
+      "costUsd": 0.00082555,
+      "costSource": "engine",
+      "nativeSessionId": "40a4b844-2a82-4f20-9afd-2eecb5f4aecc",
+      "error": "qualification: interrupt after first tool call",
+      "finalText": ""
+    },
+    {
+      "label": "resume",
+      "status": "completed",
+      "wallMs": 8683,
+      "costUsd": 0.001877585,
+      "costSource": "engine",
+      "nativeSessionId": "40a4b844-2a82-4f20-9afd-2eecb5f4aecc",
+      "finalText": "The codeword I hold\nPelican forty-two rests\nquiet in my mind\n-- haiku-format"
+    }
+  ],
+  "eventCounts": {
+    "main": {
+      "run.started": 1,
+      "run.status": 15,
+      "context.usage": 6,
+      "engine.raw": 16,
+      "tool.call": 29,
+      "tool.result": 29,
+      "tool.search": 5,
+      "tool.loaded": 5,
+      "skill.loaded": 1,
+      "goals.updated": 4,
+      "helper.started": 2,
+      "helper.progress": 4,
+      "message": 4,
+      "helper.completed": 2,
+      "context.compacted": 2,
+      "message.delta": 14,
+      "permission.decision": 2,
+      "usage": 1
+    },
+    "interrupt": {
+      "run.started": 1,
+      "run.status": 1,
+      "context.usage": 2,
+      "engine.raw": 2,
+      "tool.call": 2,
+      "tool.result": 2,
+      "usage": 1
+    },
+    "resume": {
+      "run.started": 1,
+      "run.status": 3,
+      "context.usage": 2,
+      "engine.raw": 4,
+      "message.delta": 3,
+      "message": 2,
+      "tool.call": 2,
+      "tool.result": 2,
+      "skill.loaded": 1,
+      "usage": 1
+    }
+  },
+  "capabilities": {
+    "start": {
+      "status": "NATIVE",
+      "evidence": "run.started x1 nativeSessionId=ddb6cbdc-4e46-414d-811f-d78f16e9be7d; tools=13 deferred=[\"word_count\"] skills=17"
+    },
+    "stream": {
+      "status": "NATIVE",
+      "evidence": "message.delta x14 (main agent, includePartialMessages)"
+    },
+    "interrupt": {
+      "status": "NATIVE",
+      "evidence": "run 2 handle.interrupt() after first tool.call -> outcome interrupted in 94ms; session 40a4b844-2a82-4f20-9afd-2eecb5f4aecc"
+    },
+    "resume": {
+      "status": "NATIVE",
+      "evidence": "run 3 resume=40a4b844-2a82-4f20-9afd-2eecb5f4aecc: run.started nativeSessionId=40a4b844-2a82-4f20-9afd-2eecb5f4aecc, recalled PELICAN-42=true, outcome completed"
+    },
+    "subagents": {
+      "status": "NATIVE",
+      "evidence": "helper.started x2 (helper/claude-haiku-5-5/bg=true, helper/claude-haiku-5-5/bg=true), helper.completed x2 (completed,completed), concurrent=true, helper.progress x4"
+    },
+    "childEventIdentity": {
+      "status": "NATIVE",
+      "evidence": "4 child tool.call events carry agentId = helper task_id (a4f24bf201408ae58, aa1860618ce48b054); child tool.result x4"
+    },
+    "compaction": {
+      "status": "NATIVE",
+      "evidence": "context.compacted x2: auto 73626->59038 ref=71aa6845-66a7-4ecd-aa66-a52d7bc18529; auto 165562->4823 ref=1fa5936e-d7f9-4910-9531-7f170215f573 (auto, CLAUDE_CODE_AUTO_COMPACT_WINDOW=100000)"
+    },
+    "toolSearch": {
+      "status": "NATIVE",
+      "evidence": "tool.search x5 (\"select:TodoWrite\", \"count words\", \"select:mcp__node__word_count\", \"select:mcp__node__word_count\", \"select:TodoWrite\"), tool.loaded [\"TodoWrite\",\"word_count\"] via native-tool-search, word_count tool.call x3 after search"
+    },
+    "skillLoad": {
+      "status": "NATIVE",
+      "evidence": "skill.loaded word-stats#5ceb657e, haiku-format#f3c27952 via native Skill tool"
+    },
+    "skillRefresh": {
+      "status": "NATIVE",
+      "evidence": "activate_skill -> Query.reloadSkills() ok x1; then skill.loaded haiku-format in the same live session"
+    },
+    "goals": {
+      "status": "NATIVE",
+      "evidence": "goals.updated x4 from TodoWrite; last: 8 items"
+    },
+    "permissions": {
+      "status": "NATIVE",
+      "evidence": "permission.decision deny x1 (<root>/outside.txt); allow x1"
+    },
+    "usage": {
+      "status": "NATIVE",
+      "evidence": "run 1 tokens in=96789 out=13092 cacheRead=378564 cacheWrite=142603 modelTurns=17"
+    },
+    "costUsd": {
+      "status": "NATIVE",
+      "evidence": "result.total_cost_usd=0.138153975 (costSource engine)"
+    }
+  },
+  "notes": [
+    "Compaction knob: env CLAUDE_CODE_AUTO_COMPACT_WINDOW=100000 (spec.context.autoCompactTokens). Probed before the run with getContextUsage(): values below 100000 are raised to a 100000 window (autoCompactThreshold 67000); CLAUDE_AUTOCOMPACT_PCT_OVERRIDE did not change the reported threshold. Run 1 reads four ~20k-token corpus files to cross it.",
+    "Isolation: before the fix, a workspace under the user's home loaded ~/.claude/CLAUDE.md as Project memory (3657 tokens, getContextUsage().memoryFiles). The adapter now passes settings.claudeMdExcludes for every ancestor directory; the probe after the fix showed memoryFiles=[]. User skills (~/.claude/skills) were not loaded; bundled CLI skills are listed in init.",
+    "Resume requires the same host.stateDir (CLAUDE_CONFIG_DIR holds the transcript). modelUsage on a resumed session continues from the transcript's saved totals, so per-run costUsd after resume may include the earlier run; the total here is a conservative sum.",
+    "Qualification policy denied 1 path(s) (outside the workspace or under .claude/). Spend cap $2; spent (known run outcomes + prior attempts) $0.240171.",
+    "Attempt 1 findings fixed in the adapter before this run: (a) CLI 2.1.312 defaults to TaskCreate/TaskUpdate and removes TodoWrite from the tool set even when listed, so the model could not plan (ToolSearch select:TodoWrite returned nothing) -> env CLAUDE_CODE_ENABLE_TASKS=false; (b) the interrupted turn's result reported total_cost_usd 0 with empty modelUsage after a tool_use had streamed -> now costUsd null / costSource unknown; (c) background helper output files were written to the user's %TEMP%\\claude and the main agent tried to Read them (denied) -> env CLAUDE_CODE_TMPDIR=<stateDir>/claude-tmp plus a prompt rule that helper results arrive as notifications; (d) the binary package has no entry point, so availability() falsely reported it missing -> resolve <pkg>/package.json.",
+    "Workspace: nodeagent-qual\\claude-1793277434417 under os.tmpdir(). Expected counts: docs/alpha.txt 102 words, docs/beta.txt 65 words."
+  ]
+}

@@ -15,7 +15,7 @@ Read that file for full reproductions; this is the index.
 | D-4 | Major | The review queue reads "no pending proposals" in the keyless sample room and no control produces one, so the product's central trust claim is invisible to anyone without a Convex deployment. |
 | D-5 | Major (a11y) | axe-core critical `aria-allowed-attr`: the chat `textarea` carries `aria-expanded`, which that element does not allow. Plus five serious contrast failures, worst `.r-walkdock-pace` at **1.55:1** against 4.5:1 required. |
 | D-6 | Minor (a11y) | 25 consecutive Tab presses from a fresh load never leave the left binder rail, and `SKIP_LINKS` is empty. One focused input has no visible focus ring. |
-| D-7 | Minor (docs) | `DEMO.md` instructs a presenter to click controls that no longer exist ("Enter the Q3 diligence room", "Run collaboration"). |
+| D-7 | Minor (docs) | Resolved by removal: the stale `DEMO.md` stage script (it told a presenter to click controls that no longer exist) was deleted. Read it at commit `6f1af0f7`. |
 
 **None of these were touched by this pass.** This wave was structural reduction
 and documentation; mixing defect fixes into it would have made both harder to
@@ -109,10 +109,10 @@ The type-only six, for completeness:
   actual front door, but the README has not been reduced — that is feature-level
   editorial work, not structural reduction, and it was out of scope for this
   wave.
-- **Thirteen dated session transcripts sit at the repository root**
-  (`6-14-2026-deep-review.txt` … `6-18-2026-visual-plan-review-surface.txt`,
-  ~600 KB). Four are referenced from `docs/`; nine are not. They are inert, but
-  they are the first thing a `ls` shows.
+- **Resolved:** the fourteen dated session transcripts that sat at the
+  repository root (`6-14-2026-deep-review.txt` …
+  `6-18-2026-visual-plan-review-surface.txt`, ~600 KB) were removed. Docs that
+  cite them point at commit `6f1af0f7`, where they can still be read.
 - **266 npm scripts.** Most are benchmark harness entry points. There is no
   grouping or index; `npm run` prints a wall.
 - **201 files are unreachable from any entry point** (`npx knip`), down from 228.

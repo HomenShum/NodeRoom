@@ -1,0 +1,39 @@
+{
+  "capturedAt": "2026-10-31T03:58:35.544Z",
+  "tarballSha256": "3aa403b5cdeb6a43e6a56c6843730145d27de13599941067386c9180a5394905",
+  "installedPackageMatchesTarball": true,
+  "templates": [
+    "blank",
+    "diligence-pack"
+  ],
+  "projectsBefore": 0,
+  "projectsAfter": [
+    "diligence-pack"
+  ],
+  "runsInProject": 0,
+  "browserPostRequests": [
+    "/agent-api/api/projects"
+  ],
+  "ui": {
+    "brief": "No runs yet. Describe a task below to start one.",
+    "creatingVisible": 0,
+    "loadingRunsVisible": 0,
+    "setupNotice": [
+      "Setup required for Claude Agent SDK",
+      "ANTHROPIC_API_KEY is not set"
+    ],
+    "engineRail": [
+      "ENGINES",
+      "Claude Agent SDK",
+      "setup required",
+      "Codex (app-server)",
+      "setup required",
+      "OpenAI Agents SDK",
+      "setup required",
+      "Google ADK",
+      "setup required",
+      "NodeAgent universal (AI SDK)",
+      "setup required"
+    ]
+  }
+}

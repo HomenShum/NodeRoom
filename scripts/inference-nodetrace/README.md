@@ -1,5 +1,11 @@
 # Inference.ai harness trace lane
 
+> **Historical (2026-06-21 Inference.ai pitch lane).** No npm script, CI job or test runs
+> these scripts. They stay only because `docs/pitch/noderoom-deck/` and
+> `docs/noderl/LIVE_UI_LANE.md` cite them as the source of pitch claims. The current agent
+> path is the `#workspace` route (`src/ui/workspace/AgentWorkspaceRoute.tsx`) backed by
+> `packages/nodeagent-engines` (`npm run agent:worker`).
+
 Runs **one task through the NodeRoom harness on [Inference.ai](https://inference.ai) `gpt-5.4`** —
 fully traced — and turns the exact trace into a nodetrace-style slide + an animated GIF.
 
