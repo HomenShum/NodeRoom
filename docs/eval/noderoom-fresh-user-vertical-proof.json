@@ -1,46 +1,60 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-08-29T23:16:30Z",
+  "generatedAt": "2026-10-31T18:07:39Z",
+  "producedBy": "agent-driven browser run against production, values transcribed from the rendered UI: headless Playwright fresh context for the cold-visitor probe, Claude in Chrome for the authenticated run",
   "environment": {
     "kind": "live-prod",
     "baseUrl": "https://noderoom.live",
     "roomId": "NRSDDEYWAZI",
     "roomData": "synthetic-guided-sample",
-    "entryPath": "visible funnel: landing -> Try a sample -> consent dialog -> sign-in gate -> GitHub OAuth -> room"
+    "entryPath": "cold: landing -> Try a sample room -> sample dialog -> sign-in gate -> GitHub login; authenticated: GitHub OAuth -> existing room via ?room=NRSDDEYWAZI"
   },
   "funnelProof": {
-    "coldVisitorFunnelRestored": true,
-    "outageRootCause": "Vercel production env VITE_CONVEX_URL pointed at the standby Convex deployment (aromatic-bass-102) while VITE_CONVEX_SITE_URL and every convex deploy pointed at zealous-goshawk-766; the crossed pair made auth:signIn throw for every visitor. Fixed 2026-08-29 by repointing the env; guarded forever by ship-prod-verify --chunk-signal/--chunk-absent.",
-    "coldVisitorProbe": "fresh Playwright context: landing -> sample dialog -> gate -> Continue with GitHub -> redirected to github.com login (fresh-user-proof/github-redirect.png)",
-    "authenticatedEntry": "GitHub OAuth completed with an existing session and landed in the live room; first github-provider authAccount on this deployment"
+    "coldVisitorFunnel": true,
+    "coldVisitorProbe": "fresh headless Playwright context, 2026-10-31T03:57Z: landing -> 'Try a sample room' -> sample dialog -> 'Start sample room' -> 'Sign in to start a sample room' gate -> Continue with GitHub -> github.com login 'to continue to NodeRoom Production' (fresh-user-proof/github-redirect.png)",
+    "oauthCallbackDeployment": "zealous-goshawk-766.convex.site",
+    "authenticatedEntry": "GitHub OAuth sign-in completed by the owner in their own Chrome (the agent typed no credentials); re-entered existing room NRSDDEYWAZI, no new room created"
   },
   "freshUserRun": {
+    "sentAt": "2026-10-31T18:07:02Z",
     "routeMode": "free",
-    "routeControl": "visible picker: Adaptive (recommended) / Free $0 / Top paid / Specific model; Free selected",
+    "routeControl": "visible picker: Adaptive (recommended) / Free / Top paid / Specific model; Free selected, composer showed Free $0",
+    "routeRequested": "openrouter/free-auto",
     "resolvedModel": "cohere/north-mini-code:free",
-    "modelTurns": 3,
-    "toolCalls": 2,
-    "tools": ["list_artifacts", "read_notebook"],
-    "traceWallClockMs": 9000,
-    "traceSpans": 4,
-    "spanTimings": { "context.gather_x2": 330, "list_artifacts": 47, "read_notebook": 283 },
+    "runStatus": "completed with recovered steps",
+    "modelTurns": 4,
+    "toolCalls": 3,
+    "tools": ["read_notebook", "list_artifacts", "read_notebook"],
+    "recoveredToolErrors": [
+      { "tool": "read_notebook", "error": "artifact_not_notebook", "recoveredBy": "list_artifacts, then read_notebook retried ok" }
+    ],
+    "traceWallClockMs": 16700,
+    "traceSpans": 5,
+    "spanTimings": { "context.gather_x3": 375, "read_notebook_error": 110, "list_artifacts": 14, "read_notebook_retried_ok": 251 },
     "modelCostUsd": 0,
     "readOnly": true,
     "artifactChanges": 0,
     "returnedBlockIds": ["legacy-dac84c29-1", "legacy-dac84c29-2", "legacy-dac84c29-3", "legacy-dac84c29-4", "legacy-dac84c29-5"],
-    "blockIdsMatchJulyBaseline": true
+    "blockIdsMatchJulyBaseline": true,
+    "notebookVersionAfterRun": 1
   },
   "surfaceProof": {
-    "runTrace": "AgentPrism-style spans opened from the room; 4 spans, per-span durations recorded, version chip v246 -> v247",
-    "proofBundle": { "receiptId": "9cde9378", "artifacts": 17, "evidence": 0, "review": 16, "traces": 8 },
+    "runTrace": "Room trace (42 events) opened from the room; selected run: 5 spans, wall-clock 16.7s, per-span durations recorded, version chip v246 -> v247 displayed",
+    "proofBundle": { "receiptId": "ce81a0e6", "artifacts": 9, "evidence": 0, "review": 16, "traces": 0 },
     "reviewCenter": { "pending": 0, "edits": 0, "rebases": 0, "note": "honest zero — the run was read-only" },
-    "livePerformance": { "messages": 6, "human": 2, "agent": 4, "agentTraces": 1, "tools": 2, "costUsd": 0 },
-    "entityGraph": { "entities": 2, "edges": 0, "events": 8, "note": "fresh room; graph honestly reports edges as interaction history only" }
+    "livePerformance": { "messages": 8, "human": 3, "agent": 5, "agentTraces": 0, "tools": 3, "costUsd": 0, "beforeRun": { "messages": 6, "runGroups": 1 } },
+    "entityGraph": { "view": "Entity lens", "nodes": 11, "edges": 18, "liveSessionGraphEntities": 0 }
   },
+  "observedDifferencesFromPreviousReceipt": [
+    "the agent's first read_notebook call failed with artifact_not_notebook before it recovered via list_artifacts (2026-08-29: no tool errors, 3 turns / 2 tools)",
+    "proof bundle reports 0 traces and live performance 0 agent traces, although the Run Trace view shows this run's 5 spans (2026-08-29: 8 traces / 1 agent trace)",
+    "proof bundle counts 9 artifacts (2026-08-29: 17)",
+    "the entity graph now renders a node graph (11 nodes, 18 edges) instead of the 2026-08-29 counter '2 entities · 0 edges · 8 events'"
+  ],
   "scope": {
     "reverifiedToday": ["cold-visitor funnel end to end", "free-route read-only agent run with trace receipts", "work-artifact proof bundle counts", "run-trace surface", "entity-graph surface", "review-center honest zeros"],
     "notRerun": ["collaborative deck versioning", "notebook kernel bounded expression", "governed agent edit approval flow"],
-    "note": "The 2026-07-12 receipt's deeper feature proofs are retired from this claim rather than carried forward under a fresh date; re-prove them individually if a surface claim needs them."
+    "note": "The 2026-07-12 receipt's deeper feature proofs stay retired from this claim; re-prove them individually if a surface claim needs them."
   },
-  "evidenceDir": ".qa/evidence/20260829-ui-endtoend/fresh-user-proof/"
+  "evidenceDir": ".qa/evidence/20261031-ui-endtoend/fresh-user-proof/"
 }
