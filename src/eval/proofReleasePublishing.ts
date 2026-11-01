@@ -575,7 +575,8 @@ export function renderSocialProofRelease(bundle: ProofReleaseBundle): string {
   ].join("\n");
 }
 
-const RECORDED_GIT_COMMIT = [/"gitCommit": "([^"]*)"/g, /^- Git commit at generation: `([^`]*)`$/gm];
+// Only the generator's own product.gitCommit / versions.gitCommit (depth 2 in the JSON), never one inside an embedded receipt.
+const RECORDED_GIT_COMMIT = [/^    "gitCommit": "([^"]*)"/gm, /^- Git commit at generation: `([^`]*)`$/gm];
 
 // The old rule required the recorded gitCommit to equal `git rev-parse HEAD` exactly.
 // That could never pass: the dossier is committed after it is generated, and a commit
