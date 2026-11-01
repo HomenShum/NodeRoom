@@ -71,7 +71,6 @@
   color: var(--trc-k, var(--text-muted)); border-color: color-mix(in srgb, var(--trc-k, var(--text-muted)) 40%, transparent); }
 .trc-lbl { font-size: 12.5px; font-weight: 600; color: var(--text-secondary); white-space: nowrap; overflow: hidden;
   text-overflow: ellipsis; min-width: 0; font-family: var(--font-mono); }
-.trc-lbl-cloud + .trc-lbl { display: none; }
 .trc-row[data-sel="true"] .trc-lbl { color: var(--text-primary); }
 .trc-roll { margin-left: 6px; font-family: var(--font-mono); font-size: 10px; color: var(--text-tertiary); }
 .trc-st { flex: none; font-family: var(--font-mono); font-size: 9px; font-weight: 800; padding: 1px 6px; border-radius: 5px; }
@@ -305,20 +304,6 @@
 
 .nr-app-shell .r-tracevu-runs .trc-run b {
   max-width: 300px;
-}
-
-.nr-app-shell .r-tracevu-runs .trc-version-pill {
-  display: inline-flex;
-  align-items: center;
-  height: 28px;
-  padding: 0 12px;
-  border: 1px solid var(--nr-line-subtle);
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--info) 13%, var(--nr-surface-muted));
-  color: #b9cdfd;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 800;
 }
 
 .nr-app-shell .r-tracevu-runs .trc-kind[data-kind="mission"],
