@@ -20,7 +20,7 @@
     },
     {
       "file": "src/nodeagent/core/types.ts",
-      "line": 279,
+      "line": 290,
       "pattern": "export interface RoomTools",
       "title": "RoomTools — the port",
       "description": "One interface, implemented twice. This is the seam that makes the keyless demo genuinely the same product as the live tier rather than a mock of it.\n\nNothing automatically checks that both implementations stay in step. See docs/codebase/CONCERNS.md."

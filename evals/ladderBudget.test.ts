@@ -165,6 +165,9 @@ describe("meter moves at dispatches (adapter path, fake transport)", () => {
     ["usageMetadata {}", {}],
     ["only candidatesTokenCount", { candidatesTokenCount: 10 }],
     ["promptTokenCount 0", { promptTokenCount: 0, candidatesTokenCount: 10 }],
+    // Round 3: @ai-sdk/google turns a missing candidatesTokenCount into 0, so input-only blocks used to settle as complete.
+    ["only promptTokenCount", { promptTokenCount: 100 }],
+    ["promptTokenCount + totalTokenCount, no candidatesTokenCount (total implies 8000 billed output tokens)", { promptTokenCount: 1_000, totalTokenCount: 9_000 }],
   ])("partial usage (%s) is unknown usage: the reservation is kept, never settled at ~$0 (SPEC A.2.9 accounting)", async (_label, usageMetadata) => {
     fakeTransport(() => new Response(JSON.stringify({
       candidates: [{ content: { role: "model", parts: [{ text: "ok" }] }, finishReason: "STOP", index: 0 }],
@@ -174,6 +177,19 @@ describe("meter moves at dispatches (adapter path, fake transport)", () => {
     await model(PRICED, { dispatch: RECEIPT, meter }).next(TURN);
     expect(meter.spentUsd).toBeCloseTo(RESERVE, 12);
     expect(meter.dispatches[0]).toMatchObject({ usage: null, costUsd: RESERVE });
+  });
+
+  it("sustained: unreported output keeps every reservation, so a cap that fits one worst case refuses dispatch two (round 3)", async () => {
+    fakeTransport(() => new Response(JSON.stringify({
+      candidates: [{ content: { role: "model", parts: [{ text: "ok" }] }, finishReason: "STOP", index: 0 }],
+      usageMetadata: { promptTokenCount: 100 },
+    }), { status: 200, headers: { "content-type": "application/json" } }));
+    const meter = createSpendMeter(RESERVE * 1.5);
+    const m = model(PRICED, { dispatch: RECEIPT, meter });
+    await m.next(TURN);
+    await expect(m.next(TURN)).rejects.toMatchObject({ receipt: { stopReason: "spend_budget" } });
+    expect(calls).toHaveLength(1);
+    expect(meter.spentUsd).toBeCloseTo(RESERVE, 12);
   });
 
   it("(c) a reservation above the remaining budget before the first dispatch throws spend_budget with zero fetch calls", async () => {

@@ -22,9 +22,18 @@ import type { TrustedCellEvidenceReceipt } from "./evidenceReceipt";
 
 /* ── conversation ── */
 export type Role = "user" | "assistant" | "tool";
+/**
+ * An Anthropic extended-thinking block in wire shape. Claude 5.5 thinks by default, and a tool loop must send the
+ * blocks of an earlier assistant turn back unmodified (the signature authenticates them), so they travel with the turn.
+ */
+export type ThinkingBlock =
+  | { type: "thinking"; thinking: string; signature: string }
+  | { type: "redacted_thinking"; data: string };
 export interface AgentMessage {
   role: Role;
   content: string;
+  /** On an assistant turn: the model's thinking blocks, re-sent ahead of the text and tool calls (Anthropic only). */
+  thinking?: ThinkingBlock[];
   /** On an assistant turn: the tool calls it made (kept so the real-model path can rebuild a well-formed history). */
   toolCalls?: ToolCall[];
   /** On a tool-result turn: which call it answers. */
@@ -55,6 +64,8 @@ export interface TokenUsage {
 /** One turn of the model: optional prose + zero or more tool calls + token usage. */
 export interface AgentStep {
   text?: string;
+  /** Thinking blocks the model produced this turn; the caller copies them onto the assistant message it appends. */
+  thinking?: ThinkingBlock[];
   toolCalls: ToolCall[];
   done: boolean;
   usage?: TokenUsage;

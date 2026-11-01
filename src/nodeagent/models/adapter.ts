@@ -20,7 +20,7 @@ import { anthropic } from "@ai-sdk/anthropic";
 import { google } from "@ai-sdk/google";
 import { openai, createOpenAI } from "@ai-sdk/openai";
 import { z } from "zod";
-import type { AgentModel, AgentMessage, AgentTool, AgentToolChoice, ToolCall } from "../core/types";
+import type { AgentModel, AgentMessage, AgentTool, AgentToolChoice, ThinkingBlock, ToolCall } from "../core/types";
 import {
   claudeEffortProviderOptions,
   forbidsForcedToolChoice,
@@ -208,8 +208,10 @@ export function model(modelId: string, options: ModelAdapterOptions = {}): Agent
       );
       resolvedModelId = resolvedModel;
       const toolCalls: ToolCall[] = (res.toolCalls ?? []).map((tc: { toolCallId: string; toolName: string; input?: Record<string, unknown>; providerMetadata?: Record<string, unknown> }) => ({ id: tc.toolCallId, tool: tc.toolName, args: tc.input ?? {}, providerMetadata: tc.providerMetadata }));
+      const thinking = anthropicThinkingBlocks(res.reasoning);
       return {
         text: res.text || undefined,
+        ...(thinking.length ? { thinking } : {}),
         toolCalls,
         done: toolCalls.length === 0,
         usage: { inputTokens: res.usage?.inputTokens ?? 0, outputTokens: res.usage?.outputTokens ?? 0, cachedInputTokens: (res.usage as { cachedInputTokens?: number } | undefined)?.cachedInputTokens ?? 0 },
@@ -312,7 +314,18 @@ export function providerEchoedModel(res: { response?: { body?: unknown } }): str
   return echoed && echoed.trim() ? echoed : null;
 }
 
-async function meteredDispatch<T extends { usage?: { inputTokens?: number; outputTokens?: number }; response?: { body?: unknown } }>(
+/**
+ * True when the provider's OWN usage block carries an output-token count (Google `candidatesTokenCount`, Anthropic
+ * `output_tokens`, OpenAI-compatible `completion_tokens`). The SDK-normalised numbers cannot show this: @ai-sdk/google
+ * turns a missing `candidatesTokenCount` into 0, so an incomplete block looks like a complete one that billed nothing.
+ */
+function providerReportedOutputTokens(raw: unknown): boolean {
+  if (typeof raw !== "object" || raw === null) return false;
+  const r = raw as Record<string, unknown>;
+  return [r.candidatesTokenCount, r.output_tokens, r.completion_tokens].some((n) => typeof n === "number" && Number.isFinite(n));
+}
+
+async function meteredDispatch<T extends { usage?: { inputTokens?: number; outputTokens?: number; raw?: unknown }; response?: { body?: unknown } }>(
   ctx: DispatchContext,
   modelId: string,
   run: () => Promise<T>,
@@ -351,7 +364,9 @@ async function meteredDispatch<T extends { usage?: { inputTokens?: number; outpu
   const output = res.usage?.outputTokens;
   // A request always has input tokens, so a reported input count of 0 means the provider did not report one
   // (@ai-sdk/google turns missing usageMetadata fields into 0): treat that as unknown usage and keep the reservation.
-  if (Number.isFinite(input) && (input as number) > 0 && Number.isFinite(output)) {
+  // The same holds for output: the raw block must carry its own output count (SPEC A.2.9, unreported usage is charged
+  // at the full reservation), because a normalised 0 may only mean "not reported".
+  if (Number.isFinite(input) && (input as number) > 0 && Number.isFinite(output) && providerReportedOutputTokens(res.usage?.raw)) {
     const settled = priceRequestStrict(modelId, input as number, output as number);
     meter.spentUsd += settled - reserveUsd;
     record.usage = { inputTokens: input as number, outputTokens: output as number };
@@ -952,11 +967,24 @@ function sdkToolChoiceForModel(modelId: string, requested?: AgentToolChoice): Ag
   return choice;
 }
 
+/** The AI SDK's reasoning parts → Anthropic thinking blocks (the signature / redacted data is what the API checks). */
+function anthropicThinkingBlocks(reasoning: unknown): ThinkingBlock[] {
+  if (!Array.isArray(reasoning)) return [];
+  return reasoning.flatMap((part: { text?: string; providerMetadata?: { anthropic?: { signature?: unknown; redactedData?: unknown } } }): ThinkingBlock[] => {
+    const meta = part?.providerMetadata?.anthropic;
+    if (typeof meta?.signature === "string") return [{ type: "thinking", thinking: part.text ?? "", signature: meta.signature }];
+    if (typeof meta?.redactedData === "string") return [{ type: "redacted_thinking", data: meta.redactedData }];
+    return [];
+  });
+}
+
 function toSdkMessages(messages: AgentMessage[]): ModelMessage[] {
   const out = messages.map((m) => {
     if (m.role === "user") return { role: "user", content: m.content };
     if (m.role === "assistant") {
-      const parts: unknown[] = [];
+      const parts: unknown[] = (m.thinking ?? []).map((b) => b.type === "thinking"
+        ? { type: "reasoning", text: b.thinking, providerOptions: { anthropic: { signature: b.signature } } }
+        : { type: "reasoning", text: "", providerOptions: { anthropic: { redactedData: b.data } } });
       if (m.content) parts.push({ type: "text", text: m.content });
       for (const tc of m.toolCalls ?? []) parts.push({ type: "tool-call", toolCallId: tc.id, toolName: tc.tool, input: tc.args, ...(tc.providerMetadata ? { providerOptions: tc.providerMetadata } : {}) });
       return { role: "assistant", content: parts.length ? parts : m.content };

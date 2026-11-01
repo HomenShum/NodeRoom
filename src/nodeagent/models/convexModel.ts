@@ -7,7 +7,7 @@
  * file implements the small AgentModel seam with direct provider HTTP calls.
  */
 
-import type { AgentMessage, AgentModel, AgentModelRouteState, AgentStep, AgentTool, AgentToolChoice, TokenUsage, ToolCall } from "../core/types";
+import type { AgentMessage, AgentModel, AgentModelRouteState, AgentStep, AgentTool, AgentToolChoice, ThinkingBlock, TokenUsage, ToolCall } from "../core/types";
 import { forbidsForcedToolChoice, getModelPricing, getProviderForModel, fallbackChainFor, isFreeModelId, lookupModelAlias, modelPricing, priceAggregateTokens, priceTokens, ratesForPrompt, resolveModelAlias } from "./modelCatalog";
 import { modelMaxOutputTokens } from "./outputTokens";
 import {
@@ -82,6 +82,8 @@ type AnthropicResponse = {
   content?: Array<
     | { type: "text"; text?: string }
     | { type: "tool_use"; id?: string; name?: string; input?: JsonObject }
+    | { type: "thinking"; thinking?: string; signature?: string }
+    | { type: "redacted_thinking"; data?: string }
   >;
   usage?: {
     input_tokens?: number;
@@ -1004,9 +1006,14 @@ async function anthropicStep(
       tool: p.name ?? "unknown_tool",
       args: p.input ?? {},
     }));
+  const thinking = parts.flatMap((p): ThinkingBlock[] =>
+    p.type === "thinking" && typeof p.signature === "string" ? [{ type: "thinking", thinking: p.thinking ?? "", signature: p.signature }]
+      : p.type === "redacted_thinking" && typeof p.data === "string" ? [{ type: "redacted_thinking", data: p.data }]
+        : []);
   const usage = anthropicUsage(res.usage);
   return {
     text: text || undefined,
+    ...(thinking.length ? { thinking } : {}),
     toolCalls,
     done: toolCalls.length === 0,
     ...(usage ? { usage } : {}),
@@ -1144,7 +1151,7 @@ function toOpenAiMessages(messages: AgentMessage[]): OpenAiMessage[] {
 function toAnthropicMessages(messages: AgentMessage[]) {
   return messages.map((m) => {
     if (m.role === "assistant") {
-      const content: unknown[] = [];
+      const content: unknown[] = [...(m.thinking ?? [])]; // thinking blocks go back first, unmodified
       if (m.content) content.push({ type: "text", text: m.content });
       for (const tc of m.toolCalls ?? []) {
         content.push({ type: "tool_use", id: tc.id, name: tc.tool, input: tc.args });

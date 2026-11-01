@@ -1135,7 +1135,7 @@ export async function runAgent(opts: {
         }
       }
 
-      messages.push({ role: "assistant", content: out.text ?? "", toolCalls: toolCallsForTurn });
+      messages.push({ role: "assistant", content: out.text ?? "", toolCalls: toolCallsForTurn, ...(out.thinking?.length ? { thinking: out.thinking } : {}) });
 
       for (const c of toolCallsForTurn) if (c.tool === "propose_lock") lockCalls++;
 

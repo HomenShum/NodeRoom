@@ -19,7 +19,10 @@ import { createPiAiAdapter } from "../src/nodeagent/models/piAiAdapter";
 import { defaultRouteForTask, chooseNodeAgentRoute } from "../src/nodeagent/core/adaptiveRouter";
 import { providerParserModelCandidates } from "../src/nodeagent/models/providerParserLive";
 import { getModelPricing, getProviderForModel, resolveModelAlias, UnknownModelError } from "../src/nodeagent/models/modelCatalog";
-import type { AgentTool } from "../src/nodeagent/core/types";
+import type { AgentModel, AgentTool } from "../src/nodeagent/core/types";
+import { runAgent, InMemoryRoomTools } from "../src/nodeagent/index";
+import { RoomEngine } from "../src/engine/roomEngine";
+import { buildDemoRoom } from "../src/engine/demoRoom";
 import { SERVER_PRODUCTION_ROOM_TOOLS } from "../src/nodeagent/skills/server/productionTools";
 
 type Seen = { url: string; headers: Record<string, string>; body: Record<string, any> };
@@ -442,5 +445,45 @@ describe("LangChain bridge tool_choice guard", () => {
       await createLangChainAgentModel(chat as any).next({ system: "s", messages: [{ role: "user", content: "hi" }], tools: [NOOP_TOOL], toolChoice: "auto" });
       expect(bound[0], id).toEqual({});
     }
+  });
+});
+
+// Claude 5.5 thinks by default (SPEC 1.3: adaptive), and the migration guide's [BLOCKS] item says an earlier assistant turn's
+// thinking blocks are passed back unmodified. Drives the REAL runtime loop (runAgent) over each transport, not just the adapters.
+describe("Claude 5.5 tool loop sends the earlier turn's thinking blocks back unmodified", () => {
+  const THINKING = { type: "thinking", thinking: "I should call noop first.", signature: "sig-abc" };
+  const REDACTED = { type: "redacted_thinking", data: "opaque-redacted-payload" };
+  const paths: Array<[string, (id: string) => AgentModel]> = [
+    ["server path (convexModel.anthropicStep)", (id) => convexModel(id)],
+    ["AI-SDK path (adapter.model)", (id) => adapterModel(id)],
+  ];
+  for (const [label, build] of paths) {
+    for (const id of ["claude-haiku-5-5", "claude-sonnet-5-5", "claude-opus-5-5"] as const) {
+      it(`${label}, ${id}: step 2's assistant turn is [thinking, redacted_thinking, tool_use] in that order, blocks byte-identical`, async () => {
+        installFakeTransport((req) => req.body.messages.some((m: any) => m.role === "assistant")
+          ? anthropicOk(id)
+          : { ...anthropicOk(id), content: [THINKING, REDACTED, { type: "tool_use", id: "tu_1", name: "noop", input: {} }], stop_reason: "tool_use" });
+        const engine = new RoomEngine();
+        const d = buildDemoRoom(engine);
+        const rt = new InMemoryRoomTools(engine, d.roomId, d.sheetId, d.agents.room, d.sessions.room);
+        await runAgent({ rt, goal: "call noop then finish", model: build(id), tools: [NOOP_TOOL], maxSteps: 3 });
+        expect(seen.length).toBeGreaterThanOrEqual(2); // the runtime may add a closing turn; request 2 is the one under test
+        const assistant = seen[1].body.messages.find((m: any) => m.role === "assistant");
+        expect(assistant.content.map((b: any) => b.type)).toEqual(["thinking", "redacted_thinking", "tool_use"]);
+        expect(assistant.content[0]).toEqual(THINKING);
+        expect(assistant.content[1]).toEqual(REDACTED);
+      });
+    }
+  }
+
+  it("a turn without thinking blocks stays text + tool_use only (nothing is invented)", async () => {
+    installFakeTransport((req) => req.body.messages.some((m: any) => m.role === "assistant")
+      ? anthropicOk("claude-haiku-5-5")
+      : { ...anthropicOk("claude-haiku-5-5"), content: [{ type: "tool_use", id: "tu_1", name: "noop", input: {} }], stop_reason: "tool_use" });
+    const engine = new RoomEngine();
+    const d = buildDemoRoom(engine);
+    const rt = new InMemoryRoomTools(engine, d.roomId, d.sheetId, d.agents.room, d.sessions.room);
+    await runAgent({ rt, goal: "call noop then finish", model: convexModel("claude-haiku-5-5"), tools: [NOOP_TOOL], maxSteps: 3 });
+    expect(seen[1].body.messages.find((m: any) => m.role === "assistant").content.map((b: any) => b.type)).toEqual(["tool_use"]);
   });
 });
