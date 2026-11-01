@@ -8,7 +8,7 @@
  */
 
 import type { AgentMessage, AgentModel, AgentModelRouteState, AgentStep, AgentTool, AgentToolChoice, TokenUsage, ToolCall } from "../core/types";
-import { forbidsForcedToolChoice, getModelPricing, getProviderForModel, isFreeModelId, lookupModelAlias, modelFallbackChains, modelPricing, priceAggregateTokens, priceTokens, ratesForPrompt, resolveModelAlias } from "./modelCatalog";
+import { forbidsForcedToolChoice, getModelPricing, getProviderForModel, fallbackChainFor, isFreeModelId, lookupModelAlias, modelPricing, priceAggregateTokens, priceTokens, ratesForPrompt, resolveModelAlias } from "./modelCatalog";
 import { modelMaxOutputTokens } from "./outputTokens";
 import {
   isOpenRouterFreeAutoModel,
@@ -1880,7 +1880,7 @@ export function configuredConvexModelFallbacks(
 ): string[] {
   const raw = env.AGENT_FALLBACK_MODELS?.trim() || env.AGENT_FALLBACK_MODEL?.trim() || "";
   const primary = resolveModelAlias(modelId);
-  const approvedDefaults = modelFallbackChains[primary] ?? modelFallbackChains[modelId] ?? [];
+  const approvedDefaults = [primary, modelId].map(fallbackChainFor).find((chain) => chain.length) ?? [];
   return normalizeFallbackModelIds(modelId, raw ? raw.split(/[\r\n,]+/) : approvedDefaults);
 }
 

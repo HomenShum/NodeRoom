@@ -84,6 +84,10 @@ describe("every id the repo ships, freezes or lists resolves as itself", () => {
   it.each([...OPENROUTER_KNOWN_FREE_IDS])("known free id %s is never rerouted to the auto router", expectUnchanged);
   it.each([btbDefault, `openai/${btbDefault}`, ...FROZEN_SITE_IDS])("frozen site id %s", expectUnchanged);
 
+  it("the 2026-10-31 recheck pick recursive/flint-v1.0:free is known, not sent to the free picker", () => {
+    expect(resolveModelAlias("recursive/flint-v1.0:free")).toBe("recursive/flint-v1.0:free");
+  });
+
   it("the spec's live :free list is known (13 of the 15 used to be rewritten)", () => {
     for (const id of ["nvidia/nemotron-3-super-120b-a12b:free", "google/gemma-4-26b-a4b-it:free", "poolside/laguna-xs-2.1:free", "poolside/laguna-s-2.1:free", "liquid/lfm-2.5-2.6b:free"]) {
       expect(resolveModelAlias(id)).toBe(id);

@@ -161,8 +161,10 @@ const OPENROUTER_LIVE_FREE_2026_10_10 = [
 ];
 /** Added by the public list fetched 2026-10-16T11:32Z (SPEC-v9 D2): the newest `:free` row with tools, tool_choice, structured outputs and 1M context; the `top_paid` default. */
 const OPENROUTER_LIVE_FREE_2026_10_16 = ["nvidia/nemotron-3.5-super-vl:free"];
+/** Named by SPEC-v9's 2026-10-31 recheck (public list, no key; live-unverified): the NodeBenchAI free-lane pick. A known id is never rerouted (A.0.10). */
+const OPENROUTER_LIVE_FREE_2026_10_31 = ["recursive/flint-v1.0:free"];
 export const OPENROUTER_KNOWN_FREE_IDS: ReadonlySet<string> = new Set(
-  [...FALLBACK_FREE_MODELS.map((m) => m.id), ...DEFAULT_PREFERRED_FREE_MODELS, ...OPENROUTER_LIVE_FREE_2026_10_10, ...OPENROUTER_LIVE_FREE_2026_10_16]
+  [...FALLBACK_FREE_MODELS.map((m) => m.id), ...DEFAULT_PREFERRED_FREE_MODELS, ...OPENROUTER_LIVE_FREE_2026_10_10, ...OPENROUTER_LIVE_FREE_2026_10_16, ...OPENROUTER_LIVE_FREE_2026_10_31]
     .map((id) => id.toLowerCase()),
 );
 

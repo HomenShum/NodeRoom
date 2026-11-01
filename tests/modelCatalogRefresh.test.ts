@@ -14,6 +14,7 @@ import {
   modelFallbackChains,
   resolveModelAlias,
 } from "../src/nodeagent/models/modelCatalog";
+import { configuredConvexModelFallbacks } from "../src/nodeagent/models/convexModel";
 import { modelMaxOutputTokens } from "../src/nodeagent/models/outputTokens";
 
 /** Ids that fail (retired / shut down) or are closed to new users (gemini-2.5-*, OpenRouter expiry 2026-10-20). */
@@ -82,6 +83,17 @@ describe("fallback chains", () => {
     for (const key of ["claude-opus-4.1", "claude-opus-4", "claude-sonnet-4", "gemini-2.5-flash", "gemini-2.5-pro", "gemini-3.1-flash-lite-preview"]) {
       expect(modelFallbackChains[key]?.length, key).toBeGreaterThan(0);
     }
+  });
+});
+
+describe("a route stored under its wire id keeps the chain keyed by the dotted display id (A.0.4: override behaviour unchanged)", () => {
+  // agentJobs knownModelPolicy() stores the RESOLVED route, so an operator env of "claude-sonnet-4.6" arrives as "claude-sonnet-4-6".
+  it.each(["claude-sonnet-4.6", "claude-haiku-4.5", "claude-opus-4.7", "claude-opus-4.1"])("%s", (dotted) => {
+    const wire = resolveModelAlias(dotted);
+    expect(wire).not.toBe(dotted);
+    const env = {} as NodeJS.ProcessEnv;
+    expect(configuredConvexModelFallbacks(dotted, env).length, dotted).toBeGreaterThan(0);
+    expect(configuredConvexModelFallbacks(wire, env)).toEqual(configuredConvexModelFallbacks(dotted, env));
   });
 });
 

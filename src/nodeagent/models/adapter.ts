@@ -349,7 +349,9 @@ async function meteredDispatch<T extends { usage?: { inputTokens?: number; outpu
   record.echoedModel = providerEchoedModel(res);
   const input = res.usage?.inputTokens;
   const output = res.usage?.outputTokens;
-  if (Number.isFinite(input) && Number.isFinite(output)) {
+  // A request always has input tokens, so a reported input count of 0 means the provider did not report one
+  // (@ai-sdk/google turns missing usageMetadata fields into 0): treat that as unknown usage and keep the reservation.
+  if (Number.isFinite(input) && (input as number) > 0 && Number.isFinite(output)) {
     const settled = priceRequestStrict(modelId, input as number, output as number);
     meter.spentUsd += settled - reserveUsd;
     record.usage = { inputTokens: input as number, outputTokens: output as number };

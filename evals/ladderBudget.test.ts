@@ -161,6 +161,21 @@ describe("meter moves at dispatches (adapter path, fake transport)", () => {
     expect(meter.dispatches).toEqual([{ requestedModel: PRICED, resolvedModel: PRICED, echoedModel: null, usage: null, costUsd: RESERVE, fallbackUsed: false }]);
   });
 
+  it.each([
+    ["usageMetadata {}", {}],
+    ["only candidatesTokenCount", { candidatesTokenCount: 10 }],
+    ["promptTokenCount 0", { promptTokenCount: 0, candidatesTokenCount: 10 }],
+  ])("partial usage (%s) is unknown usage: the reservation is kept, never settled at ~$0 (SPEC A.2.9 accounting)", async (_label, usageMetadata) => {
+    fakeTransport(() => new Response(JSON.stringify({
+      candidates: [{ content: { role: "model", parts: [{ text: "ok" }] }, finishReason: "STOP", index: 0 }],
+      usageMetadata,
+    }), { status: 200, headers: { "content-type": "application/json" } }));
+    const meter = createSpendMeter(10);
+    await model(PRICED, { dispatch: RECEIPT, meter }).next(TURN);
+    expect(meter.spentUsd).toBeCloseTo(RESERVE, 12);
+    expect(meter.dispatches[0]).toMatchObject({ usage: null, costUsd: RESERVE });
+  });
+
   it("(c) a reservation above the remaining budget before the first dispatch throws spend_budget with zero fetch calls", async () => {
     fakeTransport(() => ok());
     const meter = createSpendMeter(RESERVE / 2);

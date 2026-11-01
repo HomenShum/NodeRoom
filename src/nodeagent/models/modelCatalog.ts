@@ -1051,8 +1051,20 @@ export const modelFallbackChains: Record<string, string[]> = {
   "minimax/minimax-m3": ["qwen/qwen3.7-plus", "gemini-3.5-flash-lite", "gpt-5.4-mini", "gemini-3.8-flash"],
 };
 
+/**
+ * The approved chain for an id, found by its exact key first and then by its resolved key: the chain table is keyed by
+ * the dotted display ids ("claude-sonnet-4.6") while a resolved route is the hyphenated wire id ("claude-sonnet-4-6"),
+ * so an id stored in either spelling reaches the same chain.
+ */
+export function fallbackChainFor(model: string): string[] {
+  if (Object.hasOwn(modelFallbackChains, model)) return modelFallbackChains[model];
+  const wire = lookupModelAlias(model);
+  const key = Object.keys(modelFallbackChains).find((k) => lookupModelAlias(k) === wire);
+  return key ? modelFallbackChains[key] : [];
+}
+
 export function getNextFallback(model: string, attempted: string[]): string | null {
-  const chain = modelFallbackChains[model] ?? [];
+  const chain = fallbackChainFor(model);
   return chain.find((m) => !attempted.includes(m)) ?? null;
 }
 
