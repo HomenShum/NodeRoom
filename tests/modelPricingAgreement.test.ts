@@ -34,7 +34,11 @@ import { CREDIT_MODE_SPECS, estimateCostFor } from "../src/nodeagent/core/credit
 import { calculateRequestCost, getModelPricing, modelPricing } from "../src/nodeagent/models/modelCatalog";
 import { modelMaxOutputTokens } from "../src/nodeagent/models/outputTokens";
 import { proofloopModelCostFieldsForRun } from "../src/eval/proofloopModelTracking";
-import { catalogPricingAtRun, pricingAtRunFor, type RouteSnapshot } from "../scripts/benchmark/pricingAtRun";
+import { catalogPricingAtRun, costFromPricing, pricingAtRunFor, type RouteSnapshot } from "../scripts/benchmark/pricingAtRun";
+import { runAgent } from "../src/nodeagent/core/runtime";
+import { InMemoryRoomTools } from "../src/nodeagent/skills/integration/noderoomAdapter";
+import { RoomEngine } from "../src/engine/roomEngine";
+import { buildDemoRoom } from "../src/engine/demoRoom";
 
 const PRICING_AS_OF = "2026-10-10";
 
@@ -149,6 +153,24 @@ describe("pricing sources agree per (id, transport)", () => {
     const sweep = readFileSync("scripts/proofloop-proxy-model-sweep.ts", "utf8");
     expect([...sweep.matchAll(/(?:input|output|cachedInput)Per1M:\s*\d/g)]).toEqual([]);
     expect(sweep).toContain("fetchedAt");
+  });
+
+  // Source 7's benchmark row cannot price a run from its summed tokens: the Haiku 5.5 long-context tier belongs to ONE request's
+  // prompt. scripts/benchmark/run.ts therefore passes priceStep: priceRequest and records the run's per-request cost for catalog rows.
+  it("source 7: a benchmark-style run with priceStep: priceRequest bills a 120K-input Haiku 5.5 request at the >100K tier; costFromPricing on the summed tokens would not", async () => {
+    const engine = new RoomEngine();
+    const d = buildDemoRoom(engine);
+    const rt = new InMemoryRoomTools(engine, d.roomId, d.sheetId, d.agents.room, d.sessions.room);
+    const agentModel = { name: "claude-haiku-5-5", next: async () => ({ text: "done", toolCalls: [], done: true, usage: { inputTokens: 120_000, outputTokens: 2_000 } }) };
+    const r = await runAgent({ rt, goal: "x", model: agentModel, tools: [], maxSteps: 1, priceStep: priceRequest });
+    expect(r.usage.costUsd).toBeCloseTo(120_000 * 0.50 / 1e6 + 2_000 * 2.50 / 1e6, 9); // $0.065
+    const flat = costFromPricing(catalogPricingAtRun("claude-haiku-5-5"), 120_000, 2_000);
+    expect(flat, "the base-tier aggregate is a floor, which is why run.ts records usage.costUsd").toBeCloseTo(120_000 * 0.10 / 1e6 + 2_000 * 0.50 / 1e6, 9);
+    expect(r.usage.costUsd).toBeGreaterThan(flat);
+    // and the benchmark actually wires it
+    const runSrc = readFileSync(new URL("../scripts/benchmark/run.ts", import.meta.url), "utf8");
+    expect(runSrc).toMatch(/priceStep:\s*priceRequest/);
+    expect(runSrc).toMatch(/pricingAtRun\.source === "catalog"\s*\?\s*r\.usage\.costUsd/);
   });
 
   describe("sources 7 and 8 on a dated OpenRouter /models fixture", () => {

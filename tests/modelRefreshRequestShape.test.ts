@@ -551,6 +551,26 @@ describe("Claude 5.5 thinking blocks are not re-sent once the runtime has edited
       expect(seen[1].body.tools.map((t: any) => t.name)).toEqual(["edit_cell"]); // the tool set really did shrink
       expect(blockTypes(seen[1])).toEqual([["tool_use"]]);
     });
+
+    // A deploy between two durable slices of one job can change a tool's input schema while its name and description stay put.
+    // The schema is part of the prefix the block was signed against, so slice 2 must not re-send slice 1's block.
+    for (const [changed, expectBlock] of [[true, false], [false, true]] as const) {
+      it(`${label}: a resumed job whose tool schema ${changed ? "changed" : "is unchanged"} ${changed ? "carries no" : "still carries the"} signed thinking block (name and description identical)`, async () => {
+        const tool = (schema: z.ZodTypeAny): AgentTool => ({ name: "read_range", description: "reads cells", schema, execute: async () => ({ ok: true }) });
+        scripted([[thinkingOf("sig1"), toolUse("tu_1", "read_range")]]);
+        const rt = setup();
+        const slice1 = await runAgent({ rt, goal: "read the sheet", model: build(ID), tools: [tool(z.object({}))], maxSteps: 1 });
+        const sliceOneRequests = seen.length;
+        expect(slice1.messages.some((m) => m.thinkingBinding), "slice 1 recorded a binding").toBe(true);
+        scripted([[toolUse("tu_2", "read_range")]]);
+        await runAgent({ rt, goal: "read the sheet", model: build(ID), tools: [tool(changed ? z.object({ code: z.string().optional() }) : z.object({}))], maxSteps: 2, initialMessages: slice1.messages });
+        expect(seen.length).toBeGreaterThan(0);
+        const resumed = JSON.stringify(seen[0].body);
+        expect(sliceOneRequests).toBeGreaterThan(0);
+        expect(resumed.includes("sig1")).toBe(expectBlock);
+        if (label.startsWith("AI-SDK")) expect(resumed.includes("code")).toBe(changed); // the SDK request really carries the new schema (the direct-HTTP path sends toolParameters(name); the fingerprint covers both, so it errs toward dropping)
+      });
+    }
   }
 
   it("estimateChars counts thinking text, signatures and redacted data", () => {

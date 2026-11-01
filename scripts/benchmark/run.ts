@@ -19,7 +19,7 @@ import { RoomEngine } from "../../src/engine/roomEngine";
 import { buildDemoRoom, RESEARCH_COMPANIES } from "../../src/engine/demoRoom";
 import { InMemoryRoomTools } from "../../src/nodeagent/skills/integration/noderoomAdapter";
 import { runAgent } from "../../src/nodeagent/core/runtime";
-import { model, priceRun, judge } from "../../src/nodeagent/models/adapter";
+import { model, priceRequest, priceRun, judge } from "../../src/nodeagent/models/adapter";
 import { lookupModelAlias } from "../../src/nodeagent/models/modelCatalog";
 import { costFromPricing, pricingAtRunFor, type PricingAtRun, type RouteSnapshot } from "./pricingAtRun";
 import { fetchSourceReal } from "../../src/nodeagent/skills/search/fetchSource";
@@ -488,6 +488,7 @@ async function runModel(modelId: string, options: RunModelOptions = {}): Promise
       tools: benchmarkResearchTools(companies),
       contextBuilder: buildBenchmarkResearchContext,
       maxSteps: 60,
+      priceStep: priceRequest, // per request, so a tiered row (Haiku 5.5 above 100K input) bills each prompt at its own tier
       deadlineAt: options.timeoutMs ? t0 + options.timeoutMs : undefined,
       reserveMs: options.reserveMs,
     });
@@ -560,9 +561,13 @@ async function runModel(modelId: string, options: RunModelOptions = {}): Promise
       total: Object.keys(checks).length,
       inputTokens: r.usage.inputTokens,
       outputTokens: r.usage.outputTokens,
+      // catalog rows: the run's per-request, tier-aware sum (usage summed over requests cannot recover each prompt's tier);
+      // snapshot rows: the snapshot's flat per-token rates (no tier data); unpriced ids: the flagged $1/$5 estimate.
       costUsd: pricingAtRun.source === "fallback_estimate"
         ? priceRun(resolvedModel, r.usage.inputTokens, r.usage.outputTokens)
-        : costFromPricing(pricingAtRun, r.usage.inputTokens, r.usage.outputTokens),
+        : pricingAtRun.source === "catalog"
+          ? r.usage.costUsd
+          : costFromPricing(pricingAtRun, r.usage.inputTokens, r.usage.outputTokens),
       ms,
       steps: r.steps,
       toolCalls: r.trace.length,

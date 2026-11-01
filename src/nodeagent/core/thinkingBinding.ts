@@ -11,6 +11,8 @@
  * stripping one never disturbs another's fingerprint. A turn with no recorded fingerprint (replayed from the journal,
  * or restored from a checkpoint) is treated as mismatched.
  */
+import { z } from "zod";
+import { toolParameters } from "../models/convexModel";
 import type { AgentMessage, AgentTool } from "./types";
 
 // cyrb53: a small synchronous 53-bit string hash (the core runs where node:crypto and async subtle crypto are not options).
@@ -27,8 +29,18 @@ function hash53(str: string): string {
   return (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36);
 }
 
+// The signed prefix includes each tool's input schema, in the form the transport sends it: z.toJSONSchema(t.schema) on the
+// AI-SDK path (adapter.ts), toolParameters(name) on the direct-HTTP path (convexModel.anthropicTool). The core does not
+// know which transport answers, so both go into the fingerprint; a schema-only change then invalidates the binding.
+function wireSchemas(t: AgentTool): string {
+  let sdk: unknown;
+  // ponytail: a schema zod cannot represent contributes a constant, so only its name/description/direct-HTTP form bind it
+  try { sdk = z.toJSONSchema(t.schema as z.ZodType); } catch { sdk = "unrepresentable"; }
+  return JSON.stringify([sdk, toolParameters(t.name)]);
+}
+
 function seed(system: string, tools: AgentTool[]): string {
-  const toolSet = tools.map((t) => `${t.name}\u0001${t.description}`).sort();
+  const toolSet = tools.map((t) => `${t.name}\u0001${t.description}\u0001${wireSchemas(t)}`).sort();
   return hash53(`${system}\u0000${JSON.stringify(toolSet)}`);
 }
 const extend = (key: string, m: AgentMessage): string =>
