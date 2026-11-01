@@ -575,6 +575,26 @@ export function renderSocialProofRelease(bundle: ProofReleaseBundle): string {
   ].join("\n");
 }
 
+const RECORDED_GIT_COMMIT = [/"gitCommit": "([^"]*)"/g, /^- Git commit at generation: `([^`]*)`$/gm];
+
+// The old rule required the recorded gitCommit to equal `git rev-parse HEAD` exactly.
+// That could never pass: the dossier is committed after it is generated, and a commit
+// cannot contain its own hash, so the check was already red at 2bb5d823, the commit that
+// first published these files. The recorded commit now has to be an ancestor of HEAD;
+// every other byte except generatedAt still has to match the fresh render exactly.
+export function proofReleaseArtifactIsCurrent(existing: string, generated: string, isAncestorOfHead: (sha: string) => boolean): boolean {
+  const recorded = RECORDED_GIT_COMMIT.flatMap((pattern) => [...existing.matchAll(pattern)].map((match) => match[1]));
+  if (!recorded.every((sha) => /^[0-9a-f]{40}$/.test(sha) && isAncestorOfHead(sha))) return false;
+  return normalizeVolatileFields(existing) === normalizeVolatileFields(generated);
+}
+
+function normalizeVolatileFields(value: string): string {
+  return RECORDED_GIT_COMMIT
+    .reduce((text, pattern) => text.replace(pattern, (match, sha: string) => match.replace(sha, "<git-commit>")), value)
+    .replace(/"generatedAt": "[^"]+"/g, '"generatedAt": "<generated>"')
+    .replace(/^Generated: .+$/gm, "Generated: <generated>");
+}
+
 function number(value: unknown): number {
   return typeof value === "number" && Number.isFinite(value) ? value : 0;
 }

@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   buildProofReleaseBundle,
+  proofReleaseArtifactIsCurrent,
+  renderProofReleaseDossier,
   renderReadmeProofRelease,
   renderSocialProofRelease,
   type ProofReleaseInputs,
@@ -59,6 +61,44 @@ describe("proof release publishing", () => {
 
     expect(bundle.publication.publishable).toBe(false);
     expect(bundle.publication.blockers).toContain("SpreadsheetBench V1 accepted official scorer receipt is pending.");
+  });
+});
+
+describe("proof release staleness check", () => {
+  // A maintainer regenerates the dossier at one commit and commits it in the next, so by the
+  // time anyone runs the check, HEAD is always newer than the commit the dossier records.
+  const generatedAtCommit = "d6d005bef4695f445860dd3d01bb75f3cf272075";
+  const headCommit = "6f1af0f7c3141c066088b11d1cbaae01e40e8ad0";
+  const history = new Set([generatedAtCommit, headCommit]);
+  const isAncestorOfHead = (sha: string) => history.has(sha);
+  const artifacts = (input: ProofReleaseInputs) => {
+    const bundle = buildProofReleaseBundle(input);
+    return [`${JSON.stringify(bundle, null, 2)}\n`, `${renderProofReleaseDossier(bundle)}\n`];
+  };
+  const committedAt = (gitCommit: string) => artifacts({ ...fixture(true), generatedAt: "2026-07-12T19:24:22.630Z", gitCommit });
+  const freshAtHead = () => ({ ...fixture(true), generatedAt: "2026-11-01T00:00:00.000Z", gitCommit: headCommit });
+
+  it("passes a dossier generated at an ancestor commit when no input moved", () => {
+    const committed = committedAt(generatedAtCommit);
+    const fresh = artifacts(freshAtHead());
+    committed.forEach((existing, index) => {
+      expect(existing).not.toBe(fresh[index]);
+      expect(proofReleaseArtifactIsCurrent(existing, fresh[index], isAncestorOfHead)).toBe(true);
+    });
+  });
+
+  it("fails a dossier whose recorded commit is not in HEAD's history", () => {
+    const committed = committedAt("1111111111111111111111111111111111111111");
+    const fresh = artifacts(freshAtHead());
+    committed.forEach((existing, index) => expect(proofReleaseArtifactIsCurrent(existing, fresh[index], isAncestorOfHead)).toBe(false));
+  });
+
+  it("fails a dossier generated at an ancestor commit when one score moved", () => {
+    const committed = committedAt(generatedAtCommit);
+    const input = freshAtHead();
+    input.spreadsheetReports[0].officialReceipt!.score.passCount = 71;
+    const fresh = artifacts(input);
+    committed.forEach((existing, index) => expect(proofReleaseArtifactIsCurrent(existing, fresh[index], isAncestorOfHead)).toBe(false));
   });
 });
 

@@ -3,6 +3,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, resolve } from "node:path";
 import {
   buildProofReleaseBundle,
+  proofReleaseArtifactIsCurrent,
   renderProofReleaseDossier,
   renderReadmeProofRelease,
   renderSocialProofRelease,
@@ -67,7 +68,7 @@ for (const [path, content] of outputs) {
   const absolute = resolve(path);
   if (check) {
     const existing = existsSync(absolute) ? readFileSync(absolute, "utf8") : "";
-    if (normalizeGeneratedAt(existing) !== normalizeGeneratedAt(content)) mismatches.push(path);
+    if (!proofReleaseArtifactIsCurrent(existing, content, isAncestorOfHead)) mismatches.push(path);
     continue;
   }
   mkdirSync(dirname(absolute), { recursive: true });
@@ -112,6 +113,12 @@ function gitCommit(): string {
   return execFileSync("git", ["rev-parse", "HEAD"], { encoding: "utf8" }).trim();
 }
 
-function normalizeGeneratedAt(value: string): string {
-  return value.replace(/"generatedAt": "[^"]+"/g, '"generatedAt": "<generated>"').replace(/^Generated: .+$/gm, "Generated: <generated>");
+function isAncestorOfHead(sha: string): boolean {
+  try {
+    execFileSync("git", ["merge-base", "--is-ancestor", sha, "HEAD"], { stdio: "ignore" });
+    return true;
+  } catch {
+    // Exit 1 (not an ancestor), exit 128 (unknown sha), or no git at all: treat as stale.
+    return false;
+  }
 }
