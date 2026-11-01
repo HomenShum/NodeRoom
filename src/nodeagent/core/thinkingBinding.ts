@@ -39,8 +39,10 @@ function wireSchemas(t: AgentTool): string {
   return JSON.stringify([sdk, toolParameters(t.name)]);
 }
 
+// Tool ORDER is part of the signed prefix: both transports send tools in the caller's order, so a deploy that only reorders
+// them changes the prefix. Do not sort here (a stale fingerprint only ever drops a block, which is always safe).
 function seed(system: string, tools: AgentTool[]): string {
-  const toolSet = tools.map((t) => `${t.name}\u0001${t.description}\u0001${wireSchemas(t)}`).sort();
+  const toolSet = tools.map((t) => `${t.name}\u0001${t.description}\u0001${wireSchemas(t)}`);
   return hash53(`${system}\u0000${JSON.stringify(toolSet)}`);
 }
 const extend = (key: string, m: AgentMessage): string =>

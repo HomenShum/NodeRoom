@@ -21,7 +21,7 @@ import { InMemoryRoomTools } from "../../src/nodeagent/skills/integration/nodero
 import { runAgent } from "../../src/nodeagent/core/runtime";
 import { model, priceRequest, priceRun, judge } from "../../src/nodeagent/models/adapter";
 import { lookupModelAlias } from "../../src/nodeagent/models/modelCatalog";
-import { costFromPricing, pricingAtRunFor, type PricingAtRun, type RouteSnapshot } from "./pricingAtRun";
+import { costForRequest, pricingAtRunFor, type PricingAtRun, type RouteSnapshot } from "./pricingAtRun";
 import { fetchSourceReal } from "../../src/nodeagent/skills/search/fetchSource";
 import type { AgentMessage, AgentModel, AgentTool, RoomTools, SourceResult } from "../../src/nodeagent/core/types";
 import { isOpenRouterFreeAutoModel, selectOpenRouterFreeModels, type OpenRouterModelInfo } from "../../src/nodeagent/models/openRouterFreeModels";
@@ -488,7 +488,12 @@ async function runModel(modelId: string, options: RunModelOptions = {}): Promise
       tools: benchmarkResearchTools(companies),
       contextBuilder: buildBenchmarkResearchContext,
       maxSteps: 60,
-      priceStep: priceRequest, // per request, so a tiered row (Haiku 5.5 above 100K input) bills each prompt at its own tier
+      // per request, so a tiered row (Haiku 5.5 above 100K input) bills each prompt at its own tier: from the run's OpenRouter
+      // snapshot when it priced the row (its pricing.overrides), else from the catalog.
+      priceStep: (name, inTok, outTok) => {
+        const atRun = pricingAtRunFor(resolved(), routeSnapshot);
+        return atRun.source === "openrouter_snapshot" ? costForRequest(atRun, inTok, outTok) : priceRequest(name, inTok, outTok);
+      },
       deadlineAt: options.timeoutMs ? t0 + options.timeoutMs : undefined,
       reserveMs: options.reserveMs,
     });
@@ -561,13 +566,12 @@ async function runModel(modelId: string, options: RunModelOptions = {}): Promise
       total: Object.keys(checks).length,
       inputTokens: r.usage.inputTokens,
       outputTokens: r.usage.outputTokens,
-      // catalog rows: the run's per-request, tier-aware sum (usage summed over requests cannot recover each prompt's tier);
-      // snapshot rows: the snapshot's flat per-token rates (no tier data); unpriced ids: the flagged $1/$5 estimate.
+      // catalog and snapshot rows: the run's per-request, tier-aware sum (usage summed over requests cannot recover each
+      // prompt's tier; the snapshot's pricing.overrides are applied per request in priceStep above);
+      // unpriced ids: the flagged $1/$5 estimate.
       costUsd: pricingAtRun.source === "fallback_estimate"
         ? priceRun(resolvedModel, r.usage.inputTokens, r.usage.outputTokens)
-        : pricingAtRun.source === "catalog"
-          ? r.usage.costUsd
-          : costFromPricing(pricingAtRun, r.usage.inputTokens, r.usage.outputTokens),
+        : r.usage.costUsd,
       ms,
       steps: r.steps,
       toolCalls: r.trace.length,

@@ -571,6 +571,23 @@ describe("Claude 5.5 thinking blocks are not re-sent once the runtime has edited
         if (label.startsWith("AI-SDK")) expect(resumed.includes("code")).toBe(changed); // the SDK request really carries the new schema (the direct-HTTP path sends toolParameters(name); the fingerprint covers both, so it errs toward dropping)
       });
     }
+
+    // Both transports send tools in the caller's order, so the order is part of the signed prefix too: a deploy that only
+    // reorders PRODUCTION_ROOM_TOOLS must not make slice 2 re-send slice 1's block. (Removing a sort() in seed() is what makes this pass.)
+    for (const [reordered, expectBlock] of [[true, false], [false, true]] as const) {
+      it(`${label}: a resumed job whose tools are ${reordered ? "only reordered" : "in the same order"} ${reordered ? "carries no" : "still carries the"} signed thinking block`, async () => {
+        const tool = (name: string): AgentTool => ({ name, description: `${name} tool`, schema: z.object({}), execute: async () => ({ ok: true }) });
+        const [a, b] = [tool("read_range"), tool("edit_cell")];
+        scripted([[thinkingOf("sig1"), toolUse("tu_1", "read_range")]]);
+        const rt = setup();
+        const slice1 = await runAgent({ rt, goal: "read the sheet", model: build(ID), tools: [a, b], maxSteps: 1 });
+        expect(seen[0].body.tools.map((t: any) => t.name)).toEqual(["read_range", "edit_cell"]);
+        scripted([[toolUse("tu_2", "read_range")]]);
+        await runAgent({ rt, goal: "read the sheet", model: build(ID), tools: reordered ? [b, a] : [a, b], maxSteps: 2, initialMessages: slice1.messages });
+        expect(seen[0].body.tools.map((t: any) => t.name), "the wire really carries the caller's order").toEqual(reordered ? ["edit_cell", "read_range"] : ["read_range", "edit_cell"]);
+        expect(JSON.stringify(seen[0].body).includes("sig1")).toBe(expectBlock);
+      });
+    }
   }
 
   it("estimateChars counts thinking text, signatures and redacted data", () => {

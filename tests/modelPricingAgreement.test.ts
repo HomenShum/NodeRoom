@@ -34,7 +34,7 @@ import { CREDIT_MODE_SPECS, estimateCostFor } from "../src/nodeagent/core/credit
 import { calculateRequestCost, getModelPricing, modelPricing } from "../src/nodeagent/models/modelCatalog";
 import { modelMaxOutputTokens } from "../src/nodeagent/models/outputTokens";
 import { proofloopModelCostFieldsForRun } from "../src/eval/proofloopModelTracking";
-import { catalogPricingAtRun, costFromPricing, pricingAtRunFor, type RouteSnapshot } from "../scripts/benchmark/pricingAtRun";
+import { catalogPricingAtRun, costForRequest, costFromPricing, pricingAtRunFor, type RouteSnapshot } from "../scripts/benchmark/pricingAtRun";
 import { runAgent } from "../src/nodeagent/core/runtime";
 import { InMemoryRoomTools } from "../src/nodeagent/skills/integration/noderoomAdapter";
 import { RoomEngine } from "../src/engine/roomEngine";
@@ -169,8 +169,9 @@ describe("pricing sources agree per (id, transport)", () => {
     expect(r.usage.costUsd).toBeGreaterThan(flat);
     // and the benchmark actually wires it
     const runSrc = readFileSync(new URL("../scripts/benchmark/run.ts", import.meta.url), "utf8");
-    expect(runSrc).toMatch(/priceStep:\s*priceRequest/);
-    expect(runSrc).toMatch(/pricingAtRun\.source === "catalog"\s*\?\s*r\.usage\.costUsd/);
+    expect(runSrc).toMatch(/priceStep:\s*\(name, inTok, outTok\)\s*=>/);
+    expect(runSrc).toMatch(/costForRequest\(atRun, inTok, outTok\)/);
+    expect(runSrc).toMatch(/pricingAtRun\.source === "fallback_estimate"[\s\S]*?:\s*r\.usage\.costUsd/);
   });
 
   describe("sources 7 and 8 on a dated OpenRouter /models fixture", () => {
@@ -179,7 +180,7 @@ describe("pricing sources agree per (id, transport)", () => {
     const FIXTURE_FETCHED_AT = "2026-10-10T00:00:00.000Z";
     const OPENROUTER_MODELS_2026_10_10 = {
       data: [
-        { id: "anthropic/claude-haiku-5.5", context_length: 1_000_000, pricing: { prompt: "0.0000001", completion: "0.0000005", input_cache_read: "0.00000001" }, supported_parameters: ["tools"] },
+        { id: "anthropic/claude-haiku-5.5", context_length: 1_000_000, pricing: { prompt: "0.0000001", completion: "0.0000005", input_cache_read: "0.00000001", overrides: [{ min_prompt_tokens: 100000, prompt: "0.0000005", completion: "0.0000025", input_cache_read: "0.00000005" }] }, supported_parameters: ["tools"] },
         { id: "anthropic/claude-sonnet-5.5", context_length: 1_000_000, pricing: { prompt: "0.000002", completion: "0.00001", input_cache_read: "0.0000001" }, supported_parameters: ["tools"] },
         { id: "anthropic/claude-opus-5.5", context_length: 1_000_000, pricing: { prompt: "0.000004", completion: "0.00002", input_cache_read: "0.0000002" }, supported_parameters: ["tools"] },
       ],
@@ -210,6 +211,29 @@ describe("pricing sources agree per (id, transport)", () => {
         expect(fromSnapshot.outputPer1M, `${row.id} snapshot output`).toBeCloseTo(table.outputPer1M, 9);
         if (table.cachedInputPer1M !== undefined) expect(fromSnapshot.cachedInputPer1M, `${row.id} snapshot cache read`).toBeCloseTo(table.cachedInputPer1M, 9);
       }
+    });
+
+    it("source 7: a snapshot row bills one 120K-input Haiku 5.5 request at the snapshot's own >100K override tier ($0.065), not flat ($0.013)", async () => {
+      const snapshot: RouteSnapshot = {
+        routeSnapshotId: "fixture-2026-10-10",
+        fetchedAt: FIXTURE_FETCHED_AT,
+        source: "openrouter",
+        modelsById: new Map(OPENROUTER_MODELS_2026_10_10.data.map((m) => [m.id, m])),
+      };
+      const atRun = pricingAtRunFor("anthropic/claude-haiku-5.5", snapshot);
+      expect(atRun.source).toBe("openrouter_snapshot");
+      expect(atRun.promptTiers).toEqual([{ aboveInputTokens: 100_000, inputPer1M: 0.5, outputPer1M: 2.5, cachedInputPer1M: 0.05 }]);
+      expect(costFromPricing(atRun, 120_000, 2_000), "the flat aggregate is the base-tier floor").toBeCloseTo(0.013, 9);
+      expect(costForRequest(atRun, 120_000, 2_000)).toBeCloseTo(0.065, 9);
+      expect(costForRequest(atRun, 120_000, 2_000)).toBeCloseTo(priceRequest("anthropic/claude-haiku-5.5", 120_000, 2_000), 9); // snapshot and catalog agree
+      expect(costForRequest(atRun, 100_000, 2_000), "the threshold is strictly-greater, as OpenRouter documents it").toBeCloseTo((100_000 * 0.10 + 2_000 * 0.50) / M, 9);
+      // and through the benchmark's own runAgent wiring: run.ts's priceStep is what the runtime calls per request
+      const engine = new RoomEngine();
+      const d = buildDemoRoom(engine);
+      const rt = new InMemoryRoomTools(engine, d.roomId, d.sheetId, d.agents.room, d.sessions.room);
+      const agentModel = { name: "anthropic/claude-haiku-5.5", next: async () => ({ text: "done", toolCalls: [], done: true, usage: { inputTokens: 120_000, outputTokens: 2_000 } }) };
+      const r = await runAgent({ rt, goal: "x", model: agentModel, tools: [], maxSteps: 1, priceStep: (name, i, o) => costForRequest(pricingAtRunFor(name, snapshot), i, o) });
+      expect(r.usage.costUsd).toBeCloseTo(0.065, 9);
     });
 
     describe("source 8: scripts/proofloop-proxy-model-sweep.ts (--dry-run, the script itself)", () => {
@@ -252,6 +276,10 @@ describe("pricing sources agree per (id, transport)", () => {
           expect(row.pricingAtRun!.inputPer1M, `${row.modelId} input`).toBeCloseTo(table.inputPer1M, 9);
           expect(row.pricingAtRun!.outputPer1M, `${row.modelId} output`).toBeCloseTo(table.outputPer1M, 9);
           if (table.cachedInputPer1M !== undefined) expect(row.pricingAtRun!.cachedInputPer1M, `${row.modelId} cache read`).toBeCloseTo(table.cachedInputPer1M, 9);
+          // the list's tier survives into the receipt: Haiku 5.5's >100K override equals the catalog's longContext tier
+          const tier = table.longContext;
+          expect(tier ? (row.pricingAtRun as any).promptTiers : (row.pricingAtRun as any).promptTiers ?? [], row.modelId)
+            .toEqual(tier ? [{ aboveInputTokens: tier.aboveInputTokens, inputPer1M: tier.inputPer1M, outputPer1M: tier.outputPer1M, cachedInputPer1M: tier.cachedInputPer1M }] : []);
         }
       }, 30_000);
     });

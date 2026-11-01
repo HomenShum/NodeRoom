@@ -17,7 +17,8 @@ export type OpenRouterModelInfo = {
     output_modalities?: string[];
     modality?: string;
   };
-  pricing?: Record<string, string | undefined>;
+  /** Per-token USD strings, plus `overrides` (conditional rates, e.g. above a prompt size) - the one array in the object. */
+  pricing?: Record<string, string | Array<Record<string, unknown>> | undefined>;
   supported_parameters?: string[];
   /** OpenRouter data-policy metadata (shape best-effort — see permitsTraining + the production-
    *  readiness note: whether this field is reliably present per-model needs LIVE verification). */
