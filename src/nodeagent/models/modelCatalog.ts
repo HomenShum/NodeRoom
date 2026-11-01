@@ -810,14 +810,6 @@ export function claudeEffortProviderOptions(modelId: string): { providerOptions?
 }
 
 /**
- * SPEC §1.3: where a forced `tool_choice` is replaced by `auto` (Sonnet/Opus 5.5), the tool definitions carry
- * `strict: true` so the arguments are still schema-valid. True exactly when that downgrade happens.
- */
-export function needsStrictTools(modelId: string, requested?: "auto" | "required"): boolean {
-  return requested === "required" && forbidsForcedToolChoice(modelId);
-}
-
-/**
  * Resolve a model alias to its full model ID.
  * If no alias exists, returns the original input.
  */
@@ -868,9 +860,9 @@ const REPO_DECLARED_UNPRICED_IDS: readonly string[] = [
 ];
 
 /** Every name the catalog knows without a price row: alias keys and targets, the declared ids above, the known free ids. */
-const UNPRICED_KNOWN_IDS: ReadonlySet<string> = new Set([
-  ...ALIAS_DECLARED_IDS, ...REPO_DECLARED_UNPRICED_IDS, ...OPENROUTER_KNOWN_FREE_IDS,
-].map((id) => id.toLowerCase()));
+const UNPRICED_KNOWN_IDS: ReadonlySet<string> = new Set(
+  [...ALIAS_DECLARED_IDS, ...REPO_DECLARED_UNPRICED_IDS, ...OPENROUTER_KNOWN_FREE_IDS].flatMap((id) => [id, id.toLowerCase()]),
+);
 
 /** An id that is not priced, not an alias, not declared by the repo, not a free route and not free-looking (SPEC A.0.10): never a paid default. */
 export class UnknownModelError extends Error {
@@ -890,20 +882,39 @@ const FREE_LOOKING_ID = /[-:]free$/i;
  * Pricing and telemetry readers, which must tolerate historical ids, use `lookupModelAlias`.
  */
 export function resolveModelAlias(modelInput: string): string {
-  const resolved = lookupModelAlias(modelInput);
+  const resolved = lookupModelAlias(modelInput).trim();
+  if (isNodeAgentFreeAutoModel(resolved)) return NODEAGENT_FREE_AUTO_MODEL;
   // Known = priced, or declared without a price (persisted rows may hold "claude-sonnet-4.5" / "claude-sonnet-4-5",
   // which the alias table lists but no price row covers; the picker, benchmark and free catalogs too). A known id is
   // returned as itself - a concrete `:free` id is never rerouted - and a metered run still refuses an unpriced one.
-  const known = [resolved, modelInput.trim(), modelInput.toLowerCase().trim()];
-  if (isNodeAgentFreeAutoModel(resolved) || known.some((id) => Object.hasOwn(modelPricing, id) || UNPRICED_KNOWN_IDS.has(id.toLowerCase()))) return resolved;
-  if (FREE_LOOKING_ID.test(resolved.trim())) return OPENROUTER_FREE_AUTO_MODEL;
+  // The returned spelling is the CANONICAL one (trimmed; lowercased only when that is the spelling the catalog holds),
+  // so cost class, egress and dispatch all read the same string (A.0.10): "nvidia/x:free " is the free id, not a paid one.
+  const isKnown = (id: string) => Object.hasOwn(modelPricing, id) || UNPRICED_KNOWN_IDS.has(id);
+  const canonical = [resolved, resolved.toLowerCase()].find(isKnown);
+  if (canonical) return canonical;
+  if ([modelInput.trim(), modelInput.toLowerCase().trim()].some(isKnown)) return resolved;
+  if (FREE_LOOKING_ID.test(resolved)) return OPENROUTER_FREE_AUTO_MODEL;
   throw new UnknownModelError(modelInput);
+}
+
+/**
+ * The route a dispatch of this id takes. An id the catalog refuses is returned trimmed: it never dispatches (the model
+ * builders throw `UnknownModelError`), so egress and cost-class readers may judge it as written.
+ */
+export function dispatchRoute(modelInput: string): string {
+  try {
+    return resolveModelAlias(modelInput);
+  } catch (error) {
+    if (error instanceof UnknownModelError) return modelInput.trim();
+    throw error;
+  }
 }
 
 /** True when the resolved route costs nothing per token (a zero-priced row, a `:free` id, a free route). */
 export function isFreeModelId(modelId: string): boolean {
-  if (isNodeAgentFreeAutoModel(modelId)) return true;
-  const pricing = getModelPricing(lookupModelAlias(modelId));
+  const route = dispatchRoute(modelId);
+  if (isNodeAgentFreeAutoModel(route)) return true;
+  const pricing = getModelPricing(route);
   return pricing != null && pricing.inputPer1M === 0 && pricing.outputPer1M === 0;
 }
 

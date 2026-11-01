@@ -2871,10 +2871,12 @@ describe("agentJobs runtime contract", () => {
 
     it("a catalog id, an alias and a declared-but-unpriced id still start (nothing the repo knows is refused)", async () => {
       const { t, proof, roomId, artifactId } = await setupRoom();
-      for (const [i, modelPolicy] of ["gemini-3.8-flash", "claude-sonnet", "anthropic/claude-fable-5"].entries()) {
+      // The job stores the RESOLVED route (review round 1, defect 1), so the egress gate and the dispatch read one id:
+      // the alias "claude-sonnet" is stored as "claude-sonnet-4-6" (before round 1 it was stored as written).
+      for (const [i, [modelPolicy, stored]] of [["gemini-3.8-flash", "gemini-3.8-flash"], ["claude-sonnet", "claude-sonnet-4-6"], ["anthropic/claude-fable-5", "anthropic/claude-fable-5"]].entries()) {
         const started = await t.mutation(api.agentJobs.createOrReuse, { ...jobArgs({ roomId, artifactId, proof, idempotencyKey: `job-known-${i}` }), modelPolicy });
         const detail = await t.query(api.agentJobs.detail, { jobId: started.jobId, requester: proof });
-        expect(detail?.job.modelPolicy).toBe(modelPolicy);
+        expect(detail?.job.modelPolicy).toBe(stored);
       }
     });
 
@@ -2952,6 +2954,42 @@ describe("agentJobs runtime contract", () => {
           .rejects.toThrow("unknown_model_policy");
         expect(await t.run(async (ctx) => (await ctx.db.query("agentJobs").collect()).length)).toBe(0);
       });
+    });
+
+    // Review round 1, defect 1. The id is unknown but free-looking, so it dispatches as openrouter/free-auto; the egress gate and the
+    // stored policy must both be that route, and nothing may reach a provider.
+    it.each(["unknown-model-free", "acme/thing-free"])("an unknown free-looking id (%s) with an uploaded file is blocked at the free-route gate, stored as the resolved route, with zero provider requests", async (freeLooking) => {
+      const requests: string[] = [];
+      vi.stubGlobal("fetch", async (input: string | URL | Request) => {
+        requests.push(typeof input === "string" ? input : input instanceof URL ? input.href : input.url);
+        return new Response("{}", { status: 500 });
+      });
+      vi.stubEnv("FREE_AUTO_ALLOW_FILE_EGRESS_PROMOTION", "");
+      vi.stubEnv("OPENROUTER_FREE_ALLOW_FILE_EGRESS", "");
+      try {
+        const { t, proof, roomId, artifactId, actor } = await setupRoom({ seedElement: true });
+        await t.run((ctx) =>
+          ctx.db.insert("artifacts", {
+            roomId, kind: "note" as const, title: "source_financials.csv", version: 1, order: ["source"], updatedAt: Date.now(), createdBy: actor,
+            visibility: "room" as const, meta: { upload: { fileName: "source_financials.csv", mimeType: "text/csv", size: 96 } },
+          }),
+        );
+        const started = await t.mutation(api.agentJobs.startPublicAsk, {
+          roomId, requester: proof, goal: "compute the uploaded financial metrics", contextArtifactId: String(artifactId),
+          routePolicy: "explicit" as const, modelPolicy: freeLooking,
+        });
+        const detail = await t.query(api.agentJobs.detail, { jobId: started.jobId, requester: proof });
+        expect(started).toMatchObject({ status: "blocked", modelPolicy: "openrouter/free-auto" });
+        expect(detail?.job).toMatchObject({
+          status: "blocked",
+          modelPolicy: "openrouter/free-auto",
+          error: "provider_egress_blocked:free_file_egress_requires_OPENROUTER_FREE_ALLOW_FILE_EGRESS",
+        });
+        expect(requests).toEqual([]);
+      } finally {
+        vi.unstubAllEnvs();
+        vi.unstubAllGlobals();
+      }
     });
 
     it("an unknown file-egress model is refused when a free job is promoted to it, and no job persists", async () => {

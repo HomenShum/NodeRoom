@@ -188,6 +188,20 @@ describe("provider artifact egress policy", () => {
     })).toMatchObject({ ok: false, reason: "free_file_egress_requires_OPENROUTER_FREE_ALLOW_FILE_EGRESS" });
   });
 
+  // Review round 1, defect 1. Persona: a signed-in user (or a job row saved with a typo'd default) names a model the catalog
+  // does not know but whose name ends in "-free". It dispatches as openrouter/free-auto, so the uploaded-file gate must judge
+  // THAT route; the runner and the phase override call this same function with the raw saved string.
+  it.each(["unknown-model-free", "acme/thing-free", " nvidia/nemotron-3.5-super-vl:free ", "Acme/New-Model:FREE"])(
+    "judges %j by the route it dispatches to: an uploaded file is blocked on the free route",
+    (model) => {
+      const uploadedFile = { title: "source_financials.csv", meta: { upload: { fileName: "source_financials.csv" } } };
+      expect(providerEgressDecision({ model, entrypoint: "public_ask", artifacts: [uploadedFile], env: {} }))
+        .toMatchObject({ ok: false, reason: "free_file_egress_requires_OPENROUTER_FREE_ALLOW_FILE_EGRESS" });
+      expect(providerEgressDecision({ model, entrypoint: "public_ask", artifacts: [uploadedFile], env: { OPENROUTER_FREE_ALLOW_FILE_EGRESS: "1" } }))
+        .toMatchObject({ ok: true });
+    },
+  );
+
   it("requires explicit file-egress approval for live provider parser calls", () => {
     const uploadedFile = { title: "diligence.pdf", meta: { upload: { fileName: "diligence.pdf", mimeType: "application/pdf", size: 1000 } } };
 

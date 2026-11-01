@@ -8,7 +8,7 @@
  */
 
 import type { AgentMessage, AgentModel, AgentModelRouteState, AgentStep, AgentTool, AgentToolChoice, TokenUsage, ToolCall } from "../core/types";
-import { forbidsForcedToolChoice, getModelPricing, getProviderForModel, isFreeModelId, lookupModelAlias, modelFallbackChains, modelPricing, needsStrictTools, priceAggregateTokens, priceTokens, ratesForPrompt, resolveModelAlias } from "./modelCatalog";
+import { forbidsForcedToolChoice, getModelPricing, getProviderForModel, isFreeModelId, lookupModelAlias, modelFallbackChains, modelPricing, priceAggregateTokens, priceTokens, ratesForPrompt, resolveModelAlias } from "./modelCatalog";
 import { modelMaxOutputTokens } from "./outputTokens";
 import {
   isOpenRouterFreeAutoModel,
@@ -775,7 +775,7 @@ async function providerStep(
       onProviderRequest,
     });
   }
-  if (provider === "anthropic") return anthropicStep(modelId, system, messages, tools, signal, onProviderRequest, toolChoice);
+  if (provider === "anthropic") return anthropicStep(modelId, system, messages, tools, signal, onProviderRequest);
   if (provider === "gemini") {
     if (onTextDelta) {
       const deltas: string[] = [];
@@ -862,7 +862,7 @@ async function openAiCompatibleBlockingStep(args: {
   const res = await postJson<OpenAiChatResponse>(args.endpoint, {
     model: args.modelId,
     messages: [{ role: "system", content: args.system }, ...toOpenAiMessages(args.messages)],
-    tools: args.tools.length ? args.tools.map((t) => openAiTool(t, openAiCompatibleStrictTools(args.modelId, args.endpoint, args.toolChoice))) : undefined,
+    tools: args.tools.length ? args.tools.map(openAiTool) : undefined,
     tool_choice: args.tools.length ? openAiCompatibleToolChoice(args.modelId, args.endpoint, args.toolChoice) : undefined,
     ...openAiCompatibleTokenLimitParam(args.modelId, args.endpoint, modelMaxOutputTokens(args.modelId)),
     ...openAiCompatibleProviderOptions(args.modelId, args.endpoint),
@@ -912,7 +912,7 @@ async function openAiCompatibleStreamStep(args: {
       stream: true,
       stream_options: { include_usage: true },
       messages: [{ role: "system", content: args.system }, ...toOpenAiMessages(args.messages)],
-      tools: args.tools.length ? args.tools.map((t) => openAiTool(t, openAiCompatibleStrictTools(args.modelId, args.endpoint, args.toolChoice))) : undefined,
+      tools: args.tools.length ? args.tools.map(openAiTool) : undefined,
       tool_choice: args.tools.length ? openAiCompatibleToolChoice(args.modelId, args.endpoint, args.toolChoice) : undefined,
       ...openAiCompatibleTokenLimitParam(args.modelId, args.endpoint, modelMaxOutputTokens(args.modelId)),
       ...openAiCompatibleProviderOptions(args.modelId, args.endpoint),
@@ -980,15 +980,13 @@ async function anthropicStep(
   tools: AgentTool[],
   signal?: AbortSignal,
   onProviderRequest?: () => void,
-  toolChoice?: AgentToolChoice,
 ) {
-  const strict = needsStrictTools(modelId, toolChoice);
   const res = await postJson<AnthropicResponse>("https://api.anthropic.com/v1/messages", {
     model: modelId,
     max_tokens: modelMaxOutputTokens(modelId),
     system,
     messages: toAnthropicMessages(messages),
-    tools: tools.length ? tools.map((t) => anthropicTool(t, strict)) : undefined,
+    tools: tools.length ? tools.map(anthropicTool) : undefined,
   }, {
     "x-api-key": requireEnv("ANTHROPIC_API_KEY"),
     "anthropic-version": "2023-06-01",
@@ -1192,24 +1190,22 @@ function toGeminiContents(messages: AgentMessage[]) {
   });
 }
 
-function openAiTool(tool: AgentTool, strict = false) {
+function openAiTool(tool: AgentTool) {
   return {
     type: "function" as const,
     function: {
       name: tool.name,
       description: tool.description,
       parameters: toolParameters(tool.name),
-      ...(strict ? { strict: true } : {}),
     },
   };
 }
 
-function anthropicTool(tool: AgentTool, strict = false) {
+function anthropicTool(tool: AgentTool) {
   return {
     name: tool.name,
     description: tool.description,
     input_schema: toolParameters(tool.name),
-    ...(strict ? { strict: true } : {}),
   };
 }
 
@@ -1853,11 +1849,6 @@ function openAiCompatibleToolChoice(modelId: string, endpoint: string, requested
     return "auto";
   }
   return choice;
-}
-
-/** Strict tool definitions accompany exactly the `required` -> `auto` downgrade above (SPEC §1.3). */
-function openAiCompatibleStrictTools(modelId: string, endpoint: string, requested?: AgentToolChoice): boolean {
-  return isOpenRouterEndpoint(endpoint) && needsStrictTools(modelId, requested);
 }
 
 function isOpenRouterEndpoint(endpoint: string): boolean {

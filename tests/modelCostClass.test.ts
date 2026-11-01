@@ -181,6 +181,50 @@ describe("a free request never becomes a paid request (adapter path)", () => {
   });
 });
 
+// Review round 1, defect 2. Persona: an operator whose AGENT_MODEL / AGENT_FALLBACK_MODEL value in the deployment env carries a
+// trailing space or a capital letter (env values reach the resolver untrimmed). The catalog knows the id, so it must classify the
+// id as the catalog does: a free id spelled "cohere/north-mini-code:free " is still free and must not fall back to a paid model.
+describe("a free id is the same free id however it is spelled (whitespace and case)", () => {
+  // FREE is self-aliased in the alias table, which hides the defect; the id from the reproduction is not aliased.
+  const UNALIASED_FREE = "nvidia/nemotron-3.5-super-vl:free";
+  const VARIANTS = [FREE, UNALIASED_FREE].flatMap((id) => [`${id} `, ` ${id}`, `	${id}
+`, id.toUpperCase(), ` ${id.toUpperCase()} `]);
+  const canonical = (variant: string) => variant.trim().toLowerCase();
+  const POLICY = { maxRetries: 0, crossModelFallback: true };
+
+  it.each(VARIANTS)("resolveModelAlias(%j) is the canonical id and isFreeModelId classifies it free", (variant) => {
+    expect(resolveModelAlias(variant)).toBe(canonical(variant));
+    expect(isFreeModelId(variant)).toBe(true);
+    expect(isFreeModelId(resolveModelAlias(variant))).toBe(true);
+  });
+
+  it.each(VARIANTS)("adapter model(%j) with a paid AGENT_FALLBACK_MODEL never dispatches the paid model", async (variant) => {
+    openRouterDownGoogleUp();
+    process.env.AGENT_FALLBACK_MODEL = PAID;
+    const m = model(variant, { dispatch: POLICY });
+    expect(m.name).toBe(canonical(variant));
+    await expect(m.next(TURN)).rejects.toBeInstanceOf(Error);
+    expect(paidCalls()).toEqual([]);
+  });
+
+  it.each(VARIANTS)("convexModel(%j) drops a paid fallback id too", async (variant) => {
+    openRouterDownGoogleUp();
+    expect(convexModel(variant).name).toBe(canonical(variant));
+    await expect(convexModel(variant, { fallbackModelIds: [PAID] }).next(TURN)).rejects.toBeInstanceOf(Error);
+    expect(paidCalls()).toEqual([]);
+  });
+
+  it("a paid id spelled with whitespace or capitals is still a paid id", () => {
+    expect(resolveModelAlias(` ${PAID.toUpperCase()} `)).toBe(PAID);
+    expect(isFreeModelId(` ${PAID} `)).toBe(false);
+  });
+
+  it("an unknown free-looking id is classed on the route it dispatches to (openrouter/free-auto): free", () => {
+    expect(isFreeModelId("unknown-model-free")).toBe(true);
+    expect(isFreeModelId("unknown-paid-model")).toBe(false);
+  });
+});
+
 describe("a free request never becomes a paid request (Convex path)", () => {
   it("fallbackModelIds with a paid model on a free primary: dropped, the paid provider is never called", async () => {
     openRouterDownGoogleUp();

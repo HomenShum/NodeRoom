@@ -29,7 +29,6 @@ import {
   isFreeModelId,
   isNodeAgentFreeAutoModel,
   lookupModelAlias,
-  needsStrictTools,
   priceAggregateTokens,
   priceTokens,
   NODEAGENT_FREE_AUTO_MODEL,
@@ -478,7 +477,7 @@ async function generateAgentText(
         model: providerFor(id),
         system,
         messages,
-        tools: sdkToolsForModel(sdkTools, id, toolChoice),
+        tools: sdkTools,
         toolChoice: Object.keys(sdkTools).length ? sdkToolChoiceForModel(id, toolChoice) : undefined,
         maxOutputTokens: modelMaxOutputTokens(id),
         maxRetries: 0, // withRetry is the only retry layer: every physical request is one reserved attempt
@@ -521,7 +520,7 @@ async function generateAgentText(
         model: openrouter().chat(candidate.id),
         system,
         messages,
-        tools: sdkToolsForModel(sdkTools, candidate.id, toolChoice),
+        tools: sdkTools,
         toolChoice: Object.keys(sdkTools).length ? sdkToolChoiceForModel(candidate.id, toolChoice) : undefined,
         maxOutputTokens: modelMaxOutputTokens(candidate.id),
         maxRetries: 0,
@@ -846,7 +845,7 @@ function adapterQualityFailoverError(
 async function generatePromptText(modelId: string, prompt: string): Promise<GenerateTextResultAny> {
   if (!isOpenRouterFreeAutoModel(modelId)) {
     assertProviderRouteAllowed({ model: modelId, entrypoint: "system", env: process.env });
-    return generateText({ model: providerFor(modelId), prompt });
+    return generateText({ model: providerFor(modelId), prompt, ...claudeEffortProviderOptions(modelId) }); // explicit §1.3 effort, as on the agent path
   }
   hydrateOpenRouterFreeRouteHealth();
   const requestSignal = openRouterFreeRequestSignal();
@@ -938,12 +937,6 @@ function shortProviderError(error: unknown): string {
 function envValue(name: string): string | undefined {
   const value = process.env[name]?.trim();
   return value || undefined;
-}
-
-/** `strict: true` on every tool definition exactly when a forced tool choice was downgraded to `auto` (SPEC §1.3). */
-function sdkToolsForModel(sdkTools: SdkToolSet, modelId: string, requested?: AgentToolChoice): SdkToolSet {
-  if (!needsStrictTools(modelId, requested)) return sdkTools;
-  return Object.fromEntries(Object.entries(sdkTools).map(([name, t]) => [name, { ...t, strict: true }]));
 }
 
 function sdkToolChoiceForModel(modelId: string, requested?: AgentToolChoice): AgentToolChoice {

@@ -2098,12 +2098,12 @@ function defaultEntrypointForRoute(routePolicy: RoutePolicy): DurableStartEntryp
 /** SPEC A.0.10 at the public API boundary: a model string the catalog does not know is refused before a job row persists it. */
 function knownModelPolicy(modelPolicy: string): string {
   try {
-    resolveModelAlias(modelPolicy);
+    // The stored policy is the resolved route, so the egress decision and the dispatch read the same id.
+    return resolveModelAlias(modelPolicy);
   } catch (error) {
     if (error instanceof UnknownModelError) throw new Error("unknown_model_policy");
     throw error;
   }
-  return modelPolicy;
 }
 
 /** `runRoomAgent` records a PlanPreview-blocked run with this marker: no model runs for a blocked job, so there is no id to check. */

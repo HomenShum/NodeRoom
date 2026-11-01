@@ -20,6 +20,7 @@ import { defaultRouteForTask, chooseNodeAgentRoute } from "../src/nodeagent/core
 import { providerParserModelCandidates } from "../src/nodeagent/models/providerParserLive";
 import { getModelPricing, getProviderForModel, resolveModelAlias, UnknownModelError } from "../src/nodeagent/models/modelCatalog";
 import type { AgentTool } from "../src/nodeagent/core/types";
+import { SERVER_PRODUCTION_ROOM_TOOLS } from "../src/nodeagent/skills/server/productionTools";
 
 type Seen = { url: string; headers: Record<string, string>; body: Record<string, any> };
 
@@ -103,14 +104,15 @@ describe("Claude 5.5 over the direct Anthropic HTTP step (convexModel.anthropicS
     });
   }
 
-  // SPEC §1.3: where a forced tool_choice is replaced by `auto`, the tool definitions carry strict: true instead.
-  for (const c of [{ id: "claude-haiku-5-5", strict: undefined }, { id: "claude-sonnet-5-5", strict: true }, { id: "claude-opus-5-5", strict: true }] as const) {
-    it(`${c.id}: a required tool choice ${c.strict ? "ships strict tool definitions" : "keeps plain tool definitions (a forced choice is accepted)"}`, async () => {
-      installFakeTransport(() => anthropicOk(c.id));
-      await convexModel(c.id).next({ system: "s", messages: [{ role: "user", content: "hi" }], tools: [NOOP_TOOL], toolChoice: "required" });
-      expect(seen[0].body.tools[0].strict).toBe(c.strict);
-      await convexModel(c.id).next({ system: "s", messages: [{ role: "user", content: "hi" }], tools: [NOOP_TOOL], toolChoice: "auto" });
-      expect(seen[1].body.tools[0].strict, "no downgrade happened, so no strict").toBeUndefined();
+  // SPEC §1.3 downgrades a forced tool_choice to `auto`; tool definitions stay plain. `strict: true` is NOT sent: the
+  // production room-tool schemas are not strict-compatible (Anthropic rejects objects without additionalProperties:false,
+  // record types and length/range constraints), so it would swap one 400 for another. The harness validates after the turn.
+  for (const id of ["claude-haiku-5-5", "claude-sonnet-5-5", "claude-opus-5-5"] as const) {
+    it(`${id}: a required tool choice never ships strict tool definitions, even for all ${SERVER_PRODUCTION_ROOM_TOOLS.length} production room tools`, async () => {
+      installFakeTransport(() => anthropicOk(id));
+      await convexModel(id).next({ system: "s", messages: [{ role: "user", content: "hi" }], tools: SERVER_PRODUCTION_ROOM_TOOLS as unknown as AgentTool[], toolChoice: "required" });
+      expect(seen[0].body.tools).toHaveLength(SERVER_PRODUCTION_ROOM_TOOLS.length);
+      for (const tool of seen[0].body.tools) expect(tool, tool.name).not.toHaveProperty("strict");
     });
   }
 
@@ -155,17 +157,18 @@ describe("anthropic/claude-*-5.5 over OpenRouter (convexModel.openAiCompatibleSt
     ]);
   });
 
-  it("the auto downgrade ships strict: true tool definitions; a kept forced choice does not", async () => {
+  it("the auto downgrade ships plain tool definitions (no strict) for all production room tools; a kept forced choice does too", async () => {
     installFakeTransport(() => chatOk("x"));
-    const turn = { system: "s", messages: [{ role: "user" as const, content: "hi" }], tools: [NOOP_TOOL], toolChoice: "required" as const };
+    const turn = { system: "s", messages: [{ role: "user" as const, content: "hi" }], tools: SERVER_PRODUCTION_ROOM_TOOLS as unknown as AgentTool[], toolChoice: "required" as const };
     await convexModel("anthropic/claude-sonnet-5.5").next(turn);
     await convexModel("anthropic/claude-opus-5.5").next(turn);
     await convexModel("anthropic/claude-haiku-5.5").next(turn);
-    expect(seen.map((r) => [r.body.model, r.body.tools[0].function.strict])).toEqual([
-      ["anthropic/claude-sonnet-5.5", true],
-      ["anthropic/claude-opus-5.5", true],
-      ["anthropic/claude-haiku-5.5", undefined],
+    expect(seen.map((r) => [r.body.model, r.body.tool_choice])).toEqual([
+      ["anthropic/claude-sonnet-5.5", "auto"],
+      ["anthropic/claude-opus-5.5", "auto"],
+      ["anthropic/claude-haiku-5.5", "required"],
     ]);
+    for (const r of seen) for (const tool of r.body.tools) expect(tool.function, tool.function.name).not.toHaveProperty("strict");
   });
 });
 
@@ -211,10 +214,21 @@ describe("Claude 5.5 over the AI-SDK adapter (adapter.model, direct Anthropic)",
       expect(body.max_tokens).toBe(8192);
       if (c.forcedAllowed) expect(body.tool_choice?.type).toBe("any");
       else expect(body.tool_choice?.type).toBe("auto");
-      // §1.3: `auto` replaces a forced choice together with strict tool definitions; Haiku keeps the forced choice, no strict.
-      expect(body.tools[0].strict).toBe(c.forcedAllowed ? undefined : true);
+      // §1.3: `auto` replaces a forced choice; tool definitions stay plain for every id (the production schemas are not strict-compatible).
+      for (const tool of body.tools) expect(tool, tool.name).not.toHaveProperty("strict");
     });
   }
+
+  it("all production room tools go out plain (no strict) on the AI-SDK path for Sonnet and Opus 5.5", async () => {
+    for (const id of ["claude-sonnet-5-5", "claude-opus-5-5"] as const) {
+      installFakeTransport(() => ({ ...anthropicOk(id), content: [{ type: "tool_use", id: "tu_1", name: SERVER_PRODUCTION_ROOM_TOOLS[0].name, input: {} }], stop_reason: "tool_use" }));
+      await adapterModel(id).next({ system: "s", messages: [{ role: "user", content: "hi" }], tools: SERVER_PRODUCTION_ROOM_TOOLS as unknown as AgentTool[], toolChoice: "required" }).catch(() => undefined);
+      expect(seen.length, id).toBeGreaterThan(0);
+      expect(seen[0].body.tools, id).toHaveLength(SERVER_PRODUCTION_ROOM_TOOLS.length);
+      expect(seen[0].body.tool_choice?.type, id).toBe("auto");
+      for (const tool of seen[0].body.tools) expect(tool, `${id} ${tool.name}`).not.toHaveProperty("strict");
+    }
+  });
 
   it("anthropicModel() defaults to claude-haiku-5-5 (was claude-haiku-4-5)", async () => {
     installFakeTransport(() => anthropicOk("claude-haiku-5-5"));
@@ -320,6 +334,17 @@ describe("gemini-3.8-flash (the new DEFAULT_AGENT_MODEL)", () => {
     expect(seen).toHaveLength(1);
   });
 
+  it("judge() sends explicit output_config.effort on the Claude 5.5 ids: haiku medium, sonnet high, opus medium", async () => {
+    for (const [id, effort] of [["claude-haiku-5-5", "medium"], ["claude-sonnet-5-5", "high"], ["claude-opus-5-5", "medium"]] as const) {
+      installFakeTransport(() => anthropicOk(id));
+      await judge(id, "p");
+      expect(seen, id).toHaveLength(1);
+      expect(seen[0].body.model).toBe(id);
+      expect(seen[0].body.output_config?.effort, id).toBe(effort);
+      expectNoSamplingKeys(seen[0].body);
+    }
+  });
+
   // Review round 7, defect 2 (SPEC-v9 D1). Persona: an evaluator runs `evals/professionalLiveCatalog --model <id>` or sets JUDGE_MODEL to
   // an id the catalog has never seen. origin/main sent that id; judge() used the strict resolver, so it threw, and a concrete `:free`
   // id was rewritten to a different free model - the run was measured under the wrong label.
@@ -398,7 +423,7 @@ describe("LangChain bridge tool_choice guard", () => {
     };
     return { chat, bound };
   }
-  it("sends tool_choice any for Haiku 5.5 and for 4.x; Sonnet/Opus 5.5 get no forced choice but strict tools", async () => {
+  it("sends tool_choice any for Haiku 5.5 and for 4.x; Sonnet/Opus 5.5 get no forced choice and no strict", async () => {
     const got: Record<string, unknown> = {};
     for (const id of ["claude-haiku-5-5", "claude-haiku-4-5", "claude-sonnet-5-5", "claude-opus-5-5"]) {
       const { chat, bound } = captured(id);
@@ -408,8 +433,8 @@ describe("LangChain bridge tool_choice guard", () => {
     expect(got).toEqual({
       "claude-haiku-5-5": { tool_choice: "any" },
       "claude-haiku-4-5": { tool_choice: "any" },
-      "claude-sonnet-5-5": { strict: true }, // SPEC §1.3: forced choice -> auto + strict: true
-      "claude-opus-5-5": { strict: true },
+      "claude-sonnet-5-5": {}, // SPEC §1.3: forced choice -> provider default (auto); no strict, the schemas are not strict-compatible
+      "claude-opus-5-5": {},
     });
     // No forced choice requested: nothing is added for any id.
     for (const id of ["claude-haiku-5-5", "claude-sonnet-5-5"]) {
