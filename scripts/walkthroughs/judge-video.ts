@@ -4,7 +4,7 @@
  * feel), returning timestamped defects. The render is no longer human-eyes-only.
  *
  * Run:  npx tsx scripts/walkthroughs/judge-video.ts noderoom-live-collab-v1 [renders/short.mp4]
- * Key:  GOOGLE_GENERATIVE_AI_API_KEY (env → .env.local). Model: gemini-3.5-flash (override via
+ * Key:  GOOGLE_GENERATIVE_AI_API_KEY (env → .env.local). Model: gemini-3.6-flash (override via
  *       GEMINI_JUDGE_MODEL). Video sent inline (<20MB) — short verticals fit comfortably.
  * Out:  episodes/<id>/judge.md (+ raw judge.json)
  */
@@ -50,7 +50,7 @@ const run = async () => {
   if (!existsSync(videoPath)) throw new Error(`missing ${videoPath}`);
   const bytes = readFileSync(videoPath);
   console.log(`[judge] ${rel} — ${(bytes.length / 1048576).toFixed(1)}MB → gemini`);
-  const model = process.env.GEMINI_JUDGE_MODEL ?? "gemini-3.5-flash";
+  const model = process.env.GEMINI_JUDGE_MODEL ?? "gemini-3.6-flash";
   const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${key()}`, {
     method: "POST",
     headers: { "content-type": "application/json" },
@@ -59,7 +59,7 @@ const run = async () => {
         { inline_data: { mime_type: "video/mp4", data: bytes.toString("base64") } },
         { text: RUBRIC },
       ] }],
-      generationConfig: { temperature: 0.2, response_mime_type: "application/json" },
+      generationConfig: { response_mime_type: "application/json" },
     }),
   });
   if (!res.ok) throw new Error(`gemini ${res.status}: ${(await res.text()).slice(0, 300)}`);

@@ -1,4 +1,4 @@
-import { isNodeAgentFreeAutoModel, resolveModelAlias } from "../models/modelCatalog";
+import { isNodeAgentFreeAutoModel, lookupModelAlias } from "../models/modelCatalog";
 
 export type InteropRouteRuntime = "native" | "langchain" | "litellm" | "openrouter";
 
@@ -11,6 +11,10 @@ export type InteropModelRoute = {
   basis: string[];
 };
 
+/**
+ * Labels a route for receipts and the bridges; it never dispatches, so it reads the lenient `lookupModelAlias`.
+ * Dispatch fails closed on an unknown id at `model()` / `convexModel()` (SPEC A.0.10).
+ */
 export function normalizeInteropModelRoute(route: string): InteropModelRoute {
   const requested = route.trim();
   const lower = requested.toLowerCase();
@@ -36,7 +40,7 @@ export function normalizeInteropModelRoute(route: string): InteropModelRoute {
     };
   }
 
-  const resolvedNativeRoute = resolveModelAlias(requested);
+  const resolvedNativeRoute = lookupModelAlias(requested);
   if (isNodeAgentFreeAutoModel(resolvedNativeRoute)) {
     return {
       requested,
@@ -78,7 +82,7 @@ export function normalizeInteropModelRoute(route: string): InteropModelRoute {
   const openrouter = requested.match(/^openrouter:(.+)$/i);
   if (openrouter) {
     const model = openrouter[1].trim();
-    const modelId = model === "free" || model === "free-auto" ? `openrouter/${model}` : resolveModelAlias(model);
+    const modelId = model === "free" || model === "free-auto" ? `openrouter/${model}` : lookupModelAlias(model);
     return {
       requested,
       modelId,
@@ -113,7 +117,7 @@ function normalizeProvider(provider: string): string {
 function normalizeProviderScopedModel(provider: string, model: string): string {
   const trimmed = model.trim();
   if (provider === "openrouter" && (trimmed === "free" || trimmed === "free-auto")) return `openrouter/${trimmed}`;
-  return resolveModelAlias(trimmed);
+  return lookupModelAlias(trimmed);
 }
 
 function normalizeScopedGatewayModel(model: string): { provider: string; modelId: string } {
@@ -122,7 +126,7 @@ function normalizeScopedGatewayModel(model: string): { provider: string; modelId
   const payload = rest.join("/");
   const provider = normalizeProvider(scope ?? "");
   if (!payload || !["openai", "anthropic", "google", "openrouter"].includes(provider)) {
-    const modelId = resolveModelAlias(trimmed);
+    const modelId = lookupModelAlias(trimmed);
     return { provider: inferProvider(modelId, "litellm"), modelId };
   }
   return {

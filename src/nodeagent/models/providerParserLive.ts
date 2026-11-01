@@ -13,6 +13,7 @@ import {
   type ProviderUploadResult,
 } from "../../app/providerParserAdapter";
 import type { ProviderFileCacheMeta, ProviderParser } from "../../engine/types";
+import { claudeEffortProviderOptions } from "./modelCatalog";
 import type { UploadedArtifactInput } from "../../app/uploadedArtifact";
 import {
   assertProviderEgressAllowed,
@@ -107,10 +108,10 @@ const PROVIDER_MODEL_ENV_KEYS: Record<ProviderParser, string> = {
 };
 
 const PROVIDER_MODEL_DEFAULTS: Record<ProviderParser, string[]> = {
-  gemini: ["gemini-3.5-flash", "gemini-3-flash-preview", "gemini-2.5-flash", "gemini-2.0-flash"],
-  openai: ["gpt-5.5", "gpt-5.4-mini", "gpt-5-mini", "gpt-4.1-mini"],
-  anthropic: ["claude-haiku-4-5", "claude-3-5-haiku-latest", "claude-sonnet-4-5"],
-  openrouter: ["z-ai/glm-5.2", "moonshotai/kimi-k2.7-code", "cohere/north-mini-code:free", "nvidia/nemotron-3-ultra-550b-a55b", "nex-agi/nex-n2-pro"],
+  gemini: ["gemini-3.8-flash", "gemini-3.6-flash"],
+  openai: ["gpt-5.5", "gpt-5.4-mini"],
+  anthropic: ["claude-haiku-5-5", "claude-sonnet-5-5"],
+  openrouter: ["z-ai/glm-5.2", "moonshotai/kimi-k2.7-code", "cohere/north-mini-code:free", "nvidia/nemotron-3-ultra-550b-a55b"],
 };
 
 export function providerParserModelCandidates(
@@ -248,22 +249,24 @@ async function extractWithLiveProvider(args: {
 }): Promise<{ extraction: ProviderExtraction; providerRoute: ProviderRouteReceipt }> {
   const providerRoute = assertProviderParserAllowed(args);
   const model = providerLanguageModel(args.provider, providerRoute.resolvedModel);
+  // Explicit SPEC §1.3 effort for claude-*-5-5 on the direct Anthropic transport (no-op for every other provider/id).
+  const effort = args.provider === "anthropic" ? claudeEffortProviderOptions(providerRoute.resolvedModel) : {};
   const prompt = buildExtractionPrompt(args.prompt, args.file, args.source);
   const input = buildPromptInput(prompt, args.file, args.source);
 
   const extraction = await extractProviderExtractionWithFallback({
     structured: async () => {
       const res = "messages" in input
-        ? await generateObject({ model, schema: providerExtractionSchema, messages: input.messages })
-        : await generateObject({ model, schema: providerExtractionSchema, prompt: input.prompt });
+        ? await generateObject({ model, schema: providerExtractionSchema, messages: input.messages, ...effort })
+        : await generateObject({ model, schema: providerExtractionSchema, prompt: input.prompt, ...effort });
       return res.object;
     },
     text: async () => {
       const textPrompt = `${prompt}\n\nReturn JSON only. The JSON must match this shape: ${schemaHint()}`;
       const textInput = buildPromptInput(textPrompt, args.file, args.source);
       const res = "messages" in textInput
-        ? await generateText({ model, messages: textInput.messages })
-        : await generateText({ model, prompt: textInput.prompt });
+        ? await generateText({ model, messages: textInput.messages, ...effort })
+        : await generateText({ model, prompt: textInput.prompt, ...effort });
       return res.text;
     },
   });

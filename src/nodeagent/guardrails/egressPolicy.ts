@@ -1,4 +1,4 @@
-import { getProviderForModel, resolveModelAlias, type LlmProvider } from "../models/modelCatalog";
+import { dispatchRoute, getProviderForModel, lookupModelAlias, type LlmProvider } from "../models/modelCatalog";
 import { providerHealthDecision } from "./providerHealth";
 
 type Env = Record<string, string | undefined>;
@@ -54,8 +54,10 @@ export function providerEgressDecision(args: {
   env?: Env;
 }): ProviderEgressDecision {
   const env = args.env ?? process.env;
-  const external = isExternalProviderRoute(args.model);
-  const freeRoute = isOpenRouterFreeRoute(args.model) || args.entrypoint === "free";
+  // Judge the route the request will actually take: an unknown "-free" id dispatches as openrouter/free-auto (A.0.10).
+  const route = dispatchRoute(args.model);
+  const external = isExternalProviderRoute(route);
+  const freeRoute = isOpenRouterFreeRoute(route) || args.entrypoint === "free";
   if (!external) return { ok: true, policy: "provider_egress_v1" };
 
   for (const artifact of args.artifacts) {
@@ -144,7 +146,7 @@ export function providerRouteDecision(args: {
 }): ProviderRouteDecision {
   const env = args.env ?? process.env;
   const requestedModel = args.model.trim();
-  const resolvedModel = resolveModelAlias(requestedModel);
+  const resolvedModel = lookupModelAlias(requestedModel);
   const allowedProviders = providerAllowlist(env);
   const external = isExternalProviderRoute(resolvedModel);
   const provider = external ? getProviderForModel(resolvedModel) : "local";

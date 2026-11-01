@@ -61,7 +61,7 @@ async function runLiveManagedPath(runIndex: number): Promise<HaloSelfImprovement
   const result = await runAgent({
     rt,
     goal: "Set r_rev__variance to +24% and r_cogs__variance to +27.5%. Use runtime-managed writes and stop when both cells are written.",
-    model: realModel(route),
+    model: realModel(route, { operatorSelected: true }),
     tools: PRODUCTION_ROOM_TOOLS,
     systemPrompt: MANAGED_LOCK_SYSTEM_PROMPT,
     maxSteps: 10,

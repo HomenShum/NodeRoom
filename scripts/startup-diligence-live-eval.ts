@@ -164,7 +164,10 @@ export async function runStartupDiligenceConvexContractEval(
     goal: jobGoal,
     entrypoint: "public_ask" as const,
     scope: "public_room" as const,
-    modelPolicy: modelForRun,
+    // The job only needs a route the public boundary accepts (SPEC A.0.10: a model outside the catalog is refused with
+    // unknown_model_policy). The runner is stubbed, so this route is never dispatched. The model the operator picked
+    // (possibly one the catalog does not know, D1) is recorded on the attempt rows via modelForRun, not here.
+    modelPolicy: "openrouter/free-auto",
     idempotencyKey: `startup-live-eval-${code}`,
     approvalPolicy: "host_review" as const,
     evidencePolicy: "public_only" as const,

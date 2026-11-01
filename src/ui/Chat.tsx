@@ -13,6 +13,7 @@ import { useStore, CONVEX_SITE_URL, type AgentJobDetailTelemetry, type AgentJobT
 import { abortable, parseUploadedFiles, UPLOAD_TIMEOUT_MS } from "../app/uploadedArtifact";
 import type { StreamId } from "@convex-dev/persistent-text-streaming";
 import { api } from "../../convex/_generated/api";
+import { DEFAULT_AGENT_MODEL } from "../../convex/modelDefaults";
 import type { Actor, Artifact, CellPayload, Channel, Message } from "../engine/types";
 import { getProviderForModel, llmModelCatalog, modelPricing, resolveModelAlias, type LlmProvider } from "../nodeagent/models/modelCatalog";
 import {
@@ -868,7 +869,7 @@ type AgentFailureNotice = {
 const AGENT_MODEL_PRESETS: AgentModelPresetOption[] = [
   { value: "adaptive", label: "Adaptive", badge: "recommended", detail: "Server router chooses the best available NodeAgent route with fallbacks." },
   { value: "free", label: "Free", badge: "$0", detail: "Rotates across healthy $0 models; the final resolved model is shown and terminal failures stay actionable." },
-  { value: "top_paid", label: "Top paid", badge: "best", detail: "Pins the strongest configured paid route for higher-recall work." },
+  { value: "top_paid", label: "Top paid", badge: "operator", detail: "Pins the route the operator configured as top paid (AGENT_TOP_PAID_MODEL, else AGENT_MODEL). With neither set, the server default is a free model." },
   { value: "specific", label: "Specific model", badge: "pin", detail: "Pin one provider/model from the approved NodeAgent catalog." },
 ];
 
@@ -1687,7 +1688,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
     if (override) return override;
     if (forceFree) return { mode: "free" };
     return modelSelectionMode === "specific"
-      ? { mode: "specific", modelPolicy: specificModelPolicy || defaultSpecificModel || "gemini-3.5-flash" }
+      ? { mode: "specific", modelPolicy: specificModelPolicy || defaultSpecificModel || DEFAULT_AGENT_MODEL }
       : { mode: modelSelectionMode };
   };
 

@@ -150,8 +150,10 @@ describe("long-running agent job source invariants", () => {
 
     expect(runner).toContain('modelPolicy === "openrouter/free-auto"');
     expect(runner).toContain("process.env.FREE_AUTO_JOB_MODEL ?? modelPolicy");
-    expect(runner).toContain("const model = agentModel(resolvedModelPolicy, {");
-    expect(runner).toContain("fallbackModelIds: fallbackModelsForRoute(resolvedModelPolicy)");
+    // Round 10 spelling: the model is built by buildModel(), which wraps agentModel() so an unknown saved id fails the slice, not the lease.
+    expect(runner).toContain("const model = buildModel(resolvedModelPolicy);");
+    expect(runner).toContain("return agentModel(modelId, {");
+    expect(runner).toContain("fallbackModelIds: fallbackModelsForRoute(modelId)");
     expect(runner).toContain('claimed.routePolicy === "explicit"');
     expect(runner).toContain("authorizedModelForFramePhase");
     expect(runner).toContain("artifacts: egressArtifacts");
@@ -471,7 +473,9 @@ describe("long-running agent job source invariants", () => {
     expect(runner).toContain("agentJobRunner.runFreeAutoJobSlice");
     expect(runner).toContain("onTrace: (event)");
     expect(runner).toContain("liveOperationKind(event)");
-    expect(model).toContain("AGENT_MODEL_MAX_OUTPUT_TOKENS");
+    // The output-token cap moved to the module convexModel.ts and adapter.ts share (SPEC A.2.9); same knob, same default.
+    expect(model).toContain('from "./outputTokens"');
+    expect(readFileSync("src/nodeagent/models/outputTokens.ts", "utf8")).toContain("AGENT_MODEL_MAX_OUTPUT_TOKENS");
     expect(model).toContain("chat_template_kwargs");
     expect(model).toContain("enable_thinking: false");
     expect(model).toContain("isOpenRouterHybridThinkingModel");

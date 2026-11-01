@@ -182,7 +182,7 @@ async function runProfessionalLiveCatalogCase(
   const started = Date.now();
   const prompt = buildProfessionalLiveCatalogPrompt(evalCase);
   try {
-    const raw = await judge(modelName, prompt);
+    const raw = await judge(modelName, prompt, { operatorSelected: true });
     const answer = parseProfessionalLiveCatalogAnswer(raw);
     const checks = gradeProfessionalLiveCatalogAnswer(evalCase, answer);
     const score = scoreChecks(checks);

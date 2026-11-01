@@ -68,7 +68,7 @@ export type SpreadsheetBenchChartVisualProbeOptions = {
 export function runSpreadsheetBenchChartVisualProbe(
   options: SpreadsheetBenchChartVisualProbeOptions = {},
 ): SpreadsheetBenchChartVisualProbe {
-  const model = options.model ?? process.env.GEMINI_MEDIA_JUDGE_MODEL ?? "gemini-3.5-flash";
+  const model = options.model ?? process.env.GEMINI_MEDIA_JUDGE_MODEL ?? "gemini-3.6-flash";
   const env = options.env ?? process.env;
   const runCommand = options.runCommand ?? run;
   const candidates = (options.rendererCommands ?? defaultRendererCommands()).map((candidate) =>

@@ -1,0 +1,189 @@
+{
+  "source": "https://openrouter.ai/api/v1/models (public, no key)",
+  "fetchedAt": "2026-10-16T11:32:04Z",
+  "totalRows": 465,
+  "note": "SPEC-v9 D2: the :free rows of the public list. top_paid needs tools + tool_choice + structured_outputs, context >= 256000, text output, no expiration_date; the newest such row is selected.",
+  "selected": "nvidia/nemotron-3.5-super-vl:free",
+  "rows": [
+    {
+      "id": "nvidia/nemotron-3.5-super-vl:free",
+      "created": 1792076662,
+      "contextLength": 1000000,
+      "outputModalities": [
+        "text"
+      ],
+      "tools": true,
+      "toolChoice": true,
+      "structuredOutputs": true,
+      "expirationDate": null
+    },
+    {
+      "id": "dots-studio/dots-3-note-preview:free",
+      "created": 1786680361,
+      "contextLength": 512000,
+      "outputModalities": [
+        "text"
+      ],
+      "tools": true,
+      "toolChoice": true,
+      "structuredOutputs": true,
+      "expirationDate": "2026-12-31"
+    },
+    {
+      "id": "liquid/lfm-2.5-2.6b:free",
+      "created": 1786470519,
+      "contextLength": 65536,
+      "outputModalities": [
+        "text"
+      ],
+      "tools": true,
+      "toolChoice": true,
+      "structuredOutputs": true,
+      "expirationDate": null
+    },
+    {
+      "id": "nvidia/nemotron-3.5-lightning:free",
+      "created": 1786452751,
+      "contextLength": 1000000,
+      "outputModalities": [
+        "text"
+      ],
+      "tools": true,
+      "toolChoice": true,
+      "structuredOutputs": false,
+      "expirationDate": null
+    },
+    {
+      "id": "thinkingmachines/inkling-small:free",
+      "created": 1785443117,
+      "contextLength": 1048576,
+      "outputModalities": [
+        "text"
+      ],
+      "tools": true,
+      "toolChoice": false,
+      "structuredOutputs": false,
+      "expirationDate": null
+    },
+    {
+      "id": "poolside/laguna-s-2.1:free",
+      "created": 1784652683,
+      "contextLength": 262144,
+      "outputModalities": [
+        "text"
+      ],
+      "tools": true,
+      "toolChoice": true,
+      "structuredOutputs": false,
+      "expirationDate": "2026-10-31"
+    },
+    {
+      "id": "thinkingmachines/inkling:free",
+      "created": 1784325956,
+      "contextLength": 1048576,
+      "outputModalities": [
+        "text"
+      ],
+      "tools": true,
+      "toolChoice": false,
+      "structuredOutputs": false,
+      "expirationDate": null
+    },
+    {
+      "id": "poolside/laguna-xs-2.1:free",
+      "created": 1783002429,
+      "contextLength": 262144,
+      "outputModalities": [
+        "text"
+      ],
+      "tools": true,
+      "toolChoice": true,
+      "structuredOutputs": false,
+      "expirationDate": "2026-10-31"
+    },
+    {
+      "id": "cohere/north-mini-code:free",
+      "created": 1781723748,
+      "contextLength": 256000,
+      "outputModalities": [
+        "text"
+      ],
+      "tools": true,
+      "toolChoice": true,
+      "structuredOutputs": false,
+      "expirationDate": null
+    },
+    {
+      "id": "nvidia/nemotron-3.5-content-safety:free",
+      "created": 1780581864,
+      "contextLength": 128000,
+      "outputModalities": [
+        "text"
+      ],
+      "tools": false,
+      "toolChoice": false,
+      "structuredOutputs": false,
+      "expirationDate": null
+    },
+    {
+      "id": "nvidia/nemotron-3-ultra-550b-a55b:free",
+      "created": 1780551208,
+      "contextLength": 1000000,
+      "outputModalities": [
+        "text"
+      ],
+      "tools": true,
+      "toolChoice": true,
+      "structuredOutputs": false,
+      "expirationDate": null
+    },
+    {
+      "id": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+      "created": 1777393095,
+      "contextLength": 256000,
+      "outputModalities": [
+        "text"
+      ],
+      "tools": true,
+      "toolChoice": true,
+      "structuredOutputs": false,
+      "expirationDate": null
+    },
+    {
+      "id": "google/gemma-4-26b-a4b-it:free",
+      "created": 1775227989,
+      "contextLength": 262144,
+      "outputModalities": [
+        "text"
+      ],
+      "tools": true,
+      "toolChoice": true,
+      "structuredOutputs": false,
+      "expirationDate": null
+    },
+    {
+      "id": "google/gemma-4-31b-it:free",
+      "created": 1775148486,
+      "contextLength": 262144,
+      "outputModalities": [
+        "text"
+      ],
+      "tools": true,
+      "toolChoice": true,
+      "structuredOutputs": false,
+      "expirationDate": null
+    },
+    {
+      "id": "nvidia/nemotron-3-super-120b-a12b:free",
+      "created": 1773245239,
+      "contextLength": 262144,
+      "outputModalities": [
+        "text"
+      ],
+      "tools": true,
+      "toolChoice": true,
+      "structuredOutputs": true,
+      "expirationDate": null
+    }
+  ]
+}

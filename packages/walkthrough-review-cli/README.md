@@ -22,7 +22,7 @@ Generic shape:
 walkthrough-review run \
   --config walkthrough-review.config.json \
   --base http://127.0.0.1:5178 \
-  --model gemini-3.5-flash \
+  --model gemini-3.6-flash \
   --ui-review \
   startup-diligence-war-room
 ```

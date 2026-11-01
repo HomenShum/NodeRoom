@@ -6,21 +6,21 @@
   "steps": [
     {
       "file": "src/nodeagent/core/runtime.ts",
-      "line": 496,
+      "line": 497,
       "pattern": "export async function runAgent\\(",
       "title": "runAgent — the loop that owns no state",
       "description": "Takes a goal, a model, a tool list and budgets. Returns a result plus a stream of trace events.\n\nNotice what it does NOT import: no database client, no React. It reaches the world only through `rt: RoomTools`. That is why the same run can be exercised by a fast unit test and by production."
     },
     {
       "file": "src/nodeagent/core/runtime.ts",
-      "line": 513,
+      "line": 514,
       "pattern": "spendLimits\\?: SpendLimits;",
       "title": "Budgets are parameters, not ambient config",
       "description": "`maxSteps`, `deadlineAt` + `reserveMs`, `spendLimits` + `priceStep`, `journal`, `compaction`. Read the comment on `priceStep`: without it the dollar half of the spend ceiling silently receives `costUsd: 0` and does nothing. That was a real defect, and the comment is the fix's receipt.\n\nA run that hits a budget stops with a resumable handoff, not a failure."
     },
     {
       "file": "src/nodeagent/core/types.ts",
-      "line": 279,
+      "line": 292,
       "pattern": "export interface RoomTools",
       "title": "RoomTools — the port",
       "description": "One interface, implemented twice. This is the seam that makes the keyless demo genuinely the same product as the live tier rather than a mock of it.\n\nNothing automatically checks that both implementations stay in step. See docs/codebase/CONCERNS.md."
@@ -55,7 +55,7 @@
     },
     {
       "file": "convex/agentJobRunner.ts",
-      "line": 946,
+      "line": 958,
       "pattern": "await runAgent\\(\\{",
       "title": "The live tier calls the same runAgent",
       "description": "Note the extra hooks the server passes and the browser does not: `onTextDelta` streams provider prose to the asking tab, `onStreamEvent` records tool/step parts, `onTrace` records live operations, and `journal` makes a retried slice replay a completed step instead of re-calling — and re-paying for — the model."
