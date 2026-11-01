@@ -34,6 +34,8 @@ export interface AgentMessage {
   content: string;
   /** On an assistant turn: the model's thinking blocks, re-sent ahead of the text and tool calls (Anthropic only). */
   thinking?: ThinkingBlock[];
+  /** On an assistant turn with thinking: fingerprint of the request prefix the blocks were signed against (thinkingBinding.ts). */
+  thinkingBinding?: string;
   /** On an assistant turn: the tool calls it made (kept so the real-model path can rebuild a well-formed history). */
   toolCalls?: ToolCall[];
   /** On a tool-result turn: which call it answers. */

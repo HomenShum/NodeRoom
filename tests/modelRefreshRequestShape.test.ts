@@ -21,6 +21,7 @@ import { providerParserModelCandidates } from "../src/nodeagent/models/providerP
 import { getModelPricing, getProviderForModel, resolveModelAlias, UnknownModelError } from "../src/nodeagent/models/modelCatalog";
 import type { AgentModel, AgentTool } from "../src/nodeagent/core/types";
 import { runAgent, InMemoryRoomTools } from "../src/nodeagent/index";
+import { estimateChars } from "../src/nodeagent/core/contextCompactor";
 import { RoomEngine } from "../src/engine/roomEngine";
 import { buildDemoRoom } from "../src/engine/demoRoom";
 import { SERVER_PRODUCTION_ROOM_TOOLS } from "../src/nodeagent/skills/server/productionTools";
@@ -485,5 +486,78 @@ describe("Claude 5.5 tool loop sends the earlier turn's thinking blocks back unm
     const rt = new InMemoryRoomTools(engine, d.roomId, d.sheetId, d.agents.room, d.sessions.room);
     await runAgent({ rt, goal: "call noop then finish", model: convexModel("claude-haiku-5-5"), tools: [NOOP_TOOL], maxSteps: 3 });
     expect(seen[1].body.messages.find((m: any) => m.role === "assistant").content.map((b: any) => b.type)).toEqual(["tool_use"]);
+  });
+});
+
+// A thinking block is signed against system + tools + every earlier message. The runtime edits that prefix (compaction
+// rewrites old read_range results; the offered tool set shrinks before the first write), and a re-sent block whose prefix
+// changed is a 400 on new accounts (migration guide, "preserved thinking"). So the sender must drop the stale block and every later one,
+// and keep sending blocks while the prefix is untouched (the byte-identical case is tested above).
+describe("Claude 5.5 thinking blocks are not re-sent once the runtime has edited their prefix", () => {
+  const ID = "claude-sonnet-5-5";
+  const paths: Array<[string, (id: string) => AgentModel]> = [
+    ["server path (convexModel.anthropicStep)", (id) => convexModel(id)],
+    ["AI-SDK path (adapter.model)", (id) => adapterModel(id)],
+  ];
+  const thinkingOf = (sig: string) => ({ type: "thinking", thinking: "", signature: sig });
+  const toolUse = (id: string, name: string, input: Record<string, unknown> = {}) => ({ type: "tool_use", id, name, input });
+  /** Request n is answered by script[n-1] (n = assistant turns already in the history + 1); past the script, plain text. */
+  function scripted(script: unknown[][]) {
+    installFakeTransport((req) => {
+      const turns = req.body.messages.filter((m: any) => m.role === "assistant").length;
+      return script[turns] ? { ...anthropicOk(ID), content: script[turns], stop_reason: "tool_use" } : anthropicOk(ID);
+    });
+  }
+  const blockTypes = (req: Seen) => req.body.messages.filter((m: any) => m.role === "assistant").map((m: any) => m.content.map((b: any) => b.type));
+  const setup = () => {
+    const engine = new RoomEngine();
+    const d = buildDemoRoom(engine);
+    return new InMemoryRoomTools(engine, d.roomId, d.sheetId, d.agents.room, d.sessions.room);
+  };
+  const BIG_READ: AgentTool = {
+    name: "read_range",
+    description: "reads cells",
+    schema: z.object({}),
+    execute: async () => Array.from({ length: 15 }, (_, i) => ({ id: `A${i + 1}`, version: 1, locked: null, value: "x".repeat(1000) })),
+  };
+
+  for (const [label, build] of paths) {
+    it(`${label}: compaction rewrites an earlier tool result, so request 3 drops the block signed against it`, async () => {
+      scripted([[thinkingOf("sig1"), toolUse("tu_1", "read_range")], [thinkingOf("sig2"), toolUse("tu_2", "read_range")]]);
+      await runAgent({ rt: setup(), goal: "read the sheet", model: build(ID), tools: [BIG_READ], maxSteps: 4, compaction: { maxChars: 24000 } });
+      expect(seen.length).toBeGreaterThanOrEqual(3);
+      // request 2: nothing edited yet, so sig1 rides along; request 3: the 15K result that sig2 was signed after is now rewritten, so sig2 is stale; sig1 only depends on the untouched opening message, so it stays
+      expect(blockTypes(seen[1])).toEqual([["thinking", "tool_use"]]);
+      const toolResults = seen[2].body.messages.flatMap((m: any) => m.role === "user" && Array.isArray(m.content) ? m.content.filter((b: any) => b.type === "tool_result") : []);
+      expect(toolResults.length).toBeGreaterThanOrEqual(2);
+      expect(JSON.stringify(toolResults[0].content).length, "the earlier read_range result was compacted").toBeLessThan(5000);
+      expect(blockTypes(seen[2])).toEqual([["thinking", "tool_use"], ["tool_use"]]);
+      expect(JSON.stringify(seen[2].body)).toContain("sig1");
+      expect(JSON.stringify(seen[2].body)).not.toContain("sig2");
+    });
+
+    it(`${label}: the same run without compaction keeps every block (control: stripping is caused by the edit, not unconditional)`, async () => {
+      scripted([[thinkingOf("sig1"), toolUse("tu_1", "read_range")], [thinkingOf("sig2"), toolUse("tu_2", "read_range")]]);
+      await runAgent({ rt: setup(), goal: "read the sheet", model: build(ID), tools: [BIG_READ], maxSteps: 4 });
+      expect(blockTypes(seen[2])).toEqual([["thinking", "tool_use"], ["thinking", "tool_use"]]);
+    });
+
+    it(`${label}: the runtime dropping \`say\` after the first turn changes the tool set, so request 2 carries no thinking blocks`, async () => {
+      const say: AgentTool = { name: "say", description: "say something", schema: z.object({ text: z.string().optional() }), execute: async () => ({ ok: true }) };
+      const editCell: AgentTool = { name: "edit_cell", description: "edit a cell", schema: z.object({}), execute: async () => ({ ok: true }) };
+      scripted([[thinkingOf("sig1"), toolUse("tu_1", "say", { text: "on it" })], [toolUse("tu_2", "edit_cell")]]);
+      await runAgent({ rt: setup(), goal: "set the revenue cell to 100", model: build(ID), tools: [say, editCell], maxSteps: 4 });
+      expect(seen[0].body.tools.map((t: any) => t.name).sort()).toEqual(["edit_cell", "say"]);
+      expect(seen[1].body.tools.map((t: any) => t.name)).toEqual(["edit_cell"]); // the tool set really did shrink
+      expect(blockTypes(seen[1])).toEqual([["tool_use"]]);
+    });
+  }
+
+  it("estimateChars counts thinking text, signatures and redacted data", () => {
+    const msg = { role: "assistant" as const, content: "", thinking: [
+      { type: "thinking" as const, thinking: "a".repeat(100), signature: "s".repeat(50) },
+      { type: "redacted_thinking" as const, data: "d".repeat(30) },
+    ] };
+    expect(estimateChars([msg])).toBe(180);
   });
 });

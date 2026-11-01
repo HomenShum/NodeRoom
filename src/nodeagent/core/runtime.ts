@@ -11,6 +11,7 @@ import { checkSpendCeiling, type SpendLimits } from "../guardrails/gateway";
 import { SYSTEM_PROMPT } from "../models/prompts/systemPrompt";
 import { buildContext } from "./worldModel";
 import { compactMessages, type CompactionOpts } from "./contextCompactor";
+import { dropStaleThinking, thinkingBindingKey } from "./thinkingBinding";
 import { evaluateBtbTaskCoverage } from "../../eval/btbTaskCoverage";
 import { executePlanAndDispatch, planAndDispatchSchema } from "./subagentDispatcher";
 import {
@@ -948,6 +949,7 @@ export async function runAgent(opts: {
       );
       const cached = await opts.journal?.get(step);
       let out: AgentStep;
+      let thinkingBinding: string | undefined;
       if (cached) {
         out = cached;
         // A replay makes no new provider request, but it must rematerialize the
@@ -967,6 +969,10 @@ export async function runAgent(opts: {
           }
         }
         const signal = modelSignal();
+        // Thinking blocks are signed against system + tools + earlier messages; compaction and a shrinking tool set
+        // edit that prefix, so blocks whose prefix changed (and every later one) are not re-sent (thinkingBinding.ts).
+        const system = goalRequiresPackage ? btbSystemPrompt(opts.systemPrompt ?? SYSTEM_PROMPT, btbTaskId, btbRequiredCoverageTerms) : opts.systemPrompt ?? SYSTEM_PROMPT;
+        modelInput = dropStaleThinking(modelInput, system, offeredTools);
         let fresh: AgentStep;
         try {
           emitStreamEvent({
@@ -977,7 +983,7 @@ export async function runAgent(opts: {
             metadata: { model: model.name, maxSteps, step: step + 1 },
           });
           fresh = await settleWithAbort(model.next({
-            system: goalRequiresPackage ? btbSystemPrompt(opts.systemPrompt ?? SYSTEM_PROMPT, btbTaskId, btbRequiredCoverageTerms) : opts.systemPrompt ?? SYSTEM_PROMPT,
+            system,
             messages: modelInput,
             tools: offeredTools,
             signal: signal.signal,
@@ -1008,6 +1014,7 @@ export async function runAgent(opts: {
         recordModelUsage(fresh.usage);
         await opts.journal?.record(step, fresh);
         out = fresh;
+        if (fresh.thinking?.length) thinkingBinding = thinkingBindingKey(system, offeredTools, modelInput);
       }
       if (out.text) finalText = out.text;
 
@@ -1135,7 +1142,7 @@ export async function runAgent(opts: {
         }
       }
 
-      messages.push({ role: "assistant", content: out.text ?? "", toolCalls: toolCallsForTurn, ...(out.thinking?.length ? { thinking: out.thinking } : {}) });
+      messages.push({ role: "assistant", content: out.text ?? "", toolCalls: toolCallsForTurn, ...(out.thinking?.length ? { thinking: out.thinking, ...(thinkingBinding ? { thinkingBinding } : {}) } : {}) });
 
       for (const c of toolCallsForTurn) if (c.tool === "propose_lock") lockCalls++;
 
