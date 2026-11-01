@@ -1,6 +1,6 @@
 # NodeRoom Proof Release
 
-Generated: 2026-07-12T19:24:22.630Z
+Generated: 2026-11-01T00:16:16.679Z
 Publication status: **certified**
 
 ## Claim Gate
@@ -74,7 +74,7 @@ Implication: Ship product-state screenshots and deterministic receipts as one pr
 ## Versions
 
 - NodeRoom: `0.1.1`
-- Git commit at generation: `d6d005bef4695f445860dd3d01bb75f3cf272075`
+- Git commit at generation: `6f1af0f7c3141c066088b11d1cbaae01e40e8ad0`
 - Candidate and judge models: `openai/gpt-oss-20b:free`, `gpt-5.4-nano`, `gpt-5.4-mini`, `nvidia/nemotron-3-super-120b-a12b:free`, `qwen/qwen3-next-80b-a3b-instruct:free`, `gpt-5-mini`, `google/gemini-3-flash-preview`
 - Accepted receipt hashes: `finauditing:58a00413e181`, `workstreambench:50844fb947df`, `finch:0284b1b02e8f`
 

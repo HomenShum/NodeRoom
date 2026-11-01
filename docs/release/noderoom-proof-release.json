@@ -1,11 +1,11 @@
 {
   "schema": "noderoom-proof-release-v1",
-  "generatedAt": "2026-07-12T19:24:22.630Z",
+  "generatedAt": "2026-11-01T00:16:16.679Z",
   "releaseId": "noderoom-proof-release-2026-07",
   "product": {
     "name": "NodeRoom",
     "version": "0.1.1",
-    "gitCommit": "d6d005bef4695f445860dd3d01bb75f3cf272075"
+    "gitCommit": "6f1af0f7c3141c066088b11d1cbaae01e40e8ad0"
   },
   "publication": {
     "status": "certified",
@@ -509,7 +509,7 @@
   ],
   "versions": {
     "nodeRoom": "0.1.1",
-    "gitCommit": "d6d005bef4695f445860dd3d01bb75f3cf272075",
+    "gitCommit": "6f1af0f7c3141c066088b11d1cbaae01e40e8ad0",
     "candidateAndJudgeModels": [
       "openai/gpt-oss-20b:free",
       "gpt-5.4-nano",
