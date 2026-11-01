@@ -176,13 +176,18 @@ export const readNotebookForAgent = internalQuery({
 
 /** Agent-lane ensure: registers + seeds the synced doc (from legacy HTML when
  *  present) with a server-trusted actor, so the agent lane works before any
- *  human has opened the synced editor. Idempotent. */
+ *  human has opened the synced editor. Idempotent. A non-note target is the
+ *  model's mistake (e.g. read_notebook with no artifactId on a sheet run), so
+ *  it returns not_a_note as DATA, like readNotebookForAgent, instead of the
+ *  core's throw. */
 export const ensureNotebookDocForAgent = internalMutation({
   args: { roomId: v.id("rooms"), artifactId: v.id("artifacts"), actor: actorV, jobId: v.optional(v.id("agentJobs")), leaseId: v.optional(v.string()) },
   handler: async (ctx, a) => {
     await requireActiveAgentJobLease(ctx, a);
     await requireActorInRoom(ctx, a.roomId, a.actor);
-    return await ensureNotebookDocCore(ctx, a.roomId, a.artifactId, a.actor);
+    const art = await requireArtifactInRoom(ctx, a.roomId, a.artifactId);
+    if (art.kind !== "note") return { ok: false as const, reason: "not_a_note" as const, artifactKind: art.kind };
+    return { ok: true as const, ...(await ensureNotebookDocCore(ctx, a.roomId, a.artifactId, a.actor)) };
   },
 });
 
