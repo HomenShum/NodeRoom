@@ -1,0 +1,166 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-11-06T10:44:01.958Z",
+  "commitSha": "c30dbeac06b9b7a95f0075baa61ee97c7c4e58a0",
+  "worktreeHash": "d010ecc3575786dc",
+  "gitDirty": true,
+  "suite": "ladder",
+  "caseId": "ladder:L4_blocked:gemini-3.6-flash",
+  "score": 1,
+  "checks": {
+    "draftWhenLocked": true,
+    "noDirectWriteWhileLocked": true,
+    "notExhausted": true
+  },
+  "checkDetails": {},
+  "result": {
+    "pass": true,
+    "checkDetails": {},
+    "requestedModel": "gemini-3.6-flash",
+    "resolvedModel": "gemini-3.6-flash",
+    "resolvedModels": [
+      "gemini-3.6-flash"
+    ],
+    "rung": "L4_blocked",
+    "level": 4,
+    "ms": 9578,
+    "tools": 4,
+    "cost": 0.0304725,
+    "stopReason": "done",
+    "reason": "",
+    "checks": {
+      "draftWhenLocked": true,
+      "noDirectWriteWhileLocked": true,
+      "notExhausted": true
+    },
+    "dispatches": [
+      {
+        "requestedModel": "gemini-3.6-flash",
+        "resolvedModel": "gemini-3.6-flash",
+        "echoedModel": "gemini-3.6-flash",
+        "usage": {
+          "inputTokens": 6317,
+          "outputTokens": 426
+        },
+        "costUsd": 0.00633525,
+        "fallbackUsed": false
+      },
+      {
+        "requestedModel": "gemini-3.6-flash",
+        "resolvedModel": "gemini-3.6-flash",
+        "echoedModel": "gemini-3.6-flash",
+        "usage": {
+          "inputTokens": 6789,
+          "outputTokens": 165
+        },
+        "costUsd": 0.0057105,
+        "fallbackUsed": false
+      },
+      {
+        "requestedModel": "gemini-3.6-flash",
+        "resolvedModel": "gemini-3.6-flash",
+        "echoedModel": "gemini-3.6-flash",
+        "usage": {
+          "inputTokens": 7006,
+          "outputTokens": 329
+        },
+        "costUsd": 0.00648825,
+        "fallbackUsed": false
+      },
+      {
+        "requestedModel": "gemini-3.6-flash",
+        "resolvedModel": "gemini-3.6-flash",
+        "echoedModel": "gemini-3.6-flash",
+        "usage": {
+          "inputTokens": 7365,
+          "outputTokens": 111
+        },
+        "costUsd": 0.00594,
+        "fallbackUsed": false
+      },
+      {
+        "requestedModel": "gemini-3.6-flash",
+        "resolvedModel": "gemini-3.6-flash",
+        "echoedModel": "gemini-3.6-flash",
+        "usage": {
+          "inputTokens": 7498,
+          "outputTokens": 100
+        },
+        "costUsd": 0.0059985,
+        "fallbackUsed": false
+      }
+    ]
+  },
+  "trace": [
+    {
+      "step": 0,
+      "tool": "propose_lock",
+      "args": {
+        "elementIds": [
+          "r_ni__variance"
+        ],
+        "reason": "Set Net income variance to +22.4%",
+        "artifactId": "art_11"
+      },
+      "result": {
+        "ok": false,
+        "reason": "range already locked by Your NodeAgent",
+        "lockId": "lock_52"
+      },
+      "ms": 0
+    },
+    {
+      "step": 1,
+      "tool": "read_range",
+      "args": {
+        "elementIds": [
+          "r_ni__variance"
+        ],
+        "artifactId": "art_11"
+      },
+      "result": [
+        {
+          "id": "r_ni__variance",
+          "value": "",
+          "version": 1,
+          "locked": {
+            "by": "Your NodeAgent",
+            "reason": "private agent editing"
+          }
+        }
+      ],
+      "ms": 0
+    },
+    {
+      "step": 2,
+      "tool": "create_draft",
+      "args": {
+        "ops": [
+          {
+            "elementId": "r_ni__variance",
+            "value": "+22.4%",
+            "baseVersion": 1
+          }
+        ],
+        "blockedByLockId": "lock_52",
+        "note": "Set Net income variance to +22.4%",
+        "artifactId": "art_11"
+      },
+      "result": {
+        "draftId": "draft_55"
+      },
+      "ms": 0
+    },
+    {
+      "step": 3,
+      "tool": "say",
+      "args": {
+        "text": "Attempted to lock r_ni__variance, found it locked (lock_52), read range, and created draft_55 to set Net income variance to +22.4%."
+      },
+      "result": {
+        "ok": true
+      },
+      "ms": 0
+    }
+  ]
+}

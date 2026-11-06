@@ -1,0 +1,93 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-11-06T10:44:01.958Z",
+  "commitSha": "c30dbeac06b9b7a95f0075baa61ee97c7c4e58a0",
+  "worktreeHash": "d010ecc3575786dc",
+  "gitDirty": true,
+  "suite": "ladder",
+  "caseId": "ladder:L1_read:gemini-3.8-flash",
+  "score": 1,
+  "checks": {
+    "readTarget": true,
+    "noMutation": true,
+    "notExhausted": true
+  },
+  "checkDetails": {},
+  "result": {
+    "pass": true,
+    "checkDetails": {},
+    "requestedModel": "gemini-3.8-flash",
+    "resolvedModel": "gemini-3.8-flash",
+    "resolvedModels": [
+      "gemini-3.8-flash"
+    ],
+    "rung": "L1_read",
+    "level": 1,
+    "ms": 9696,
+    "tools": 2,
+    "cost": 0.011275500000000008,
+    "stopReason": "done",
+    "reason": "",
+    "checks": {
+      "readTarget": true,
+      "noMutation": true,
+      "notExhausted": true
+    },
+    "dispatches": [
+      {
+        "requestedModel": "gemini-3.8-flash",
+        "resolvedModel": "gemini-3.8-flash",
+        "echoedModel": "gemini-3.8-flash",
+        "usage": {
+          "inputTokens": 6248,
+          "outputTokens": 187
+        },
+        "costUsd": 0.00538725,
+        "fallbackUsed": false
+      },
+      {
+        "requestedModel": "gemini-3.8-flash",
+        "resolvedModel": "gemini-3.8-flash",
+        "echoedModel": "gemini-3.8-flash",
+        "usage": {
+          "inputTokens": 6476,
+          "outputTokens": 275
+        },
+        "costUsd": 0.00588825,
+        "fallbackUsed": false
+      }
+    ]
+  },
+  "trace": [
+    {
+      "step": 0,
+      "tool": "read_range",
+      "args": {
+        "elementIds": [
+          "r_ni__variance"
+        ],
+        "artifactId": "art_11"
+      },
+      "result": [
+        {
+          "id": "r_ni__variance",
+          "value": "",
+          "version": 1,
+          "locked": null
+        }
+      ],
+      "ms": 0
+    },
+    {
+      "step": 1,
+      "tool": "say",
+      "args": {
+        "text": "The current Q3 variance value for Net income (r_ni__variance) is empty (blank)."
+      },
+      "result": {
+        "ok": true
+      },
+      "ms": 0
+    }
+  ]
+}
