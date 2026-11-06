@@ -790,6 +790,8 @@ interface ReportReceipt {
   startedAt: string;
   /** Read once at run start and shared with the eval store, so the receipt and its stored rows cannot disagree (Codex 2026-11-06 P2: reading it again after the report is written marked every stored row dirty). */
   identity: GitIdentity;
+  /** sha256 of convex/modelDefaults.ts, read at run start with the identity, so a mid-run edit cannot pair "clean at X" with another file's hash. */
+  constantSha256: string | null;
   budget: LadderBudgetReport | null;
   dispatchPolicy: DispatchPolicy | null;
 }
@@ -822,7 +824,7 @@ function writeJsonReport(results: RungResult[], selectedRungs: Rung[], requested
       requestedRoutes,
       ...(real ? { candidateIds: requestedRoutes, echoedModels, rows } : {}),
       rungs: selectedRungs.map((r) => ({ id: r.id, level: r.level, label: r.label })),
-      ...(identity ? { testedCommit: identity.commitSha, gitDirty: identity.gitDirty, constantSha256: sha256OfFile("convex/modelDefaults.ts") } : {}),
+      ...(identity ? { testedCommit: identity.commitSha, gitDirty: identity.gitDirty, constantSha256: receipt.constantSha256 } : {}),
       budget: receipt.budget,
       dispatchPolicy: receipt.dispatchPolicy,
       ...(real ? { environment: receiptEnvironment() } : {}),
@@ -1007,6 +1009,7 @@ export async function main() {
   const budget = parseRuntimeBudget();
   const startedAt = new Date().toISOString();
   const identity = readGitIdentity();
+  const constantSha256 = sha256OfFile("convex/modelDefaults.ts");
   const rungFilter = parseRungFilter();
   const selectedRungs = rungFilter ? RUNGS.filter((r) => rungFilter.has(r.id)) : RUNGS;
   const real = realModels.length > 0;
@@ -1019,7 +1022,7 @@ export async function main() {
     : null);
   const refuse = (message: string) => {
     console.error(`ladder: ${message}`);
-    writeJsonReport([], selectedRungs, realModels, { startedAt, identity, budget: budgetReport(), dispatchPolicy: RECEIPT_DISPATCH_POLICY });
+    writeJsonReport([], selectedRungs, realModels, { startedAt, identity, constantSha256, budget: budgetReport(), dispatchPolicy: RECEIPT_DISPATCH_POLICY });
     process.exitCode = 1;
   };
 
@@ -1081,7 +1084,7 @@ export async function main() {
   console.log("-".repeat(72));
   console.log("legend: " + selectedRungs.map((r) => `L${r.level}=${r.label}`).join(" | "));
   if (meter) console.log(`spend: $${meter.spentUsd.toFixed(4)} of $${meter.maxUsd.toFixed(4)} over ${meter.requests} provider request(s)${meter.droppedDispatches ? `; ${meter.droppedDispatches} request(s) have no receipt row (cap ${MAX_DISPATCH_RECORDS})` : ""}${meter.stoppedBy ? `; STOPPED by ${meter.stoppedBy} (not a receipt)` : ""}`);
-  writeJsonReport(results, selectedRungs, models.map((m) => m.name), { startedAt, identity, budget: budgetReport(), dispatchPolicy: real ? RECEIPT_DISPATCH_POLICY : null });
+  writeJsonReport(results, selectedRungs, models.map((m) => m.name), { startedAt, identity, constantSha256, budget: budgetReport(), dispatchPolicy: real ? RECEIPT_DISPATCH_POLICY : null });
   recordRunsToStore(results, identity);
 
   if (meter?.stoppedBy) process.exitCode = 1; // a budget stop is an incomplete run, never a pass
