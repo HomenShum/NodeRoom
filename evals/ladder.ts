@@ -788,6 +788,8 @@ async function parseModelRoutes(): Promise<string[]> {
 /** What makes a --real report a receipt (SPEC A.0.3): the tested commit, the constant it tested, the spend, the policy. */
 interface ReportReceipt {
   startedAt: string;
+  /** Read once at run start and shared with the eval store, so the receipt and its stored rows cannot disagree (Codex 2026-11-06 P2: reading it again after the report is written marked every stored row dirty). */
+  identity: GitIdentity;
   budget: LadderBudgetReport | null;
   dispatchPolicy: DispatchPolicy | null;
 }
@@ -807,7 +809,7 @@ function writeJsonReport(results: RungResult[], selectedRungs: Rung[], requested
   const absolute = resolve(process.cwd(), outPath);
   mkdirSync(dirname(absolute), { recursive: true });
   const real = receipt.budget !== null;
-  const identity = real ? readGitIdentity() : undefined;
+  const identity = real ? receipt.identity : undefined;
   // One flat row per provider request (A.0.3 `rows`), tagged with the rung that issued it.
   const rows = results.flatMap((r) => (r.dispatches ?? []).map((d) => ({ rung: r.rung, ...d })));
   const echoedModels = [...new Set(rows.map((r) => r.echoedModel).filter((m): m is string => m !== null))];
@@ -838,9 +840,8 @@ function publicResult(result: RungResult): Omit<RungResult, "trace"> {
 
 /** Append each rung result to the durable eval store (gated by --record) so cross-commit regression
  *  diffs work — see evals/evalStore.ts + `npm run eval:diff`. The producer side of the HALO substrate. */
-function recordRunsToStore(results: RungResult[]): void {
+function recordRunsToStore(results: RungResult[], identity: GitIdentity): void {
   if (!process.argv.includes("--record")) return;
-  const identity = readGitIdentity();
   const ts = Date.now();
   const store = optionValue("--eval-store") ?? DEFAULT_STORE;
   const identityKey = runKey({
@@ -1005,6 +1006,7 @@ export async function main() {
   const realModels = await parseModelRoutes();
   const budget = parseRuntimeBudget();
   const startedAt = new Date().toISOString();
+  const identity = readGitIdentity();
   const rungFilter = parseRungFilter();
   const selectedRungs = rungFilter ? RUNGS.filter((r) => rungFilter.has(r.id)) : RUNGS;
   const real = realModels.length > 0;
@@ -1017,7 +1019,7 @@ export async function main() {
     : null);
   const refuse = (message: string) => {
     console.error(`ladder: ${message}`);
-    writeJsonReport([], selectedRungs, realModels, { startedAt, budget: budgetReport(), dispatchPolicy: RECEIPT_DISPATCH_POLICY });
+    writeJsonReport([], selectedRungs, realModels, { startedAt, identity, budget: budgetReport(), dispatchPolicy: RECEIPT_DISPATCH_POLICY });
     process.exitCode = 1;
   };
 
@@ -1079,8 +1081,8 @@ export async function main() {
   console.log("-".repeat(72));
   console.log("legend: " + selectedRungs.map((r) => `L${r.level}=${r.label}`).join(" | "));
   if (meter) console.log(`spend: $${meter.spentUsd.toFixed(4)} of $${meter.maxUsd.toFixed(4)} over ${meter.requests} provider request(s)${meter.droppedDispatches ? `; ${meter.droppedDispatches} request(s) have no receipt row (cap ${MAX_DISPATCH_RECORDS})` : ""}${meter.stoppedBy ? `; STOPPED by ${meter.stoppedBy} (not a receipt)` : ""}`);
-  writeJsonReport(results, selectedRungs, models.map((m) => m.name), { startedAt, budget: budgetReport(), dispatchPolicy: real ? RECEIPT_DISPATCH_POLICY : null });
-  recordRunsToStore(results);
+  writeJsonReport(results, selectedRungs, models.map((m) => m.name), { startedAt, identity, budget: budgetReport(), dispatchPolicy: real ? RECEIPT_DISPATCH_POLICY : null });
+  recordRunsToStore(results, identity);
 
   if (meter?.stoppedBy) process.exitCode = 1; // a budget stop is an incomplete run, never a pass
   if (meter?.droppedDispatches) process.exitCode = 1; // requests past the record cap have no receipt row: incomplete, never a pass
