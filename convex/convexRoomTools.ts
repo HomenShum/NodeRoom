@@ -165,13 +165,32 @@ export class ConvexRoomTools implements RoomTools {
     return { ok: false, error: r.reason ?? "set_columns_failed" };
   }
 
+  /** Ensure the synced doc behind a notebook-lane call. A non-note target (no
+   *  artifactId on a sheet run, or a sheet id pasted from context) comes back as
+   *  DATA with the room's shared note ids — readRange's candidateArtifacts idea —
+   *  so the model retries once instead of spending a list_artifacts call.
+   *  Null = ensured, proceed. */
+  private async ensureNotebookTarget(artifactId: Id<"artifacts">) {
+    const ensured = await this.ctx.runMutation(notebookEnsureForAgentRef, { roomId: this.roomId, artifactId, actor: this.actor, jobId: this.jobId, leaseId: this.leaseId }) as { ok: boolean; artifactKind?: string };
+    if (ensured.ok) return null;
+    const candidateArtifacts = (await this.listArtifacts())
+      .filter((artifact) => artifact.kind === "note")
+      .slice(0, 8)
+      .map((artifact) => ({ id: artifact.id, title: artifact.title, kind: artifact.kind }));
+    const hint = candidateArtifacts.length
+      ? `${String(artifactId)} is a ${ensured.artifactKind}, not a note. Retry with artifactId set to one of: ${candidateArtifacts.map((artifact) => `${artifact.title}=${artifact.id}`).join("; ")}.`
+      : `${String(artifactId)} is a ${ensured.artifactKind}, not a note, and this room has no shared note artifacts.`;
+    return { ok: false as const, reason: "not_a_note", artifactId: String(artifactId), artifactKind: ensured.artifactKind, candidateArtifacts, hint };
+  }
+
   /** Structured block view of a note artifact. Ensures the synced doc first
    *  (idempotent; seeds from legacy HTML), so reads always serve the synced
    *  lane — the agent never sees a doc its writes can't target. */
   async readNotebook(args: { artifactId?: string }): Promise<ReadNotebookOutcome> {
     const artifactId = (args.artifactId ?? this.artifactId) as Id<"artifacts">;
     try {
-      await this.ctx.runMutation(notebookEnsureForAgentRef, { roomId: this.roomId, artifactId, actor: this.actor, jobId: this.jobId, leaseId: this.leaseId });
+      const wrongKind = await this.ensureNotebookTarget(artifactId);
+      if (wrongKind) return wrongKind;
       return await this.ctx.runQuery(notebookReadForAgentRef, { roomId: this.roomId, artifactId, actor: this.actor });
     } catch (e) {
       return { ok: false, reason: e instanceof Error ? e.message : "read_notebook_failed" };
@@ -307,7 +326,8 @@ export class ConvexRoomTools implements RoomTools {
   async planNotebookEnrichment(args: { artifactId?: string; maxTargets?: number }): Promise<NotebookEnrichmentPlan> {
     const artifactId = (args.artifactId ?? this.artifactId) as Id<"artifacts">;
     try {
-      await this.ctx.runMutation(notebookEnsureForAgentRef, { roomId: this.roomId, artifactId, actor: this.actor, jobId: this.jobId, leaseId: this.leaseId });
+      const wrongKind = await this.ensureNotebookTarget(artifactId);
+      if (wrongKind) return wrongKind;
       return await this.ctx.runQuery(notebookPlanEnrichmentRef, { roomId: this.roomId, artifactId, actor: this.actor, maxTargets: args.maxTargets });
     } catch (e) {
       return { ok: false, reason: e instanceof Error ? e.message : "plan_notebook_enrichment_failed" };
