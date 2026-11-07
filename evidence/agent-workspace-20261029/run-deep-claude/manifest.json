@@ -1,0 +1,1629 @@
+{
+  "schema": "nodeagent.proof-package/v1",
+  "generatedAt": "2026-10-29T17:37:37.123Z",
+  "source": {
+    "gitHead": "8d3ed0126a297858f4d00c4956d07bf8ee7cf3d4",
+    "dirtyFiles": 10,
+    "package": "@homenshum/nodeagent-engines@0.1.0",
+    "sdkPins": {
+      "@ai-sdk/anthropic": "4.0.91",
+      "@ai-sdk/google": "4.0.107",
+      "@ai-sdk/openai": "4.0.104",
+      "@anthropic-ai/claude-agent-sdk": "0.3.312",
+      "@google/adk": "2.4.0",
+      "@google/genai": "2.32.0",
+      "@openai/agents": "0.21.0",
+      "@openai/codex": "0.165.0",
+      "ai": "6.0.280",
+      "lucide-react": "0.515.0",
+      "zod": "4.6.7"
+    }
+  },
+  "recording": {
+    "startedAt": "2026-10-29T17:24:31.117Z",
+    "endedAt": "2026-10-29T17:36:30.339Z",
+    "durationSec": 716.64,
+    "rawVideo": "raw-recording.webm",
+    "rawVideoMp4": "raw-recording.mp4",
+    "speed": "1x unedited",
+    "trace": "trace.zip"
+  },
+  "editedMedia": {
+    "highlights": {
+      "file": "highlights.mp4",
+      "edited": true,
+      "windows": [
+        {
+          "start": 1.0999999999999996,
+          "end": 11.1,
+          "labels": [
+            "workspace-open"
+          ]
+        },
+        {
+          "start": 61.099999999999994,
+          "end": 78,
+          "labels": [
+            "project-created",
+            "task1-task-entered",
+            "task1-run-accepted",
+            "task1-tool-search",
+            "task1-tool-loaded",
+            "task1-permission-denial"
+          ]
+        },
+        {
+          "start": 78.3,
+          "end": 94.8,
+          "labels": [
+            "task1-goals",
+            "task1-first-helper",
+            "task1-helpers-overlap",
+            "task1-before-reload",
+            "task1-after-reload"
+          ]
+        },
+        {
+          "start": 120.9,
+          "end": 136.5,
+          "labels": [
+            "task1-skill-used",
+            "task1-skill-drafted",
+            "task1-citation-skill-card",
+            "task1-first-artifact",
+            "task1-skill-validated"
+          ]
+        },
+        {
+          "start": 142,
+          "end": 152,
+          "labels": [
+            "task1-first-check"
+          ]
+        },
+        {
+          "start": 167.7,
+          "end": 182.9,
+          "labels": [
+            "task1-skill-tested",
+            "task1-skill-activated"
+          ]
+        },
+        {
+          "start": 239.8,
+          "end": 249.8,
+          "labels": [
+            "task1-compaction"
+          ]
+        },
+        {
+          "start": 301.8,
+          "end": 312.4,
+          "labels": [
+            "task1-before-interrupt",
+            "task1-interrupted",
+            "task1-resumed"
+          ]
+        },
+        {
+          "start": 567.7,
+          "end": 581.1,
+          "labels": [
+            "task1-terminal-completed",
+            "task1-verified",
+            "handoff-target-selected",
+            "handoff-run-accepted"
+          ]
+        },
+        {
+          "start": 586.7,
+          "end": 596.7,
+          "labels": [
+            "handoff-goals"
+          ]
+        },
+        {
+          "start": 602.1,
+          "end": 612.1,
+          "labels": [
+            "handoff-permission-denial"
+          ]
+        },
+        {
+          "start": 668.4,
+          "end": 678.4,
+          "labels": [
+            "handoff-first-artifact"
+          ]
+        },
+        {
+          "start": 678.7,
+          "end": 688.7,
+          "labels": [
+            "handoff-first-check"
+          ]
+        }
+      ]
+    },
+    "timelapse": {
+      "file": "timelapse.mp4",
+      "speedFactor": 4
+    }
+  },
+  "runs": [
+    {
+      "id": "run-7880f0c3-4093-478f-af81-0fd445d379b3",
+      "engine": "codex-app-server",
+      "model": "gpt-5.5",
+      "helperModel": "gpt-6-luna",
+      "status": "completed",
+      "relation": "handoff",
+      "parentRunId": "run-a81e7cab-ace4-4813-9784-fe44f2ccdb49",
+      "createdAt": "2026-10-29T17:34:05.113Z",
+      "endedAt": "2026-10-29T17:36:27.812Z",
+      "usage": {
+        "inputTokens": 88793,
+        "outputTokens": 11335,
+        "cacheReadTokens": 613888,
+        "cacheWriteTokens": 0,
+        "costUsd": 1.090959,
+        "costSource": "price-table",
+        "modelTurns": 22
+      },
+      "counters": {
+        "toolCalls": 58,
+        "toolCallsOk": 56,
+        "toolCallsFailed": 2,
+        "nativeToolCalls": 18,
+        "nodeToolCalls": 40,
+        "toolSearches": 0,
+        "toolsLoaded": 0,
+        "skillsLoaded": 0,
+        "skillLifecycleEvents": 0,
+        "helpersStarted": 0,
+        "helpersCompleted": 0,
+        "compactions": 0,
+        "artifactsWritten": 6,
+        "uniqueFilesRead": 29,
+        "checksRun": 38,
+        "permissionDenials": 2
+      },
+      "verification": {
+        "ranAt": "2026-10-29T17:36:29.125Z",
+        "verifier": "diligence-pack.verify.mjs",
+        "passed": 36,
+        "failed": 1,
+        "checks": [
+          {
+            "id": "comparison.json",
+            "ok": true,
+            "detail": "10 rows"
+          },
+          {
+            "id": "comparison.companies",
+            "ok": true,
+            "detail": "all 10 companies for stage deep"
+          },
+          {
+            "id": "metrics.values",
+            "ok": true,
+            "detail": "every metric matches ground truth within tolerance"
+          },
+          {
+            "id": "metrics.restated-arr",
+            "ok": true,
+            "detail": "Tessaly Credit uses restated ARR 11.6 and growth 40%"
+          },
+          {
+            "id": "runway.formula",
+            "ok": true,
+            "detail": "runwayMonths = cash / burn on every row"
+          },
+          {
+            "id": "risks.exceptions",
+            "ok": true,
+            "detail": "restatement and concentration exceptions are the top risks"
+          },
+          {
+            "id": "sources.no-restricted",
+            "ok": true,
+            "detail": "no citation into sources/restricted/"
+          },
+          {
+            "id": "sources.no-superseded",
+            "ok": true,
+            "detail": "nothing taken from marrowfield-financials-v1.md"
+          },
+          {
+            "id": "citations.resolve",
+            "ok": true,
+            "detail": "146 citations resolve; every metric citation's line contains its value"
+          },
+          {
+            "id": "comparison-md.table",
+            "ok": true,
+            "detail": "10 companies, 66 citations"
+          },
+          {
+            "id": "comparison-md.exceptions",
+            "ok": true,
+            "detail": "names the restatement, the superseded document and the unavailable restricted documents"
+          },
+          {
+            "id": "report.tests-intact",
+            "ok": true,
+            "detail": "2 template test files unchanged"
+          },
+          {
+            "id": "report.tests-pass",
+            "ok": true,
+            "detail": "node --test: 23 passed, 0 failed"
+          },
+          {
+            "id": "notebook.valid",
+            "ok": true,
+            "detail": "nbformat 4, 10 cells (4 code, 6 markdown)"
+          },
+          {
+            "id": "skill.active",
+            "ok": true,
+            "detail": "active with script .claude/skills/citation-validation/scripts/validate.mjs"
+          },
+          {
+            "id": "skill.ledger",
+            "ok": true,
+            "detail": "active files match the Node activation 7511d3bb947f"
+          },
+          {
+            "id": "skill.accepts-table",
+            "ok": true,
+            "detail": "exit 0 on analysis/comparison.md"
+          },
+          {
+            "id": "skill.rejects-corrupted",
+            "ok": true,
+            "detail": "exit 1 on a corrupted copy, exit 0 on an unmodified copy"
+          },
+          {
+            "id": "memos.present",
+            "ok": true,
+            "detail": "10 company memos in analysis/memos/"
+          },
+          {
+            "id": "memos.sections",
+            "ok": true,
+            "detail": "every memo names its company and has Overview, Financials, Risks, Exceptions, Sources sections"
+          },
+          {
+            "id": "memos.citations",
+            "ok": false,
+            "detail": "analysis/memos/brindlewood-credit.md line 43: [src:sources/diligence-calls/brindlewood-call-notes.md#L20]: cited line does not contain 25; analysis/memos/corvane-credit.md line 35: [src:sources/diligence-calls/corvane-call-notes.md#L48]: cited line does not contain 6.1; analysis/memos/halvorine-credit.md line 36: [src:sources/diligence-calls/halvorine-call-notes.md#L31]: cited line does not contain 12; analysis/memos/halvorine-credit.md line 46: [src:sources/market/credit-committee-criteria-q3-2026.md#L23]: cited line does not contain 11.7; analysis/memos/kestrelmoor-credit.md line 47: [src:sources/market/credit-committee-criteria-q3-2026.md#L37]: cited line does not contain 25; ... (25 total)"
+          },
+          {
+            "id": "memos.no-restricted",
+            "ok": true,
+            "detail": "no memo cites sources/restricted/"
+          },
+          {
+            "id": "memos.restatement",
+            "ok": true,
+            "detail": "analysis/memos/tessaly-credit.md explains the restatement to 11.6 citing the call notes"
+          },
+          {
+            "id": "memos.concentration",
+            "ok": true,
+            "detail": "analysis/memos/ynderra-credit.md states the 46% concentration citing the call notes"
+          },
+          {
+            "id": "risk-matrix.table",
+            "ok": true,
+            "detail": "10 companies rated on 5 risks, every rationale cited"
+          },
+          {
+            "id": "risk-matrix.citations",
+            "ok": true,
+            "detail": "72 citations resolve to source lines; every cited figure is on its cited line"
+          },
+          {
+            "id": "risk-matrix.ratings",
+            "ok": true,
+            "detail": "10 committee-threshold ratings consistent with the evidence"
+          },
+          {
+            "id": "sensitivity.json",
+            "ok": true,
+            "detail": "10 companies"
+          },
+          {
+            "id": "sensitivity.values",
+            "ok": true,
+            "detail": "base, +20% and -20% burn runway match cash / (burn x factor) for every company"
+          },
+          {
+            "id": "sensitivity.citations",
+            "ok": true,
+            "detail": "every row cites its cash and burn lines"
+          },
+          {
+            "id": "notebook.sensitivity",
+            "ok": true,
+            "detail": "markdown and code cells cover the burn stress test and name the companies crossing a threshold at +20% burn"
+          },
+          {
+            "id": "report.html-escape",
+            "ok": true,
+            "detail": "html export: <table> with the column labels and Sources in <th>, <script>, &, \" and ' escaped, runway order, uncited rows refused"
+          },
+          {
+            "id": "report.html-tests",
+            "ok": true,
+            "detail": "html-export.test.mjs: node --test exit 0, 10 passed, 0 failed"
+          },
+          {
+            "id": "memo-lint.active",
+            "ok": true,
+            "detail": "active with script .claude/skills/memo-lint/scripts/lint.mjs"
+          },
+          {
+            "id": "memo-lint.ledger",
+            "ok": true,
+            "detail": "active files match the Node activation b9c7141f061e"
+          },
+          {
+            "id": "memo-lint.accepts-memos",
+            "ok": true,
+            "detail": "exit 0 on analysis/memos/"
+          },
+          {
+            "id": "memo-lint.rejects-corrupted",
+            "ok": true,
+            "detail": "exit non-zero on all 3 corrupted copies of analysis/memos/tessaly-credit.md (altered cited figures, Risks section removed, restricted citation added), exit 0 on a valid copy"
+          }
+        ]
+      }
+    },
+    {
+      "id": "run-a81e7cab-ace4-4813-9784-fe44f2ccdb49",
+      "engine": "claude-agent-sdk",
+      "model": "claude-sonnet-5-5",
+      "helperModel": "claude-haiku-5-5",
+      "status": "completed",
+      "relation": "resume",
+      "parentRunId": "run-b03ac263-ea6a-45a6-b930-a4c8864f88eb",
+      "createdAt": "2026-10-29T17:29:36.425Z",
+      "endedAt": "2026-10-29T17:34:01.656Z",
+      "usage": {
+        "inputTokens": 36347,
+        "outputTokens": 354764,
+        "cacheReadTokens": 5550832,
+        "cacheWriteTokens": 771716,
+        "costUsd": 1.839112975,
+        "costSource": "engine",
+        "modelTurns": 84
+      },
+      "counters": {
+        "toolCalls": 190,
+        "toolCallsOk": 180,
+        "toolCallsFailed": 10,
+        "nativeToolCalls": 129,
+        "nodeToolCalls": 61,
+        "toolSearches": 6,
+        "toolsLoaded": 12,
+        "skillsLoaded": 0,
+        "skillLifecycleEvents": 0,
+        "helpersStarted": 4,
+        "helpersCompleted": 4,
+        "compactions": 2,
+        "artifactsWritten": 22,
+        "uniqueFilesRead": 36,
+        "checksRun": 42,
+        "permissionDenials": 4
+      },
+      "verification": {
+        "ranAt": "2026-10-29T17:34:03.000Z",
+        "verifier": "diligence-pack.verify.mjs",
+        "passed": 34,
+        "failed": 3,
+        "checks": [
+          {
+            "id": "comparison.json",
+            "ok": true,
+            "detail": "10 rows"
+          },
+          {
+            "id": "comparison.companies",
+            "ok": true,
+            "detail": "all 10 companies for stage deep"
+          },
+          {
+            "id": "metrics.values",
+            "ok": true,
+            "detail": "every metric matches ground truth within tolerance"
+          },
+          {
+            "id": "metrics.restated-arr",
+            "ok": true,
+            "detail": "Tessaly Credit uses restated ARR 11.6 and growth 40%"
+          },
+          {
+            "id": "runway.formula",
+            "ok": true,
+            "detail": "runwayMonths = cash / burn on every row"
+          },
+          {
+            "id": "risks.exceptions",
+            "ok": true,
+            "detail": "restatement and concentration exceptions are the top risks"
+          },
+          {
+            "id": "sources.no-restricted",
+            "ok": true,
+            "detail": "no citation into sources/restricted/"
+          },
+          {
+            "id": "sources.no-superseded",
+            "ok": true,
+            "detail": "nothing taken from marrowfield-financials-v1.md"
+          },
+          {
+            "id": "citations.resolve",
+            "ok": true,
+            "detail": "146 citations resolve; every metric citation's line contains its value"
+          },
+          {
+            "id": "comparison-md.table",
+            "ok": false,
+            "detail": "missing Quillmark Lending; Corvane Capital; Tessaly Credit; Brindlewood Finance; Halvorine Funding; ... (10 total)"
+          },
+          {
+            "id": "comparison-md.exceptions",
+            "ok": true,
+            "detail": "names the restatement, the superseded document and the unavailable restricted documents"
+          },
+          {
+            "id": "report.tests-intact",
+            "ok": true,
+            "detail": "2 template test files unchanged"
+          },
+          {
+            "id": "report.tests-pass",
+            "ok": true,
+            "detail": "node --test: 23 passed, 0 failed"
+          },
+          {
+            "id": "notebook.valid",
+            "ok": true,
+            "detail": "nbformat 4, 10 cells (4 code, 6 markdown)"
+          },
+          {
+            "id": "skill.active",
+            "ok": true,
+            "detail": "active with script .claude/skills/citation-validation/scripts/validate.mjs"
+          },
+          {
+            "id": "skill.ledger",
+            "ok": true,
+            "detail": "active files match the Node activation 7511d3bb947f"
+          },
+          {
+            "id": "skill.accepts-table",
+            "ok": true,
+            "detail": "exit 0 on analysis/comparison.md"
+          },
+          {
+            "id": "skill.rejects-corrupted",
+            "ok": true,
+            "detail": "exit 1 on a corrupted copy, exit 0 on an unmodified copy"
+          },
+          {
+            "id": "memos.present",
+            "ok": true,
+            "detail": "10 company memos in analysis/memos/"
+          },
+          {
+            "id": "memos.sections",
+            "ok": true,
+            "detail": "every memo names its company and has Overview, Financials, Risks, Exceptions, Sources sections"
+          },
+          {
+            "id": "memos.citations",
+            "ok": false,
+            "detail": "analysis/memos/brindlewood-credit.md line 43: [src:sources/diligence-calls/brindlewood-call-notes.md#L20]: cited line does not contain 25; analysis/memos/brindlewood-credit.md line 52: [src:sources/diligence-calls/brindlewood-call-notes.md#L1]: cited line does not contain 2026; analysis/memos/corvane-credit.md line 35: [src:sources/diligence-calls/corvane-call-notes.md#L48]: cited line does not contain 6.1; analysis/memos/corvane-credit.md line 53: [src:sources/diligence-calls/corvane-call-notes.md#L1]: cited line does not contain 2026; analysis/memos/halvorine-credit.md line 36: [src:sources/diligence-calls/halvorine-call-notes.md#L31]: cited line does not contain 12; ... (29 total)"
+          },
+          {
+            "id": "memos.no-restricted",
+            "ok": true,
+            "detail": "no memo cites sources/restricted/"
+          },
+          {
+            "id": "memos.restatement",
+            "ok": true,
+            "detail": "analysis/memos/tessaly-credit.md explains the restatement to 11.6 citing the call notes"
+          },
+          {
+            "id": "memos.concentration",
+            "ok": true,
+            "detail": "analysis/memos/ynderra-credit.md states the 46% concentration citing the call notes"
+          },
+          {
+            "id": "risk-matrix.table",
+            "ok": true,
+            "detail": "10 companies rated on 5 risks, every rationale cited"
+          },
+          {
+            "id": "risk-matrix.citations",
+            "ok": false,
+            "detail": "risk-matrix.md line 11: [src:sources/diligence-calls/pellucid-call-notes.md#L41]: cited line does not contain 20"
+          },
+          {
+            "id": "risk-matrix.ratings",
+            "ok": true,
+            "detail": "10 committee-threshold ratings consistent with the evidence"
+          },
+          {
+            "id": "sensitivity.json",
+            "ok": true,
+            "detail": "10 companies"
+          },
+          {
+            "id": "sensitivity.values",
+            "ok": true,
+            "detail": "base, +20% and -20% burn runway match cash / (burn x factor) for every company"
+          },
+          {
+            "id": "sensitivity.citations",
+            "ok": true,
+            "detail": "every row cites its cash and burn lines"
+          },
+          {
+            "id": "notebook.sensitivity",
+            "ok": true,
+            "detail": "markdown and code cells cover the burn stress test and name the companies crossing a threshold at +20% burn"
+          },
+          {
+            "id": "report.html-escape",
+            "ok": true,
+            "detail": "html export: <table> with the column labels and Sources in <th>, <script>, &, \" and ' escaped, runway order, uncited rows refused"
+          },
+          {
+            "id": "report.html-tests",
+            "ok": true,
+            "detail": "html-export.test.mjs: node --test exit 0, 10 passed, 0 failed"
+          },
+          {
+            "id": "memo-lint.active",
+            "ok": true,
+            "detail": "active with script .claude/skills/memo-lint/scripts/lint.mjs"
+          },
+          {
+            "id": "memo-lint.ledger",
+            "ok": true,
+            "detail": "active files match the Node activation b9c7141f061e"
+          },
+          {
+            "id": "memo-lint.accepts-memos",
+            "ok": true,
+            "detail": "exit 0 on analysis/memos/"
+          },
+          {
+            "id": "memo-lint.rejects-corrupted",
+            "ok": true,
+            "detail": "exit non-zero on all 3 corrupted copies of analysis/memos/tessaly-credit.md (altered cited figures, Risks section removed, restricted citation added), exit 0 on a valid copy"
+          }
+        ]
+      }
+    },
+    {
+      "id": "run-b03ac263-ea6a-45a6-b930-a4c8864f88eb",
+      "engine": "claude-agent-sdk",
+      "model": "claude-sonnet-5-5",
+      "helperModel": "claude-haiku-5-5",
+      "status": "interrupted",
+      "relation": null,
+      "parentRunId": null,
+      "createdAt": "2026-10-29T17:25:35.500Z",
+      "endedAt": "2026-10-29T17:29:36.236Z",
+      "usage": {
+        "inputTokens": 16958,
+        "outputTokens": 133764,
+        "cacheReadTokens": 2054488,
+        "cacheWriteTokens": 252365,
+        "costUsd": 0.8553664699999999,
+        "costSource": "engine",
+        "modelTurns": 66
+      },
+      "counters": {
+        "toolCalls": 152,
+        "toolCallsOk": 139,
+        "toolCallsFailed": 13,
+        "nativeToolCalls": 48,
+        "nodeToolCalls": 104,
+        "toolSearches": 3,
+        "toolsLoaded": 14,
+        "skillsLoaded": 0,
+        "skillLifecycleEvents": 16,
+        "helpersStarted": 5,
+        "helpersCompleted": 5,
+        "compactions": 1,
+        "artifactsWritten": 63,
+        "uniqueFilesRead": 11,
+        "checksRun": 40,
+        "permissionDenials": 5
+      },
+      "verification": {
+        "ranAt": "2026-10-29T17:29:37.279Z",
+        "verifier": "diligence-pack.verify.mjs",
+        "passed": 23,
+        "failed": 14,
+        "checks": [
+          {
+            "id": "comparison.json",
+            "ok": true,
+            "detail": "10 rows"
+          },
+          {
+            "id": "comparison.companies",
+            "ok": true,
+            "detail": "all 10 companies for stage deep"
+          },
+          {
+            "id": "metrics.values",
+            "ok": true,
+            "detail": "every metric matches ground truth within tolerance"
+          },
+          {
+            "id": "metrics.restated-arr",
+            "ok": true,
+            "detail": "Tessaly Credit uses restated ARR 11.6 and growth 40%"
+          },
+          {
+            "id": "runway.formula",
+            "ok": true,
+            "detail": "runwayMonths = cash / burn on every row"
+          },
+          {
+            "id": "risks.exceptions",
+            "ok": true,
+            "detail": "restatement and concentration exceptions are the top risks"
+          },
+          {
+            "id": "sources.no-restricted",
+            "ok": true,
+            "detail": "no citation into sources/restricted/"
+          },
+          {
+            "id": "sources.no-superseded",
+            "ok": true,
+            "detail": "nothing taken from marrowfield-financials-v1.md"
+          },
+          {
+            "id": "citations.resolve",
+            "ok": true,
+            "detail": "146 citations resolve; every metric citation's line contains its value"
+          },
+          {
+            "id": "comparison-md.table",
+            "ok": false,
+            "detail": "missing Quillmark Lending; Corvane Capital; Tessaly Credit; Brindlewood Finance; Halvorine Funding; ... (10 total)"
+          },
+          {
+            "id": "comparison-md.exceptions",
+            "ok": true,
+            "detail": "names the restatement, the superseded document and the unavailable restricted documents"
+          },
+          {
+            "id": "report.tests-intact",
+            "ok": true,
+            "detail": "2 template test files unchanged"
+          },
+          {
+            "id": "report.tests-pass",
+            "ok": true,
+            "detail": "node --test: 23 passed, 0 failed"
+          },
+          {
+            "id": "notebook.valid",
+            "ok": false,
+            "detail": "analysis/diligence.ipynb does not exist"
+          },
+          {
+            "id": "skill.active",
+            "ok": true,
+            "detail": "active with script .claude/skills/citation-validation/scripts/validate.mjs"
+          },
+          {
+            "id": "skill.ledger",
+            "ok": true,
+            "detail": "active files match the Node activation 7511d3bb947f"
+          },
+          {
+            "id": "skill.accepts-table",
+            "ok": true,
+            "detail": "exit 0 on analysis/comparison.md"
+          },
+          {
+            "id": "skill.rejects-corrupted",
+            "ok": true,
+            "detail": "exit 1 on a corrupted copy, exit 0 on an unmodified copy"
+          },
+          {
+            "id": "memos.present",
+            "ok": false,
+            "detail": "analysis/memos/ does not exist"
+          },
+          {
+            "id": "memos.sections",
+            "ok": false,
+            "detail": "skipped: analysis/memos/ does not exist"
+          },
+          {
+            "id": "memos.citations",
+            "ok": false,
+            "detail": "skipped: analysis/memos/ does not exist"
+          },
+          {
+            "id": "memos.no-restricted",
+            "ok": false,
+            "detail": "skipped: analysis/memos/ does not exist"
+          },
+          {
+            "id": "memos.restatement",
+            "ok": false,
+            "detail": "skipped: analysis/memos/ does not exist"
+          },
+          {
+            "id": "memos.concentration",
+            "ok": false,
+            "detail": "skipped: analysis/memos/ does not exist"
+          },
+          {
+            "id": "risk-matrix.table",
+            "ok": false,
+            "detail": "analysis/risk-matrix.md does not exist"
+          },
+          {
+            "id": "risk-matrix.citations",
+            "ok": false,
+            "detail": "skipped: analysis/risk-matrix.md does not exist"
+          },
+          {
+            "id": "risk-matrix.ratings",
+            "ok": false,
+            "detail": "skipped: analysis/risk-matrix.md does not exist"
+          },
+          {
+            "id": "sensitivity.json",
+            "ok": true,
+            "detail": "10 companies"
+          },
+          {
+            "id": "sensitivity.values",
+            "ok": true,
+            "detail": "base, +20% and -20% burn runway match cash / (burn x factor) for every company"
+          },
+          {
+            "id": "sensitivity.citations",
+            "ok": true,
+            "detail": "every row cites its cash and burn lines"
+          },
+          {
+            "id": "notebook.sensitivity",
+            "ok": false,
+            "detail": "analysis/diligence.ipynb does not exist"
+          },
+          {
+            "id": "report.html-escape",
+            "ok": true,
+            "detail": "html export: <table> with the column labels and Sources in <th>, <script>, &, \" and ' escaped, runway order, uncited rows refused"
+          },
+          {
+            "id": "report.html-tests",
+            "ok": true,
+            "detail": "html-export.test.mjs: node --test exit 0, 10 passed, 0 failed"
+          },
+          {
+            "id": "memo-lint.active",
+            "ok": true,
+            "detail": "active with script .claude/skills/memo-lint/scripts/lint.mjs"
+          },
+          {
+            "id": "memo-lint.ledger",
+            "ok": true,
+            "detail": "active files match the Node activation b9c7141f061e"
+          },
+          {
+            "id": "memo-lint.accepts-memos",
+            "ok": false,
+            "detail": "skipped: no company memos in analysis/memos/"
+          },
+          {
+            "id": "memo-lint.rejects-corrupted",
+            "ok": false,
+            "detail": "skipped: no company memos in analysis/memos/"
+          }
+        ]
+      }
+    }
+  ],
+  "totalCostUsd": 3.7854384449999996,
+  "eventCounts": {
+    "handoff.packet": 2,
+    "message": 73,
+    "run.started": 3,
+    "message.delta": 114,
+    "tool.call": 400,
+    "tool.result": 400,
+    "context.usage": 59,
+    "goals.updated": 7,
+    "permission.decision": 76,
+    "artifact.written": 91,
+    "check.result": 120,
+    "usage": 4,
+    "run.completed": 2,
+    "run.status": 75,
+    "engine.raw": 156,
+    "helper.started": 9,
+    "helper.progress": 241,
+    "tool.search": 9,
+    "tool.loaded": 9,
+    "context.compacted": 3,
+    "helper.completed": 9,
+    "skill.lifecycle": 16,
+    "run.interrupted": 1
+  },
+  "milestones": [
+    {
+      "name": "workspace-open",
+      "at": "2026-10-29T17:24:35.218Z",
+      "videoOffsetSec": 4.1,
+      "detail": "normal #workspace route, worker reachable",
+      "screenshot": "screenshots/01-workspace-open.png"
+    },
+    {
+      "name": "project-created",
+      "at": "2026-10-29T17:25:35.213Z",
+      "videoOffsetSec": 64.1,
+      "detail": "fresh project prj-42eaf584-69a6-4736-8c15-23569f29453d from template diligence-pack",
+      "screenshot": "screenshots/02-project-created.png"
+    },
+    {
+      "name": "task1-task-entered",
+      "at": "2026-10-29T17:25:35.385Z",
+      "videoOffsetSec": 64.3,
+      "detail": "suggested task \"deep-diligence\" placed in the composer",
+      "screenshot": "screenshots/03-task1-task-entered.png"
+    },
+    {
+      "name": "task1-run-accepted",
+      "at": "2026-10-29T17:25:36.542Z",
+      "videoOffsetSec": 65.4,
+      "runId": "run-b03ac263-ea6a-45a6-b930-a4c8864f88eb",
+      "detail": "run run-b03ac263-ea6a-45a6-b930-a4c8864f88eb persisted by the worker",
+      "screenshot": "screenshots/04-task1-run-accepted.png"
+    },
+    {
+      "name": "task1-tool-search",
+      "at": "2026-10-29T17:25:41.796Z",
+      "videoOffsetSec": 70.7,
+      "runId": "run-b03ac263-ea6a-45a6-b930-a4c8864f88eb",
+      "detail": "a tool was found by search",
+      "screenshot": "screenshots/05-task1-tool-search.png"
+    },
+    {
+      "name": "task1-tool-loaded",
+      "at": "2026-10-29T17:25:41.903Z",
+      "videoOffsetSec": 70.8,
+      "runId": "run-b03ac263-ea6a-45a6-b930-a4c8864f88eb",
+      "detail": "a searched tool became callable",
+      "screenshot": "screenshots/06-task1-tool-loaded.png"
+    },
+    {
+      "name": "task1-permission-denial",
+      "at": "2026-10-29T17:25:42.083Z",
+      "videoOffsetSec": 71,
+      "runId": "run-b03ac263-ea6a-45a6-b930-a4c8864f88eb",
+      "detail": "a native tool call was denied by Node policy",
+      "screenshot": "screenshots/07-task1-permission-denial.png"
+    },
+    {
+      "name": "task1-goals",
+      "at": "2026-10-29T17:25:52.389Z",
+      "videoOffsetSec": 81.3,
+      "runId": "run-b03ac263-ea6a-45a6-b930-a4c8864f88eb",
+      "detail": "goal outline visible",
+      "screenshot": "screenshots/08-task1-goals.png"
+    },
+    {
+      "name": "task1-first-helper",
+      "at": "2026-10-29T17:25:57.543Z",
+      "videoOffsetSec": 86.4,
+      "runId": "run-b03ac263-ea6a-45a6-b930-a4c8864f88eb",
+      "detail": "3 helper(s) visible",
+      "screenshot": "screenshots/09-task1-first-helper.png"
+    },
+    {
+      "name": "task1-helpers-overlap",
+      "at": "2026-10-29T17:25:57.640Z",
+      "videoOffsetSec": 86.5,
+      "runId": "run-b03ac263-ea6a-45a6-b930-a4c8864f88eb",
+      "detail": "3 helpers running at once",
+      "screenshot": "screenshots/10-task1-helpers-overlap.png"
+    },
+    {
+      "name": "task1-before-reload",
+      "at": "2026-10-29T17:25:57.803Z",
+      "videoOffsetSec": 86.7,
+      "runId": "run-b03ac263-ea6a-45a6-b930-a4c8864f88eb",
+      "detail": "reloading the tab at 31 tool calls",
+      "screenshot": "screenshots/11-task1-before-reload.png"
+    },
+    {
+      "name": "task1-after-reload",
+      "at": "2026-10-29T17:25:58.920Z",
+      "videoOffsetSec": 87.8,
+      "runId": "run-b03ac263-ea6a-45a6-b930-a4c8864f88eb",
+      "detail": "restored from the worker; run still running with 35 tool calls",
+      "screenshot": "screenshots/12-task1-after-reload.png"
+    },
+    {
+      "name": "task1-skill-used",
+      "at": "2026-10-29T17:26:34.988Z",
+      "videoOffsetSec": 123.9,
+      "runId": "run-b03ac263-ea6a-45a6-b930-a4c8864f88eb",
+      "detail": "a skill card appeared",
+      "screenshot": "screenshots/13-task1-skill-used.png"
+    },
+    {
+      "name": "task1-skill-drafted",
+      "at": "2026-10-29T17:26:35.114Z",
+      "videoOffsetSec": 124,
+      "runId": "run-b03ac263-ea6a-45a6-b930-a4c8864f88eb",
+      "detail": "skill lifecycle stage drafted",
+      "screenshot": "screenshots/14-task1-skill-drafted.png"
+    },
+    {
+      "name": "task1-citation-skill-card",
+      "at": "2026-10-29T17:26:35.264Z",
+      "videoOffsetSec": 124.1,
+      "runId": "run-b03ac263-ea6a-45a6-b930-a4c8864f88eb",
+      "detail": "citation-validation skill card visible",
+      "screenshot": "screenshots/15-task1-citation-skill-card.png"
+    },
+    {
+      "name": "task1-first-artifact",
+      "at": "2026-10-29T17:26:35.402Z",
+      "videoOffsetSec": 124.3,
+      "runId": "run-b03ac263-ea6a-45a6-b930-a4c8864f88eb",
+      "detail": "first artifact listed",
+      "screenshot": "screenshots/16-task1-first-artifact.png"
+    },
+    {
+      "name": "task1-skill-validated",
+      "at": "2026-10-29T17:26:40.639Z",
+      "videoOffsetSec": 129.5,
+      "runId": "run-b03ac263-ea6a-45a6-b930-a4c8864f88eb",
+      "detail": "skill lifecycle stage validated",
+      "screenshot": "screenshots/17-task1-skill-validated.png"
+    },
+    {
+      "name": "task1-first-check",
+      "at": "2026-10-29T17:26:56.166Z",
+      "videoOffsetSec": 145,
+      "runId": "run-b03ac263-ea6a-45a6-b930-a4c8864f88eb",
+      "detail": "first check result visible",
+      "screenshot": "screenshots/18-task1-first-check.png"
+    },
+    {
+      "name": "task1-skill-tested",
+      "at": "2026-10-29T17:27:21.785Z",
+      "videoOffsetSec": 170.7,
+      "runId": "run-b03ac263-ea6a-45a6-b930-a4c8864f88eb",
+      "detail": "skill lifecycle stage tested",
+      "screenshot": "screenshots/19-task1-skill-tested.png"
+    },
+    {
+      "name": "task1-skill-activated",
+      "at": "2026-10-29T17:27:27.065Z",
+      "videoOffsetSec": 175.9,
+      "runId": "run-b03ac263-ea6a-45a6-b930-a4c8864f88eb",
+      "detail": "skill lifecycle stage activated",
+      "screenshot": "screenshots/20-task1-skill-activated.png"
+    },
+    {
+      "name": "task1-compaction",
+      "at": "2026-10-29T17:28:33.965Z",
+      "videoOffsetSec": 242.8,
+      "runId": "run-b03ac263-ea6a-45a6-b930-a4c8864f88eb",
+      "detail": "context compaction marker visible",
+      "screenshot": "screenshots/21-task1-compaction.png"
+    },
+    {
+      "name": "task1-before-interrupt",
+      "at": "2026-10-29T17:29:35.966Z",
+      "videoOffsetSec": 304.8,
+      "runId": "run-b03ac263-ea6a-45a6-b930-a4c8864f88eb",
+      "detail": "comparison.json exists; stopping the run",
+      "screenshot": "screenshots/23-task1-before-interrupt.png"
+    },
+    {
+      "name": "task1-interrupted",
+      "at": "2026-10-29T17:29:36.257Z",
+      "videoOffsetSec": 305.1,
+      "runId": "run-b03ac263-ea6a-45a6-b930-a4c8864f88eb",
+      "detail": "run interrupted by the user",
+      "screenshot": "screenshots/24-task1-interrupted.png"
+    },
+    {
+      "name": "task1-resumed",
+      "at": "2026-10-29T17:29:36.497Z",
+      "videoOffsetSec": 305.4,
+      "runId": "run-a81e7cab-ace4-4813-9784-fe44f2ccdb49",
+      "detail": "resumed as run-a81e7cab-ace4-4813-9784-fe44f2ccdb49 on the same native session",
+      "screenshot": "screenshots/25-task1-resumed.png"
+    },
+    {
+      "name": "task1-terminal-completed",
+      "at": "2026-10-29T17:34:01.832Z",
+      "videoOffsetSec": 570.7,
+      "runId": "run-a81e7cab-ace4-4813-9784-fe44f2ccdb49",
+      "detail": "run run-a81e7cab-ace4-4813-9784-fe44f2ccdb49 ended completed",
+      "screenshot": "screenshots/27-task1-terminal-completed.png"
+    },
+    {
+      "name": "task1-verified",
+      "at": "2026-10-29T17:34:03.896Z",
+      "videoOffsetSec": 572.8,
+      "runId": "run-a81e7cab-ace4-4813-9784-fe44f2ccdb49",
+      "detail": "independent verifier: 34 passed, 3 failed",
+      "screenshot": "screenshots/28-task1-verified.png"
+    },
+    {
+      "name": "handoff-target-selected",
+      "at": "2026-10-29T17:34:04.903Z",
+      "videoOffsetSec": 573.8,
+      "detail": "handing the finished run to codex-app-server",
+      "screenshot": "screenshots/32-handoff-target-selected.png"
+    },
+    {
+      "name": "handoff-run-accepted",
+      "at": "2026-10-29T17:34:05.215Z",
+      "videoOffsetSec": 574.1,
+      "runId": "run-7880f0c3-4093-478f-af81-0fd445d379b3",
+      "detail": "run run-7880f0c3-4093-478f-af81-0fd445d379b3 persisted by the worker",
+      "screenshot": "screenshots/33-handoff-run-accepted.png"
+    },
+    {
+      "name": "handoff-goals",
+      "at": "2026-10-29T17:34:20.784Z",
+      "videoOffsetSec": 589.7,
+      "runId": "run-7880f0c3-4093-478f-af81-0fd445d379b3",
+      "detail": "goal outline visible",
+      "screenshot": "screenshots/34-handoff-goals.png"
+    },
+    {
+      "name": "handoff-permission-denial",
+      "at": "2026-10-29T17:34:36.228Z",
+      "videoOffsetSec": 605.1,
+      "runId": "run-7880f0c3-4093-478f-af81-0fd445d379b3",
+      "detail": "a native tool call was denied by Node policy",
+      "screenshot": "screenshots/35-handoff-permission-denial.png"
+    },
+    {
+      "name": "handoff-first-artifact",
+      "at": "2026-10-29T17:35:42.537Z",
+      "videoOffsetSec": 671.4,
+      "runId": "run-7880f0c3-4093-478f-af81-0fd445d379b3",
+      "detail": "first artifact listed",
+      "screenshot": "screenshots/36-handoff-first-artifact.png"
+    },
+    {
+      "name": "handoff-first-check",
+      "at": "2026-10-29T17:35:52.814Z",
+      "videoOffsetSec": 681.7,
+      "runId": "run-7880f0c3-4093-478f-af81-0fd445d379b3",
+      "detail": "first check result visible",
+      "screenshot": "screenshots/37-handoff-first-check.png"
+    },
+    {
+      "name": "handoff-terminal-completed",
+      "at": "2026-10-29T17:36:28.585Z",
+      "videoOffsetSec": 717.5,
+      "runId": "run-7880f0c3-4093-478f-af81-0fd445d379b3",
+      "detail": "run run-7880f0c3-4093-478f-af81-0fd445d379b3 ended completed",
+      "screenshot": "screenshots/38-handoff-terminal-completed.png"
+    },
+    {
+      "name": "handoff-verified",
+      "at": "2026-10-29T17:36:29.624Z",
+      "videoOffsetSec": 718.5,
+      "runId": "run-7880f0c3-4093-478f-af81-0fd445d379b3",
+      "detail": "independent verifier: 36 passed, 1 failed",
+      "screenshot": "screenshots/39-handoff-verified.png"
+    }
+  ],
+  "verificationRerun": {
+    "ranAt": "2026-10-29T17:37:36.819Z",
+    "verifier": "diligence-pack.verify.mjs (stage deep)",
+    "passed": 36,
+    "failed": 1,
+    "checks": [
+      {
+        "id": "comparison.json",
+        "ok": true,
+        "detail": "10 rows"
+      },
+      {
+        "id": "comparison.companies",
+        "ok": true,
+        "detail": "all 10 companies for stage deep"
+      },
+      {
+        "id": "metrics.values",
+        "ok": true,
+        "detail": "every metric matches ground truth within tolerance"
+      },
+      {
+        "id": "metrics.restated-arr",
+        "ok": true,
+        "detail": "Tessaly Credit uses restated ARR 11.6 and growth 40%"
+      },
+      {
+        "id": "runway.formula",
+        "ok": true,
+        "detail": "runwayMonths = cash / burn on every row"
+      },
+      {
+        "id": "risks.exceptions",
+        "ok": true,
+        "detail": "restatement and concentration exceptions are the top risks"
+      },
+      {
+        "id": "sources.no-restricted",
+        "ok": true,
+        "detail": "no citation into sources/restricted/"
+      },
+      {
+        "id": "sources.no-superseded",
+        "ok": true,
+        "detail": "nothing taken from marrowfield-financials-v1.md"
+      },
+      {
+        "id": "citations.resolve",
+        "ok": true,
+        "detail": "146 citations resolve; every metric citation's line contains its value"
+      },
+      {
+        "id": "comparison-md.table",
+        "ok": true,
+        "detail": "10 companies, 66 citations"
+      },
+      {
+        "id": "comparison-md.exceptions",
+        "ok": true,
+        "detail": "names the restatement, the superseded document and the unavailable restricted documents"
+      },
+      {
+        "id": "report.tests-intact",
+        "ok": true,
+        "detail": "2 template test files unchanged"
+      },
+      {
+        "id": "report.tests-pass",
+        "ok": true,
+        "detail": "node --test: 23 passed, 0 failed"
+      },
+      {
+        "id": "notebook.valid",
+        "ok": true,
+        "detail": "nbformat 4, 10 cells (4 code, 6 markdown)"
+      },
+      {
+        "id": "skill.active",
+        "ok": true,
+        "detail": "active with script .claude/skills/citation-validation/scripts/validate.mjs"
+      },
+      {
+        "id": "skill.ledger",
+        "ok": true,
+        "detail": "active files match the Node activation 7511d3bb947f"
+      },
+      {
+        "id": "skill.accepts-table",
+        "ok": true,
+        "detail": "exit 0 on analysis/comparison.md"
+      },
+      {
+        "id": "skill.rejects-corrupted",
+        "ok": true,
+        "detail": "exit 1 on a corrupted copy, exit 0 on an unmodified copy"
+      },
+      {
+        "id": "memos.present",
+        "ok": true,
+        "detail": "10 company memos in analysis/memos/"
+      },
+      {
+        "id": "memos.sections",
+        "ok": true,
+        "detail": "every memo names its company and has Overview, Financials, Risks, Exceptions, Sources sections"
+      },
+      {
+        "id": "memos.citations",
+        "ok": false,
+        "detail": "analysis/memos/brindlewood-credit.md line 43: [src:sources/diligence-calls/brindlewood-call-notes.md#L20]: cited line does not contain 25; analysis/memos/corvane-credit.md line 35: [src:sources/diligence-calls/corvane-call-notes.md#L48]: cited line does not contain 6.1; analysis/memos/halvorine-credit.md line 36: [src:sources/diligence-calls/halvorine-call-notes.md#L31]: cited line does not contain 12; analysis/memos/halvorine-credit.md line 46: [src:sources/market/credit-committee-criteria-q3-2026.md#L23]: cited line does not contain 11.7; analysis/memos/kestrelmoor-credit.md line 47: [src:sources/market/credit-committee-criteria-q3-2026.md#L37]: cited line does not contain 25; ... (25 total)"
+      },
+      {
+        "id": "memos.no-restricted",
+        "ok": true,
+        "detail": "no memo cites sources/restricted/"
+      },
+      {
+        "id": "memos.restatement",
+        "ok": true,
+        "detail": "analysis/memos/tessaly-credit.md explains the restatement to 11.6 citing the call notes"
+      },
+      {
+        "id": "memos.concentration",
+        "ok": true,
+        "detail": "analysis/memos/ynderra-credit.md states the 46% concentration citing the call notes"
+      },
+      {
+        "id": "risk-matrix.table",
+        "ok": true,
+        "detail": "10 companies rated on 5 risks, every rationale cited"
+      },
+      {
+        "id": "risk-matrix.citations",
+        "ok": true,
+        "detail": "72 citations resolve to source lines; every cited figure is on its cited line"
+      },
+      {
+        "id": "risk-matrix.ratings",
+        "ok": true,
+        "detail": "10 committee-threshold ratings consistent with the evidence"
+      },
+      {
+        "id": "sensitivity.json",
+        "ok": true,
+        "detail": "10 companies"
+      },
+      {
+        "id": "sensitivity.values",
+        "ok": true,
+        "detail": "base, +20% and -20% burn runway match cash / (burn x factor) for every company"
+      },
+      {
+        "id": "sensitivity.citations",
+        "ok": true,
+        "detail": "every row cites its cash and burn lines"
+      },
+      {
+        "id": "notebook.sensitivity",
+        "ok": true,
+        "detail": "markdown and code cells cover the burn stress test and name the companies crossing a threshold at +20% burn"
+      },
+      {
+        "id": "report.html-escape",
+        "ok": true,
+        "detail": "html export: <table> with the column labels and Sources in <th>, <script>, &, \" and ' escaped, runway order, uncited rows refused"
+      },
+      {
+        "id": "report.html-tests",
+        "ok": true,
+        "detail": "html-export.test.mjs: node --test exit 0, 10 passed, 0 failed"
+      },
+      {
+        "id": "memo-lint.active",
+        "ok": true,
+        "detail": "active with script .claude/skills/memo-lint/scripts/lint.mjs"
+      },
+      {
+        "id": "memo-lint.ledger",
+        "ok": true,
+        "detail": "active files match the Node activation b9c7141f061e"
+      },
+      {
+        "id": "memo-lint.accepts-memos",
+        "ok": true,
+        "detail": "exit 0 on analysis/memos/"
+      },
+      {
+        "id": "memo-lint.rejects-corrupted",
+        "ok": true,
+        "detail": "exit non-zero on all 3 corrupted copies of analysis/memos/tessaly-credit.md (altered cited figures, Risks section removed, restricted citation added), exit 0 on a valid copy"
+      }
+    ]
+  },
+  "files": [
+    {
+      "path": "contact-sheet.inputs.txt",
+      "bytes": 8200,
+      "sha256": "026c5e65b163a01df8b9e0a06c24b861ba25d4091347647179a7a2f3df1d92c1"
+    },
+    {
+      "path": "contact-sheet.png",
+      "bytes": 1962189,
+      "sha256": "b8183dd3610bdc21b82ad7fda9a0b1c60b161ca49ac285aefb4edf503f697347"
+    },
+    {
+      "path": "events/run-7880f0c3-4093-478f-af81-0fd445d379b3.jsonl",
+      "bytes": 161656,
+      "sha256": "dfe5654f9b2620ce40786326e05bd85a57353190cb29856aee82d61ad95748de"
+    },
+    {
+      "path": "events/run-a81e7cab-ace4-4813-9784-fe44f2ccdb49.jsonl",
+      "bytes": 643354,
+      "sha256": "6c48f285413f477c7453077c7aab04d0703fd3c3411d365940351b03abf21a0d"
+    },
+    {
+      "path": "events/run-b03ac263-ea6a-45a6-b930-a4c8864f88eb.jsonl",
+      "bytes": 481687,
+      "sha256": "81b21a561db61e162d242f04f2490c0d85f060d483dcce477bed175d6df1d6a5"
+    },
+    {
+      "path": "highlights.filter.txt",
+      "bytes": 3576,
+      "sha256": "c648933bfe3562cefc95c9001ecd8c7eb1b0ba180d57e9ed93bdfec03eaa8d7a"
+    },
+    {
+      "path": "highlights.mp4",
+      "bytes": 7029714,
+      "sha256": "6c5a9a3c460d8c7b3e65aa086660c3b98c986412e4caa08655051076b01f6639"
+    },
+    {
+      "path": "project.json",
+      "bytes": 299,
+      "sha256": "fb71309cda26df9cd3a756413837f8ec8017b97abb1fd46918ab8ff16b2d695a"
+    },
+    {
+      "path": "raw-recording.mp4",
+      "bytes": 38273842,
+      "sha256": "4f453087fef66e87ba1dc62a0961efdadeb8eff3ec32bd200649db53a007469f"
+    },
+    {
+      "path": "raw-recording.webm",
+      "bytes": 73033140,
+      "sha256": "a72587964db9f06d3a2885222c8c186aeaf247b6f62d7c5bfd528b406b35c35b"
+    },
+    {
+      "path": "recording.json",
+      "bytes": 10677,
+      "sha256": "c0c72a561620d77b2cc4669c5a4c2092b3f38eb25d2a30809219b3ba1613ad19"
+    },
+    {
+      "path": "runs/run-7880f0c3-4093-478f-af81-0fd445d379b3.json",
+      "bytes": 49619,
+      "sha256": "9ed4906414e6d1b6f384ead33b9a063c30a178b9ed5c72e8d42322449b3cc2c0"
+    },
+    {
+      "path": "runs/run-a81e7cab-ace4-4813-9784-fe44f2ccdb49.json",
+      "bytes": 11354,
+      "sha256": "d838a9dfd6a778cc6e13d6bba587bfac311847dc96373129dc7b6aa229d404a5"
+    },
+    {
+      "path": "runs/run-b03ac263-ea6a-45a6-b930-a4c8864f88eb.json",
+      "bytes": 14346,
+      "sha256": "e775e01b43c5683e3c0edd8e82350627283e278cd5bba1b939a33e376ccb8025"
+    },
+    {
+      "path": "screenshots/01-workspace-open.png",
+      "bytes": 17651,
+      "sha256": "a953c92f05c68f1cba7ba1f4299839bcab1120106077af2b565bcd8810dee558"
+    },
+    {
+      "path": "screenshots/02-project-created.png",
+      "bytes": 125090,
+      "sha256": "58ad97a55eee085c578155708747a7f00deae5164fd5e5524f9c67d0d1d47803"
+    },
+    {
+      "path": "screenshots/03-task1-task-entered.png",
+      "bytes": 145864,
+      "sha256": "1ffef525ccd184afd59a5df1ab3cc123d8ada13cf812c16878d967bd433c228e"
+    },
+    {
+      "path": "screenshots/04-task1-run-accepted.png",
+      "bytes": 159959,
+      "sha256": "948decc78f2b0e8c003a1be437e95dc272f31ef600b576359621b423d0502af0"
+    },
+    {
+      "path": "screenshots/05-task1-tool-search.png",
+      "bytes": 206079,
+      "sha256": "7f2a93db81bbc986661a617a35732172a095aa3f833554ee02b56905b2160195"
+    },
+    {
+      "path": "screenshots/06-task1-tool-loaded.png",
+      "bytes": 206077,
+      "sha256": "24624efbeee861efd8e81dbd49686d40dba8b3dbf936b8ab1dc2ec36ca86391e"
+    },
+    {
+      "path": "screenshots/07-task1-permission-denial.png",
+      "bytes": 206076,
+      "sha256": "7f8b1926df994124ba31c5b87793dabecb14fff60b148b26cfb89fdd061f7a5a"
+    },
+    {
+      "path": "screenshots/08-task1-goals.png",
+      "bytes": 261700,
+      "sha256": "0c733ba53a96a796bc939d7ffaeb046410487aea956300f762f4fb2aa21a7aaa"
+    },
+    {
+      "path": "screenshots/09-task1-first-helper.png",
+      "bytes": 262105,
+      "sha256": "669f684d79ef92acdebc6098048a5a4c8a92a7ecc1387e5454a5dc70d9aa34ed"
+    },
+    {
+      "path": "screenshots/10-task1-helpers-overlap.png",
+      "bytes": 261512,
+      "sha256": "230e143731c8c8ff6bcd728a193508b027c953b566df59fe4ca8f029b7a1ca35"
+    },
+    {
+      "path": "screenshots/11-task1-before-reload.png",
+      "bytes": 261511,
+      "sha256": "7ff0fb833b4743b2f9216ee4e9e1262ba05eb083935de9fb47e13e2cdabaab7b"
+    },
+    {
+      "path": "screenshots/12-task1-after-reload.png",
+      "bytes": 264786,
+      "sha256": "0e3a63d45a52161c7dbf3c542ed950d763a453e10543283dadbfebb0f684bcb1"
+    },
+    {
+      "path": "screenshots/13-task1-skill-used.png",
+      "bytes": 361764,
+      "sha256": "6523b789d1c17dd644563ff2790c0308183f79449a24e86a3382fcf1aa006308"
+    },
+    {
+      "path": "screenshots/14-task1-skill-drafted.png",
+      "bytes": 361818,
+      "sha256": "163ca99026f7c5b335b185bf70c6a51735d2527068aee60425bca1fc60be656e"
+    },
+    {
+      "path": "screenshots/15-task1-citation-skill-card.png",
+      "bytes": 361818,
+      "sha256": "026806d99d2ec8f746a423e88f229337313a7b2b2547f2f162e8afbcb3116210"
+    },
+    {
+      "path": "screenshots/16-task1-first-artifact.png",
+      "bytes": 361820,
+      "sha256": "fda33d0301adb245f2b2ba6bbf7876a3ea44be869c06cf246db79ecb09ea51c2"
+    },
+    {
+      "path": "screenshots/17-task1-skill-validated.png",
+      "bytes": 351682,
+      "sha256": "d797870bc6323b5a8d0cf2b4343d9d58fbc076f0c4c78091fe7f3ce01180c62a"
+    },
+    {
+      "path": "screenshots/18-task1-first-check.png",
+      "bytes": 311241,
+      "sha256": "4ca395123f988d0a92211be4233dd24fcc703d6253c5f188ba7698cdcb57e25a"
+    },
+    {
+      "path": "screenshots/19-task1-skill-tested.png",
+      "bytes": 356190,
+      "sha256": "0849805aef739e055c94a5130de5b86991bed1f2b6732a317f729e59d86b567e"
+    },
+    {
+      "path": "screenshots/20-task1-skill-activated.png",
+      "bytes": 356307,
+      "sha256": "b7e44d7308a17a0924550ed90fc2c1c05689a70e5ccb7452cfe6528fb40bf86e"
+    },
+    {
+      "path": "screenshots/21-task1-compaction.png",
+      "bytes": 306798,
+      "sha256": "284eaccbe493bd473e1316c0f58225f9e05dbbebe551fcdccd5a89debae9cfb1"
+    },
+    {
+      "path": "screenshots/22-task1-progress-248s.png",
+      "bytes": 298334,
+      "sha256": "c403ded84adefdcff6dc28fc55ab13765724a8fb2033f239ecc6bc08d3bea0b1"
+    },
+    {
+      "path": "screenshots/23-task1-before-interrupt.png",
+      "bytes": 324717,
+      "sha256": "e174c103359ea44b5ac4160f6d9fb34cbafe1c55dc6b44dc569f6c89359cb6ac"
+    },
+    {
+      "path": "screenshots/24-task1-interrupted.png",
+      "bytes": 321978,
+      "sha256": "c7b8b0dde97d6222045476f38e8aa57e1584f60fa6c9b54e85880f414275cd5b"
+    },
+    {
+      "path": "screenshots/25-task1-resumed.png",
+      "bytes": 152453,
+      "sha256": "4775a63595cb9e660f4eaa0113c030ce5500459bbeab39b7e8208f1c024f992f"
+    },
+    {
+      "path": "screenshots/26-task1-progress-433s.png",
+      "bytes": 271647,
+      "sha256": "cd88d9b4020ce9c2901a191cfafab407f5ec31fcd9c965938aab42e7ba9b589f"
+    },
+    {
+      "path": "screenshots/27-task1-terminal-completed.png",
+      "bytes": 333229,
+      "sha256": "f7d5c0d907b99308a19903f1467e81aaa74de3da03d57f8479bb85f4000bf129"
+    },
+    {
+      "path": "screenshots/28-task1-verified.png",
+      "bytes": 303639,
+      "sha256": "01c0815f9ee36e4f3bcfdcf0e2ecf529fe5484453b67575693e3ec5ab41ccc1a"
+    },
+    {
+      "path": "screenshots/29-task1-final-overview.png",
+      "bytes": 303639,
+      "sha256": "01c0815f9ee36e4f3bcfdcf0e2ecf529fe5484453b67575693e3ec5ab41ccc1a"
+    },
+    {
+      "path": "screenshots/30-task1-artifact-notebook.png",
+      "bytes": 307432,
+      "sha256": "cfce30c1ff900203652aa06f287ad710feaa8e9d2acdf46f531fbc3febb60638"
+    },
+    {
+      "path": "screenshots/31-task1-developer-drawer.png",
+      "bytes": 276770,
+      "sha256": "0f17aa7118fc6f0afc52a180ff5a4cc8d48f553e17721ba216f39568f2d4602a"
+    },
+    {
+      "path": "screenshots/32-handoff-target-selected.png",
+      "bytes": 307455,
+      "sha256": "72d4e5658e2dd6b858448fce5dd0617b0fe7223dd66ff8eb2dc6b35a9e4ed272"
+    },
+    {
+      "path": "screenshots/33-handoff-run-accepted.png",
+      "bytes": 155279,
+      "sha256": "053380ee0f5d23d531e1af5a0dab4a4c6f1f30a5e8ed99852f99727d515f8d35"
+    },
+    {
+      "path": "screenshots/34-handoff-goals.png",
+      "bytes": 253221,
+      "sha256": "cae19e5b1b73a472bd884e75ebaae8bbde07d0847f455933cea4f579b769ccce"
+    },
+    {
+      "path": "screenshots/35-handoff-permission-denial.png",
+      "bytes": 245366,
+      "sha256": "013cb765f598cfdff0f4268483fe847d27d5e0ca081202edc35dc76c148b79db"
+    },
+    {
+      "path": "screenshots/36-handoff-first-artifact.png",
+      "bytes": 269025,
+      "sha256": "a0c6baf59784aca5854da6161c8007ed3960ee66ebd8827cbdf330debbccfba1"
+    },
+    {
+      "path": "screenshots/37-handoff-first-check.png",
+      "bytes": 260547,
+      "sha256": "87d05ca8ca70185f101fef2cb7db40ad19607e5338aad756dcb46553d5efd8cc"
+    },
+    {
+      "path": "screenshots/38-handoff-terminal-completed.png",
+      "bytes": 294143,
+      "sha256": "9738af7653500049c65c07a83ac13cdcf2ff2f0d7ce15b71f8f66a7c79b3f8a6"
+    },
+    {
+      "path": "screenshots/39-handoff-verified.png",
+      "bytes": 308940,
+      "sha256": "ff6ea041cf047d8c6ec939e3b8dbd11e714adfeaadcf3896ecd6581a421f0c5d"
+    },
+    {
+      "path": "screenshots/40-handoff-final-overview.png",
+      "bytes": 308940,
+      "sha256": "ff6ea041cf047d8c6ec939e3b8dbd11e714adfeaadcf3896ecd6581a421f0c5d"
+    },
+    {
+      "path": "timelapse.mp4",
+      "bytes": 12153747,
+      "sha256": "29f73a0976cccd6131b37cf7dc0b152066fc8ad09cfd1ac1c2d9c5627dd20f67"
+    },
+    {
+      "path": "timeline.json",
+      "bytes": 367166,
+      "sha256": "40821ee0996b75e2161b77e1f922801fcef0b09335346ec92ade3a70c5f08f6d"
+    },
+    {
+      "path": "trace.zip",
+      "bytes": 81136,
+      "sha256": "59ec0134bc03ac81a2b7e421d60fff4c28b4388a544a4902200ec52d4613255c"
+    },
+    {
+      "path": "verification-rerun.json",
+      "bytes": 6030,
+      "sha256": "6a2a5bda81e1666e167a7da5c69b8fe6d0d3ff1d4a6dcb2ad7e24385024e3891"
+    }
+  ]
+}

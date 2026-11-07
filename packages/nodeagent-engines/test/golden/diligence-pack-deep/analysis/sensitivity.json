@@ -1,0 +1,147 @@
+{
+  "schema": "diligence.sensitivity/v1",
+  "asOf": "2026-06-30",
+  "method": "runway months = cash / (monthly burn x factor); base factor 1.0, burnUp20 1.2, burnDown20 0.8; one decimal",
+  "rows": [
+    {
+      "company": "Quillmark Lending",
+      "cashUsdM": 24.2,
+      "monthlyBurnUsdM": 1.1,
+      "runwayMonths": {
+        "base": 22,
+        "burnUp20": 18.3,
+        "burnDown20": 27.5
+      },
+      "citations": [
+        "[src:sources/financials/quillmark-financials.md#L37]",
+        "[src:sources/financials/quillmark-financials.md#L36]"
+      ]
+    },
+    {
+      "company": "Pellucid Ledger",
+      "cashUsdM": 41,
+      "monthlyBurnUsdM": 2,
+      "runwayMonths": {
+        "base": 20.5,
+        "burnUp20": 17.1,
+        "burnDown20": 25.6
+      },
+      "citations": [
+        "[src:sources/financials/pellucid-financials.md#L37]",
+        "[src:sources/financials/pellucid-financials.md#L36]"
+      ]
+    },
+    {
+      "company": "Kestrelmoor Capital",
+      "cashUsdM": 23.4,
+      "monthlyBurnUsdM": 1.3,
+      "runwayMonths": {
+        "base": 18,
+        "burnUp20": 15,
+        "burnDown20": 22.5
+      },
+      "citations": [
+        "[src:sources/inbox/kestrelmoor-financials.md#L37]",
+        "[src:sources/inbox/kestrelmoor-financials.md#L36]"
+      ]
+    },
+    {
+      "company": "Brindlewood Finance",
+      "cashUsdM": 15.3,
+      "monthlyBurnUsdM": 0.9,
+      "runwayMonths": {
+        "base": 17,
+        "burnUp20": 14.2,
+        "burnDown20": 21.3
+      },
+      "citations": [
+        "[src:sources/financials/brindlewood-financials.md#L37]",
+        "[src:sources/financials/brindlewood-financials.md#L36]"
+      ]
+    },
+    {
+      "company": "Ynderra Lending",
+      "cashUsdM": 27.9,
+      "monthlyBurnUsdM": 1.8,
+      "runwayMonths": {
+        "base": 15.5,
+        "burnUp20": 12.9,
+        "burnDown20": 19.4
+      },
+      "citations": [
+        "[src:sources/financials/ynderra-financials.md#L37]",
+        "[src:sources/financials/ynderra-financials.md#L36]"
+      ]
+    },
+    {
+      "company": "Halvorine Funding",
+      "cashUsdM": 19.6,
+      "monthlyBurnUsdM": 1.4,
+      "runwayMonths": {
+        "base": 14,
+        "burnUp20": 11.7,
+        "burnDown20": 17.5
+      },
+      "citations": [
+        "[src:sources/financials/halvorine-financials.md#L37]",
+        "[src:sources/financials/halvorine-financials.md#L36]"
+      ]
+    },
+    {
+      "company": "Corvane Capital",
+      "cashUsdM": 31.7,
+      "monthlyBurnUsdM": 2.3,
+      "runwayMonths": {
+        "base": 13.8,
+        "burnUp20": 11.5,
+        "burnDown20": 17.2
+      },
+      "citations": [
+        "[src:sources/financials/corvane-financials.md#L37]",
+        "[src:sources/financials/corvane-financials.md#L36]"
+      ]
+    },
+    {
+      "company": "Solvane Trade Credit",
+      "cashUsdM": 9.6,
+      "monthlyBurnUsdM": 0.8,
+      "runwayMonths": {
+        "base": 12,
+        "burnUp20": 10,
+        "burnDown20": 15
+      },
+      "citations": [
+        "[src:sources/inbox/solvane-financials.md#L37]",
+        "[src:sources/inbox/solvane-financials.md#L36]"
+      ]
+    },
+    {
+      "company": "Marrowfield Credit",
+      "cashUsdM": 10.2,
+      "monthlyBurnUsdM": 1.2,
+      "runwayMonths": {
+        "base": 8.5,
+        "burnUp20": 7.1,
+        "burnDown20": 10.6
+      },
+      "citations": [
+        "[src:sources/financials/marrowfield-financials-v2.md#L38]",
+        "[src:sources/financials/marrowfield-financials-v2.md#L37]"
+      ]
+    },
+    {
+      "company": "Tessaly Credit",
+      "cashUsdM": 12.8,
+      "monthlyBurnUsdM": 1.6,
+      "runwayMonths": {
+        "base": 8,
+        "burnUp20": 6.7,
+        "burnDown20": 10
+      },
+      "citations": [
+        "[src:sources/financials/tessaly-financials.md#L38]",
+        "[src:sources/financials/tessaly-financials.md#L37]"
+      ]
+    }
+  ]
+}

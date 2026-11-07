@@ -3496,7 +3496,7 @@ Owner: Codex
   `sourceCaptures`, and room `traces`.
 - `src/nodeagent/core/memory.ts` is bounded transcript memory only. It is not
   the audit-safe project/eval memory substrate described in the Solo Founder
-  notes.
+  notes. (It had no caller and was deleted on 2026-10-29.)
 - `src/ui/traceLens/*` intentionally keeps only opaque surface IDs and
   already-loaded business/runtime proof in the client. Builder/code provenance
   is still deferred to a future server-gated `convex/traceLens` query.

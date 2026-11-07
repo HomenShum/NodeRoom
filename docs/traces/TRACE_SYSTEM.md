@@ -31,7 +31,6 @@ The canonical TypeScript contract lives in `src/nodeagent/traces/`.
 | Frame context pack provenance | `src/nodeagent/traces/traceContextPack.ts` |
 | Trace construction and recorder | `src/nodeagent/traces/traceRecorder.ts` |
 | Redaction and stable hashes | `src/nodeagent/traces/traceRedaction.ts` |
-| Replay summaries and excellence ladder | `src/nodeagent/traces/traceReplay.ts` |
 
 ## Rule
 

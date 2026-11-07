@@ -1,0 +1,24 @@
+{
+  "cases": [
+    {
+      "label": "a complete, correctly cited memo passes",
+      "args": ["lint-memos.mjs", "--root=skill-drafts/memo-lint/examples", "skill-drafts/memo-lint/examples/good-memo.md"],
+      "expect": "pass"
+    },
+    {
+      "label": "counterexample: the Risks section is missing",
+      "args": ["lint-memos.mjs", "--root=skill-drafts/memo-lint/examples", "skill-drafts/memo-lint/examples/missing-section.md"],
+      "expect": "fail"
+    },
+    {
+      "label": "counterexample: the cash figure cites the burn line",
+      "args": ["lint-memos.mjs", "--root=skill-drafts/memo-lint/examples", "skill-drafts/memo-lint/examples/wrong-number.md"],
+      "expect": "fail"
+    },
+    {
+      "label": "counterexample: a citation into sources/restricted/",
+      "args": ["lint-memos.mjs", "--root=skill-drafts/memo-lint/examples", "skill-drafts/memo-lint/examples/restricted.md"],
+      "expect": "fail"
+    }
+  ]
+}

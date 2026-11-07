@@ -7,7 +7,8 @@
  * pair at desktop + phone viewports into .proofloop/parity-screenshots/.
  *
  * Preconditions (see --help):
- *   1. `npm run build` has produced dist/ (we refuse to build for you).
+ *   1. `npm run build` has produced dist/ with VITE_CONVEX_URL set (product pairs
+ *      open live sample rooms; we refuse to build for you).
  *   2. `design-reference/` exists locally (re-export from Claude Design if not).
  */
 import { spawn, spawnSync, type ChildProcessWithoutNullStreams } from "node:child_process";
@@ -37,8 +38,8 @@ const PARITY_PAIRS: ParityPair[] = [
   {
     id: "states-scale",
     specimenPath: "/NodeRoom%20States%20%26%20Scale.html",
-    productPath: "/?mode=memory&demo=scale&name=Host",
-    description: "States & Scale specimen vs the live scale demo room",
+    productPath: "/?demo=1&confirmed=1&name=Host",
+    description: "States & Scale specimen vs a live sample room",
   },
 ];
 
@@ -53,7 +54,7 @@ const HELP = [
   "Usage: npm run design:parity [-- --help]",
   "",
   "Preconditions:",
-  "  - dist/ must exist: this command never builds. Run `npm run build` first.",
+  "  - dist/ must exist: this command never builds. Run `npm run build` first, with VITE_CONVEX_URL set.",
   "  - product screenshots reflect the CURRENT dist/ build - rebuild after UI changes or the product side is stale.",
   "  - design-reference/ must exist locally (gitignored Claude Design export).",
   "",

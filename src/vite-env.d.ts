@@ -12,6 +12,8 @@ interface ImportMetaEnv {
   readonly VITE_NODEROOM_AUTH_REQUIRED?: "0" | "1";
   /** GitHub is the production default; password is available for direct account flows. */
   readonly VITE_NODEROOM_AUTH_PROVIDER?: "github" | "password" | "both";
+  /** "1" only in test-harness builds: lets `?mode=memory` select the keyless scripted room. */
+  readonly VITE_NODEROOM_HARNESS?: "1";
 }
 
 interface ImportMeta {

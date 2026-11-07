@@ -1,0 +1,277 @@
+{
+  "schema": "nodeagent.proof-recording/v1",
+  "recordingStartedAt": "2026-10-29T13:26:05.163Z",
+  "endedAt": "2026-10-29T13:32:13.302Z",
+  "engine": "nodeagent-universal",
+  "model": "google:gemini-3.5-flash",
+  "template": "diligence-pack",
+  "tasks": [
+    "full-diligence",
+    "inbox-update"
+  ],
+  "runs": [
+    "run-d5d593f2-6cc3-4993-a934-fe25ec9442e1",
+    "run-84d8c5f6-5658-470a-a3d0-2a1396aa6420"
+  ],
+  "exportedEventCounts": {
+    "run-d5d593f2-6cc3-4993-a934-fe25ec9442e1": 464,
+    "run-84d8c5f6-5658-470a-a3d0-2a1396aa6420": 112
+  },
+  "video": "raw-recording.webm",
+  "trace": "trace.zip",
+  "speed": "original (unedited, 1x)",
+  "milestones": [
+    {
+      "name": "workspace-open",
+      "at": "2026-10-29T13:26:06.401Z",
+      "videoOffsetSec": 1.2,
+      "detail": "normal #workspace route, worker reachable",
+      "screenshot": "screenshots/01-workspace-open.png"
+    },
+    {
+      "name": "project-created",
+      "at": "2026-10-29T13:26:06.641Z",
+      "videoOffsetSec": 1.5,
+      "detail": "fresh project prj-80b2617b-6061-4e06-90bc-8cf175b207b7 from template diligence-pack",
+      "screenshot": "screenshots/02-project-created.png"
+    },
+    {
+      "name": "task1-task-entered",
+      "at": "2026-10-29T13:26:06.771Z",
+      "videoOffsetSec": 1.6,
+      "detail": "suggested task \"full-diligence\" placed in the composer",
+      "screenshot": "screenshots/03-task1-task-entered.png"
+    },
+    {
+      "name": "task1-run-accepted",
+      "at": "2026-10-29T13:26:07.284Z",
+      "videoOffsetSec": 2.1,
+      "runId": "run-d5d593f2-6cc3-4993-a934-fe25ec9442e1",
+      "detail": "run run-d5d593f2-6cc3-4993-a934-fe25ec9442e1 persisted by the worker",
+      "screenshot": "screenshots/04-task1-run-accepted.png"
+    },
+    {
+      "name": "task1-tool-search",
+      "at": "2026-10-29T13:26:12.463Z",
+      "videoOffsetSec": 7.3,
+      "runId": "run-d5d593f2-6cc3-4993-a934-fe25ec9442e1",
+      "detail": "a tool was found by search",
+      "screenshot": "screenshots/05-task1-tool-search.png"
+    },
+    {
+      "name": "task1-tool-loaded",
+      "at": "2026-10-29T13:26:17.612Z",
+      "videoOffsetSec": 12.4,
+      "runId": "run-d5d593f2-6cc3-4993-a934-fe25ec9442e1",
+      "detail": "a searched tool became callable",
+      "screenshot": "screenshots/06-task1-tool-loaded.png"
+    },
+    {
+      "name": "task1-skill-used",
+      "at": "2026-10-29T13:26:17.686Z",
+      "videoOffsetSec": 12.5,
+      "runId": "run-d5d593f2-6cc3-4993-a934-fe25ec9442e1",
+      "detail": "a skill card appeared",
+      "screenshot": "screenshots/07-task1-skill-used.png"
+    },
+    {
+      "name": "task1-goals",
+      "at": "2026-10-29T13:26:22.864Z",
+      "videoOffsetSec": 17.7,
+      "runId": "run-d5d593f2-6cc3-4993-a934-fe25ec9442e1",
+      "detail": "goal outline visible",
+      "screenshot": "screenshots/08-task1-goals.png"
+    },
+    {
+      "name": "task1-first-helper",
+      "at": "2026-10-29T13:26:38.161Z",
+      "videoOffsetSec": 33,
+      "runId": "run-d5d593f2-6cc3-4993-a934-fe25ec9442e1",
+      "detail": "4 helper(s) visible",
+      "screenshot": "screenshots/09-task1-first-helper.png"
+    },
+    {
+      "name": "task1-helpers-overlap",
+      "at": "2026-10-29T13:26:38.244Z",
+      "videoOffsetSec": 33.1,
+      "runId": "run-d5d593f2-6cc3-4993-a934-fe25ec9442e1",
+      "detail": "4 helpers running at once",
+      "screenshot": "screenshots/10-task1-helpers-overlap.png"
+    },
+    {
+      "name": "task1-before-reload",
+      "at": "2026-10-29T13:26:38.425Z",
+      "videoOffsetSec": 33.3,
+      "runId": "run-d5d593f2-6cc3-4993-a934-fe25ec9442e1",
+      "detail": "reloading the tab at 42 tool calls",
+      "screenshot": "screenshots/11-task1-before-reload.png"
+    },
+    {
+      "name": "task1-after-reload",
+      "at": "2026-10-29T13:26:39.539Z",
+      "videoOffsetSec": 34.4,
+      "runId": "run-d5d593f2-6cc3-4993-a934-fe25ec9442e1",
+      "detail": "restored from the worker; run still running with 44 tool calls",
+      "screenshot": "screenshots/12-task1-after-reload.png"
+    },
+    {
+      "name": "task1-first-artifact",
+      "at": "2026-10-29T13:28:31.347Z",
+      "videoOffsetSec": 146.2,
+      "runId": "run-d5d593f2-6cc3-4993-a934-fe25ec9442e1",
+      "detail": "first artifact listed",
+      "screenshot": "screenshots/13-task1-first-artifact.png"
+    },
+    {
+      "name": "task1-first-check",
+      "at": "2026-10-29T13:29:57.812Z",
+      "videoOffsetSec": 232.6,
+      "runId": "run-d5d593f2-6cc3-4993-a934-fe25ec9442e1",
+      "detail": "first check result visible",
+      "screenshot": "screenshots/15-task1-first-check.png"
+    },
+    {
+      "name": "task1-skill-drafted",
+      "at": "2026-10-29T13:30:43.541Z",
+      "videoOffsetSec": 278.4,
+      "runId": "run-d5d593f2-6cc3-4993-a934-fe25ec9442e1",
+      "detail": "skill lifecycle stage drafted",
+      "screenshot": "screenshots/16-task1-skill-drafted.png"
+    },
+    {
+      "name": "task1-skill-validated",
+      "at": "2026-10-29T13:30:43.645Z",
+      "videoOffsetSec": 278.5,
+      "runId": "run-d5d593f2-6cc3-4993-a934-fe25ec9442e1",
+      "detail": "skill lifecycle stage validated",
+      "screenshot": "screenshots/17-task1-skill-validated.png"
+    },
+    {
+      "name": "task1-citation-skill-card",
+      "at": "2026-10-29T13:30:43.764Z",
+      "videoOffsetSec": 278.6,
+      "runId": "run-d5d593f2-6cc3-4993-a934-fe25ec9442e1",
+      "detail": "citation-validation skill card visible",
+      "screenshot": "screenshots/18-task1-citation-skill-card.png"
+    },
+    {
+      "name": "task1-skill-tested",
+      "at": "2026-10-29T13:30:48.989Z",
+      "videoOffsetSec": 283.8,
+      "runId": "run-d5d593f2-6cc3-4993-a934-fe25ec9442e1",
+      "detail": "skill lifecycle stage tested",
+      "screenshot": "screenshots/19-task1-skill-tested.png"
+    },
+    {
+      "name": "task1-skill-activated",
+      "at": "2026-10-29T13:30:54.218Z",
+      "videoOffsetSec": 289.1,
+      "runId": "run-d5d593f2-6cc3-4993-a934-fe25ec9442e1",
+      "detail": "skill lifecycle stage activated",
+      "screenshot": "screenshots/20-task1-skill-activated.png"
+    },
+    {
+      "name": "task1-terminal-completed",
+      "at": "2026-10-29T13:31:19.870Z",
+      "videoOffsetSec": 314.7,
+      "runId": "run-d5d593f2-6cc3-4993-a934-fe25ec9442e1",
+      "detail": "run run-d5d593f2-6cc3-4993-a934-fe25ec9442e1 ended completed",
+      "screenshot": "screenshots/21-task1-terminal-completed.png"
+    },
+    {
+      "name": "task1-verified",
+      "at": "2026-10-29T13:31:20.014Z",
+      "videoOffsetSec": 314.9,
+      "runId": "run-d5d593f2-6cc3-4993-a934-fe25ec9442e1",
+      "detail": "independent verifier: 17 passed, 1 failed",
+      "screenshot": "screenshots/22-task1-verified.png"
+    },
+    {
+      "name": "task2-task-entered",
+      "at": "2026-10-29T13:31:20.925Z",
+      "videoOffsetSec": 315.8,
+      "detail": "suggested task \"inbox-update\" placed in the composer",
+      "screenshot": "screenshots/27-task2-task-entered.png"
+    },
+    {
+      "name": "task2-run-accepted",
+      "at": "2026-10-29T13:31:21.087Z",
+      "videoOffsetSec": 315.9,
+      "runId": "run-84d8c5f6-5658-470a-a3d0-2a1396aa6420",
+      "detail": "run run-84d8c5f6-5658-470a-a3d0-2a1396aa6420 persisted by the worker",
+      "screenshot": "screenshots/28-task2-run-accepted.png"
+    },
+    {
+      "name": "task2-skill-used",
+      "at": "2026-10-29T13:31:26.226Z",
+      "videoOffsetSec": 321.1,
+      "runId": "run-84d8c5f6-5658-470a-a3d0-2a1396aa6420",
+      "detail": "a skill card appeared",
+      "screenshot": "screenshots/29-task2-skill-used.png"
+    },
+    {
+      "name": "task2-permission-denial",
+      "at": "2026-10-29T13:31:31.354Z",
+      "videoOffsetSec": 326.2,
+      "runId": "run-84d8c5f6-5658-470a-a3d0-2a1396aa6420",
+      "detail": "a native tool call was denied by Node policy",
+      "screenshot": "screenshots/30-task2-permission-denial.png"
+    },
+    {
+      "name": "task2-first-artifact",
+      "at": "2026-10-29T13:31:46.599Z",
+      "videoOffsetSec": 341.4,
+      "runId": "run-84d8c5f6-5658-470a-a3d0-2a1396aa6420",
+      "detail": "first artifact listed",
+      "screenshot": "screenshots/31-task2-first-artifact.png"
+    },
+    {
+      "name": "task2-citation-skill-card",
+      "at": "2026-10-29T13:31:56.819Z",
+      "videoOffsetSec": 351.7,
+      "runId": "run-84d8c5f6-5658-470a-a3d0-2a1396aa6420",
+      "detail": "citation-validation skill card visible",
+      "screenshot": "screenshots/32-task2-citation-skill-card.png"
+    },
+    {
+      "name": "task2-first-check",
+      "at": "2026-10-29T13:31:56.908Z",
+      "videoOffsetSec": 351.7,
+      "runId": "run-84d8c5f6-5658-470a-a3d0-2a1396aa6420",
+      "detail": "first check result visible",
+      "screenshot": "screenshots/33-task2-first-check.png"
+    },
+    {
+      "name": "task2-tool-search",
+      "at": "2026-10-29T13:32:02.010Z",
+      "videoOffsetSec": 356.8,
+      "runId": "run-84d8c5f6-5658-470a-a3d0-2a1396aa6420",
+      "detail": "a tool was found by search",
+      "screenshot": "screenshots/34-task2-tool-search.png"
+    },
+    {
+      "name": "task2-tool-loaded",
+      "at": "2026-10-29T13:32:02.089Z",
+      "videoOffsetSec": 356.9,
+      "runId": "run-84d8c5f6-5658-470a-a3d0-2a1396aa6420",
+      "detail": "a searched tool became callable",
+      "screenshot": "screenshots/35-task2-tool-loaded.png"
+    },
+    {
+      "name": "task2-terminal-completed",
+      "at": "2026-10-29T13:32:12.354Z",
+      "videoOffsetSec": 367.2,
+      "runId": "run-84d8c5f6-5658-470a-a3d0-2a1396aa6420",
+      "detail": "run run-84d8c5f6-5658-470a-a3d0-2a1396aa6420 ended completed",
+      "screenshot": "screenshots/36-task2-terminal-completed.png"
+    },
+    {
+      "name": "task2-verified",
+      "at": "2026-10-29T13:32:12.844Z",
+      "videoOffsetSec": 367.7,
+      "runId": "run-84d8c5f6-5658-470a-a3d0-2a1396aa6420",
+      "detail": "independent verifier: 17 passed, 1 failed",
+      "screenshot": "screenshots/37-task2-verified.png"
+    }
+  ]
+}

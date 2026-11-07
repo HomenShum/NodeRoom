@@ -7,7 +7,6 @@ import {
   serializeOkfConcept,
   parseOkfConcept,
   validateOkfBundleFiles,
-  writeOkfBundleFiles,
   type OkfConcept,
 } from "@nodeagent/index";
 import type { RoomTools } from "@nodeagent/core/types";
@@ -72,7 +71,13 @@ describe("OKF concept and retrieval layer", () => {
     expect(parsed.id).toBe("cells/cardionova_runway");
     expect(parsed.frontmatter.type).toBe("Spreadsheet Cell");
     expect(parsed.citations[0]).toMatchObject({ id: "1", conceptId: "sources/cardionova_cash" });
-    expect(validateOkfBundleFiles(writeOkfBundleFiles(fixtureConcepts()))).toEqual([]);
+    // index.md and log.md are reserved bundle files the validator must skip.
+    const bundle = [
+      { path: "index.md", content: "# NodeRoom OKF Bundle\n" },
+      { path: "log.md", content: "# Bundle Update Log\n" },
+      ...fixtureConcepts().map((c) => ({ path: c.path, content: serializeOkfConcept(c) })),
+    ];
+    expect(validateOkfBundleFiles(bundle)).toEqual([]);
   });
 
   it("supports full-text, semantic, filter, glob, regex, backlinks, and literal source lookup", async () => {

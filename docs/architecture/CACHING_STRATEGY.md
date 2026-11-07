@@ -54,7 +54,7 @@ Orchestrator thread (glm-5.2) - src/nodeagent/models/prompts/systemPrompt.ts, ad
 - [ ] Append-only (keep errors in context).
 - [ ] Pin the OpenRouter provider so the route + cache stay warm (see "next step").
 
-Worker tier (minimax-m3) - src/nodeagent/core/fanoutPlanner.ts, src/nodemem/*
+Worker tier (minimax-m3) - src/nodeagent/core/frameRunner.ts execute frames, src/nodemem/*
 - [ ] Byte-identical shared system/tools prefix across all workers (role goes in the body, not the head).
 - [ ] Warm the shared prefix with one call before fanning out (avoid N cold-write races).
 - [ ] Inject the smallest relevance-ranked NodeMem pack - THIS is where NodeMem belongs, not a raw window.

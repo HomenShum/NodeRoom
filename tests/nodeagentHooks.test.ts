@@ -1,16 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { z } from "zod";
 import { RoomEngine } from "../src/engine/roomEngine";
 import { buildDemoRoom } from "../src/engine/demoRoom";
 import {
-  createFreshContextJudgeHook,
-  FRESH_CONTEXT_JUDGE_MARKER,
   InMemoryRoomTools,
-  planNodeAgentFanout,
   ROOM_TOOLS,
   runAgent,
   scriptedModel,
-  type AgentTool,
   type NodeAgentHook,
 } from "../src/nodeagent/index";
 
@@ -91,91 +86,5 @@ describe("nodeagent runtime hooks", () => {
     expect(observed[0].tool).toBe("read_range");
     expect(Array.isArray(observed[0].result)).toBe(true);
     expect(observed[0].traceCount).toBe(1);
-  });
-
-  it("uses the fresh-context judge to reject chat-only completion until a required tool receipt exists", async () => {
-    const { rt } = setup();
-    const packageTool: AgentTool = {
-      name: "create_btb_deliverable_package",
-      description: "Create the final benchmark package.",
-      schema: z.object({}),
-      execute: async () => ({ ok: true, artifacts: [{ title: "package.xlsx" }] }),
-    };
-    const model = scriptedModel(({ messages }) => {
-      const sawJudge = messages.some((message) => message.role === "user" && message.content.startsWith(FRESH_CONTEXT_JUDGE_MARKER));
-      const packaged = messages.some((message) => message.role === "tool" && message.toolName === "create_btb_deliverable_package");
-      if (!sawJudge) return { say: "The benchmark is complete.", done: true };
-      if (!packaged) return { toolCalls: [{ tool: "create_btb_deliverable_package", args: {} }] };
-      return { say: "Package receipt exists.", done: true };
-    });
-
-    const result = await runAgent({
-      rt,
-      goal: "official proof benchmark",
-      model,
-      tools: [...ROOM_TOOLS, packageTool],
-      hooks: [createFreshContextJudgeHook({
-        requiredTools: [{
-          name: "create_btb_deliverable_package",
-          reason: "official benchmark package receipt required",
-        }],
-      })],
-      maxSteps: 4,
-    });
-
-    expect(result.stopReason).toBe("done");
-    expect(result.finalText).toBe("Package receipt exists.");
-    expect(result.trace.some((event) => event.tool === "create_btb_deliverable_package")).toBe(true);
-    expect(result.messages.some((message) =>
-      message.role === "user" && message.content.startsWith(FRESH_CONTEXT_JUDGE_MARKER),
-    )).toBe(true);
-  });
-});
-
-describe("nodeagent fanout planner", () => {
-  it("plans BTB fresh-room work as receipt-backed NodeRoom subagents", () => {
-    const plan = planNodeAgentFanout({
-      goal: "Run BankerToolBench btb-abc123 in a fresh room with visual proof",
-      artifactKinds: ["sheet"],
-      focusMode: true,
-      maxParallel: 3,
-    });
-    const roles = plan.subagents.map((subagent) => subagent.role);
-
-    expect(plan.mode).toBe("fanout");
-    expect(plan.focusModeRequired).toBe(true);
-    expect(roles).toEqual(expect.arrayContaining([
-      "intake",
-      "evidence",
-      "spreadsheet",
-      "formula_audit",
-      "deck_memo",
-      "privacy_security",
-      "browser_proof",
-      "fresh_context_judge",
-    ]));
-    expect(plan.receiptContract).toEqual(expect.arrayContaining([
-      "agentJobId",
-      "inputRefs",
-      "toolCalls",
-      "evidenceFacts",
-      "mutationReceipts",
-      "cost",
-      "latency",
-      "verdict",
-    ]));
-    expect(plan.waves.at(0)).toEqual(["coordinator"]);
-    expect(plan.waves.at(-1)).toEqual(["fresh_context_judge"]);
-  });
-
-  it("keeps notebook subagents on proposal/read-model rails instead of direct ProseMirror mutation", () => {
-    const plan = planNodeAgentFanout({
-      goal: "Update the room notebook from source evidence",
-      artifactKinds: ["note"],
-    });
-    const notebook = plan.subagents.find((subagent) => subagent.role === "notebook_proposal");
-
-    expect(notebook?.mutationMode).toBe("proposal_only");
-    expect(notebook?.goal).toContain("never mutate human-owned ProseMirror text directly");
   });
 });

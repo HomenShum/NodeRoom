@@ -1,5 +1,7 @@
 # NodeRoom Visual Plans
 
+> **HISTORICAL — these hand-written plans are a June 2026 snapshot (all last edited 2026-06-18).** Keep them for rationale only; several describe modules that were never built or runtimes that are being replaced. The one agent path today is `#workspace` + `packages/nodeagent-engines` (see `AGENTS.md`). The exception is `design-quality/latest/plan.mdx`, which `scripts/design-quality.ts` regenerates.
+
 These are local MDX visual review surfaces for high-risk NodeRoom architecture decisions.
 
 They are intentionally source-controlled plan artifacts, not generated app code.

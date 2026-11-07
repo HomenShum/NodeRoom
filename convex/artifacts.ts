@@ -1006,7 +1006,7 @@ export async function applyCellEditCore(ctx: MutationCtx, a: ApplyCellEditArgs) 
       }
     }
     // 1. LOCK gate — a held range is read-only for non-holders; P0-5 lease fencing for the holder.
-    //    Kleppmann's fencing-token failure mode: TTL (5min) < slice budget (9min) means a long job's
+    //    Kleppmann's fencing-token failure mode: TTL (5min) < slice budget (7min default) means a long job's
     //    own lease can lapse mid-run. activeLockOn erases expired locks, which silently degraded the
     //    holder's write into an UNLOCKED write — losing the cross-cell range guarantee the lock
     //    expansion exists to provide. Fencing semantics:

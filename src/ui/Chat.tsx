@@ -1184,7 +1184,7 @@ function isPublicNodeAgentDirective(text: string): boolean {
 
 /* ─────────────── Chat-at-scale pure helpers (exported for tests/chatScale.test.ts) ───────────────
  * Day dividers, agent-run collapse, and the jump-to-latest threshold are pure O(n) functions so the
- * 312-message scale seed (roomStore.seedScaleMessages) renders without re-sorting or quadratic work. */
+ * 312-message scale feed renders without re-sorting or quadratic work. */
 
 const DAY_MS = 86_400_000;
 const MONTH_LABELS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];

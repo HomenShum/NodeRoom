@@ -353,30 +353,7 @@ async function captureStartupJoinRoom(
   });
 }
 
-/** Deterministic in-browser demo engine at the SAME prod URL — same UI, scripted agent.
- *  A spec's demoQuery appends params (e.g. the scale room), which auto-enters the room. */
-async function memoryDemo(ctx: BrowserContext, demoQuery?: string): Promise<Page> {
-  const page = await ctx.newPage();
-  await page.goto(`${BASE}/?mode=memory${demoQuery ? `&${demoQuery}` : ""}`, { waitUntil: "domcontentloaded", timeout: 60_000 });
-  await page.evaluate(() => { try { localStorage.setItem("noderoom:tour:v1", "done"); } catch { /* ignore */ } });
-  if (!demoQuery) await page.getByTestId("start-demo-room").click({ timeout: 30_000 });
-  await page.locator('[data-testid="public-chat-panel"] [data-testid="chat-composer"]').waitFor({ timeout: 30_000 });
-  await page.getByTestId("tour-skip").click({ timeout: 5000 }).catch(() => {});
-  await page.addStyleTag({ content: DEMO_CHROME });
-  await settle(page, 800);
-  return page;
-}
-
 /** The landing seven-layer walkthrough's live grid (#story) — in-browser engine, no room. */
-/** The scripted #room-tour landing walkthrough (Room.html port) — seed data, no Convex. */
-async function roomTourPage(ctx: BrowserContext): Promise<Page> {
-  const page = await ctx.newPage();
-  await page.goto(`${BASE}/#room-tour`, { waitUntil: "domcontentloaded", timeout: 60_000 });
-  await page.locator(".rt-app").waitFor({ timeout: 30_000 });
-  await settle(page, 700);
-  return page;
-}
-
 async function storyPage(ctx: BrowserContext): Promise<Page> {
   const page = await ctx.newPage();
   await page.goto(`${BASE}/#story`, { waitUntil: "domcontentloaded", timeout: 60_000 });
@@ -402,9 +379,7 @@ async function runFeature(spec: FeatureSpec, attempt: number): Promise<FeatureOu
       return { id: spec.id, title: spec.title, skipped: false, segments };
     }
     const page =
-      spec.setup === "memoryDemo" ? await memoryDemo(ctx, spec.demoQuery)
-        : spec.setup === "story" ? await storyPage(ctx)
-        : spec.setup === "roomTour" ? await roomTourPage(ctx)
+      spec.setup === "story" ? await storyPage(ctx)
         : await createRoom(ctx, code);
     if (spec.setup === "seedResearchRoom") await seedResearch(page, code, spec.seedCompanies);
     // Close panels the story doesn't use — the remaining panels (and their text) render larger.

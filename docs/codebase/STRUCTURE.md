@@ -29,7 +29,7 @@ Ordered by how likely you are to need them, not alphabetically.
 | `src/nodeagent/` | 190 | The agent. `core/runtime.ts` is the loop; `core/types.ts` defines the `RoomTools` port; `skills/` holds tools; `models/` holds provider adapters, pricing and failover. |
 | `src/components/ui/`, `src/components/ai-elements/` | 13 + 7 | shadcn-style primitives and the Vercel AI Elements subset the chat actually renders. `src/design/uiLayerPolicy.ts` enforces that Radix behaviour is only wrapped here. |
 | `src/eval/` | 94 | Benchmark harnesses (SpreadsheetBench, BankerToolBench, ProofLoop). **Not on the user path.** Large, self-contained, and safe to skip while learning the product. |
-| `src/benchmarks/`, `src/proofloop/`, `src/noderl/`, `src/nodemem/`, `src/alwayson/`, `src/solo/`, `src/voice/`, `src/notebook/` | 22–14 each | Feature areas layered on the room. Read them only when you are working in them. |
+| `src/benchmarks/`, `src/proofloop/`, `src/nodemem/`, `src/alwayson/`, `src/solo/`, `src/voice/`, `src/notebook/` | 22–14 each | Feature areas layered on the room. Read them only when you are working in them. |
 
 ## Everything outside those four folders
 
@@ -39,11 +39,9 @@ Ordered by how likely you are to need them, not alphabetically.
 | `scripts/` | 282 | One-off and CI scripts, wired to the 266 npm scripts in `package.json`. `verify-build-provenance.ts` is the one that runs on every build. | Only when a script you are running lives here. |
 | `evidence/`, `promotion/`, `.qa/`, `.proofloop/`, `proofloop/`, `episodes/` | ~400 | Captured proof artifacts: screenshots, JSON readouts, loop state. `promotion/` holds the current product scorecard and defect ledger. | `promotion/PROMOTION_LOG.md` is worth reading. |
 | `vendor/` | 36 | The seven `file:` dependencies. | Only when debugging one of them. |
-| `backend/` | 76 | A separate Python service (`Dockerfile`, `requirements.txt`, `pytest.ini`). Not started by `npm run dev` and not needed for any journey below the live tier. | No. |
 | `packages/walkthrough-review-cli/` | 7 | A local CLI/MCP tool for reviewing recorded walkthroughs. | No. |
 | `remotion/` | 10 | Video composition for demo clips. | No. |
-| `noderl/`, `nodekit/`, `skills/`, `packs/`, `design-dna/`, `templates/` | ~80 | Agent skill definitions and generator templates. | No. |
-| Root `6-1*-2026-*.txt` / `.md` | 13 | Dated raw session transcripts from the build, ~600 KB. Kept as history. | No — and see `CONCERNS.md`. |
+| `noderl/`, `nodekit/`, `skills/`, `packs/`, `design-dna/` | ~80 | Agent skill definitions and generator templates. | No. |
 
 ## Naming that tells you what a file is
 

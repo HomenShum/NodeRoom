@@ -1,0 +1,303 @@
+{
+  "schema": "nodeagent.proof-recording/v1",
+  "recordingStartedAt": "2026-10-29T13:11:03.254Z",
+  "endedAt": "2026-10-29T13:14:40.511Z",
+  "engine": "claude-agent-sdk",
+  "model": "claude-sonnet-5-5",
+  "template": "diligence-pack",
+  "tasks": [
+    "full-diligence",
+    "inbox-update"
+  ],
+  "runs": [
+    "run-c5a5208e-81c4-402c-afc5-d7b83eb09c00",
+    "run-4e7be1d4-2f09-4064-8972-18bf20b33b62",
+    "run-1535b0fb-8c9c-4053-b647-92a39c16bd2c"
+  ],
+  "exportedEventCounts": {
+    "run-c5a5208e-81c4-402c-afc5-d7b83eb09c00": 258,
+    "run-4e7be1d4-2f09-4064-8972-18bf20b33b62": 111,
+    "run-1535b0fb-8c9c-4053-b647-92a39c16bd2c": 95
+  },
+  "video": "raw-recording.webm",
+  "trace": "trace.zip",
+  "speed": "original (unedited, 1x)",
+  "milestones": [
+    {
+      "name": "workspace-open",
+      "at": "2026-10-29T13:11:07.507Z",
+      "videoOffsetSec": 4.3,
+      "detail": "normal #workspace route, worker reachable",
+      "screenshot": "screenshots/01-workspace-open.png"
+    },
+    {
+      "name": "project-created",
+      "at": "2026-10-29T13:11:08.332Z",
+      "videoOffsetSec": 5.1,
+      "detail": "fresh project prj-df2eb797-8db3-4c48-8a32-f07ddfaa6dd2 from template diligence-pack",
+      "screenshot": "screenshots/02-project-created.png"
+    },
+    {
+      "name": "task1-task-entered",
+      "at": "2026-10-29T13:11:08.972Z",
+      "videoOffsetSec": 5.7,
+      "detail": "suggested task \"full-diligence\" placed in the composer",
+      "screenshot": "screenshots/03-task1-task-entered.png"
+    },
+    {
+      "name": "task1-run-accepted",
+      "at": "2026-10-29T13:11:09.689Z",
+      "videoOffsetSec": 6.4,
+      "runId": "run-c5a5208e-81c4-402c-afc5-d7b83eb09c00",
+      "detail": "run run-c5a5208e-81c4-402c-afc5-d7b83eb09c00 persisted by the worker",
+      "screenshot": "screenshots/04-task1-run-accepted.png"
+    },
+    {
+      "name": "task1-skill-used",
+      "at": "2026-10-29T13:11:15.396Z",
+      "videoOffsetSec": 12.1,
+      "runId": "run-c5a5208e-81c4-402c-afc5-d7b83eb09c00",
+      "detail": "a skill card appeared",
+      "screenshot": "screenshots/05-task1-skill-used.png"
+    },
+    {
+      "name": "task1-tool-search",
+      "at": "2026-10-29T13:11:20.651Z",
+      "videoOffsetSec": 17.4,
+      "runId": "run-c5a5208e-81c4-402c-afc5-d7b83eb09c00",
+      "detail": "a tool was found by search",
+      "screenshot": "screenshots/06-task1-tool-search.png"
+    },
+    {
+      "name": "task1-tool-loaded",
+      "at": "2026-10-29T13:11:20.778Z",
+      "videoOffsetSec": 17.5,
+      "runId": "run-c5a5208e-81c4-402c-afc5-d7b83eb09c00",
+      "detail": "a searched tool became callable",
+      "screenshot": "screenshots/07-task1-tool-loaded.png"
+    },
+    {
+      "name": "task1-permission-denial",
+      "at": "2026-10-29T13:11:20.975Z",
+      "videoOffsetSec": 17.7,
+      "runId": "run-c5a5208e-81c4-402c-afc5-d7b83eb09c00",
+      "detail": "a native tool call was denied by Node policy",
+      "screenshot": "screenshots/08-task1-permission-denial.png"
+    },
+    {
+      "name": "task1-first-helper",
+      "at": "2026-10-29T13:11:26.157Z",
+      "videoOffsetSec": 22.9,
+      "runId": "run-c5a5208e-81c4-402c-afc5-d7b83eb09c00",
+      "detail": "1 helper(s) visible",
+      "screenshot": "screenshots/09-task1-first-helper.png"
+    },
+    {
+      "name": "task1-helpers-overlap",
+      "at": "2026-10-29T13:11:31.360Z",
+      "videoOffsetSec": 28.1,
+      "runId": "run-c5a5208e-81c4-402c-afc5-d7b83eb09c00",
+      "detail": "3 helpers running at once",
+      "screenshot": "screenshots/10-task1-helpers-overlap.png"
+    },
+    {
+      "name": "task1-before-reload",
+      "at": "2026-10-29T13:11:31.560Z",
+      "videoOffsetSec": 28.3,
+      "runId": "run-c5a5208e-81c4-402c-afc5-d7b83eb09c00",
+      "detail": "reloading the tab at 27 tool calls",
+      "screenshot": "screenshots/11-task1-before-reload.png"
+    },
+    {
+      "name": "task1-after-reload",
+      "at": "2026-10-29T13:11:32.759Z",
+      "videoOffsetSec": 29.5,
+      "runId": "run-c5a5208e-81c4-402c-afc5-d7b83eb09c00",
+      "detail": "restored from the worker; run still running with 36 tool calls",
+      "screenshot": "screenshots/12-task1-after-reload.png"
+    },
+    {
+      "name": "task1-first-artifact",
+      "at": "2026-10-29T13:11:48.250Z",
+      "videoOffsetSec": 45,
+      "runId": "run-c5a5208e-81c4-402c-afc5-d7b83eb09c00",
+      "detail": "first artifact listed",
+      "screenshot": "screenshots/13-task1-first-artifact.png"
+    },
+    {
+      "name": "task1-first-check",
+      "at": "2026-10-29T13:12:19.379Z",
+      "videoOffsetSec": 76.1,
+      "runId": "run-c5a5208e-81c4-402c-afc5-d7b83eb09c00",
+      "detail": "first check result visible",
+      "screenshot": "screenshots/14-task1-first-check.png"
+    },
+    {
+      "name": "task1-before-interrupt",
+      "at": "2026-10-29T13:12:19.527Z",
+      "videoOffsetSec": 76.3,
+      "runId": "run-c5a5208e-81c4-402c-afc5-d7b83eb09c00",
+      "detail": "comparison.json exists; stopping the run",
+      "screenshot": "screenshots/15-task1-before-interrupt.png"
+    },
+    {
+      "name": "task1-interrupted",
+      "at": "2026-10-29T13:12:19.939Z",
+      "videoOffsetSec": 76.7,
+      "runId": "run-c5a5208e-81c4-402c-afc5-d7b83eb09c00",
+      "detail": "run interrupted by the user",
+      "screenshot": "screenshots/16-task1-interrupted.png"
+    },
+    {
+      "name": "task1-resumed",
+      "at": "2026-10-29T13:12:20.264Z",
+      "videoOffsetSec": 77,
+      "runId": "run-4e7be1d4-2f09-4064-8972-18bf20b33b62",
+      "detail": "resumed as run-4e7be1d4-2f09-4064-8972-18bf20b33b62 on the same native session",
+      "screenshot": "screenshots/17-task1-resumed.png"
+    },
+    {
+      "name": "task1-skill-drafted",
+      "at": "2026-10-29T13:12:45.848Z",
+      "videoOffsetSec": 102.6,
+      "runId": "run-4e7be1d4-2f09-4064-8972-18bf20b33b62",
+      "detail": "skill lifecycle stage drafted",
+      "screenshot": "screenshots/18-task1-skill-drafted.png"
+    },
+    {
+      "name": "task1-skill-validated",
+      "at": "2026-10-29T13:12:45.964Z",
+      "videoOffsetSec": 102.7,
+      "runId": "run-4e7be1d4-2f09-4064-8972-18bf20b33b62",
+      "detail": "skill lifecycle stage validated",
+      "screenshot": "screenshots/19-task1-skill-validated.png"
+    },
+    {
+      "name": "task1-citation-skill-card",
+      "at": "2026-10-29T13:12:46.066Z",
+      "videoOffsetSec": 102.8,
+      "runId": "run-4e7be1d4-2f09-4064-8972-18bf20b33b62",
+      "detail": "citation-validation skill card visible",
+      "screenshot": "screenshots/20-task1-citation-skill-card.png"
+    },
+    {
+      "name": "task1-skill-tested",
+      "at": "2026-10-29T13:13:11.605Z",
+      "videoOffsetSec": 128.4,
+      "runId": "run-4e7be1d4-2f09-4064-8972-18bf20b33b62",
+      "detail": "skill lifecycle stage tested",
+      "screenshot": "screenshots/21-task1-skill-tested.png"
+    },
+    {
+      "name": "task1-skill-activated",
+      "at": "2026-10-29T13:13:11.695Z",
+      "videoOffsetSec": 128.4,
+      "runId": "run-4e7be1d4-2f09-4064-8972-18bf20b33b62",
+      "detail": "skill lifecycle stage activated",
+      "screenshot": "screenshots/22-task1-skill-activated.png"
+    },
+    {
+      "name": "task1-terminal-completed",
+      "at": "2026-10-29T13:13:37.274Z",
+      "videoOffsetSec": 154,
+      "runId": "run-4e7be1d4-2f09-4064-8972-18bf20b33b62",
+      "detail": "run run-4e7be1d4-2f09-4064-8972-18bf20b33b62 ended completed",
+      "screenshot": "screenshots/23-task1-terminal-completed.png"
+    },
+    {
+      "name": "task1-verified",
+      "at": "2026-10-29T13:13:37.389Z",
+      "videoOffsetSec": 154.1,
+      "runId": "run-4e7be1d4-2f09-4064-8972-18bf20b33b62",
+      "detail": "independent verifier: 18 passed, 0 failed",
+      "screenshot": "screenshots/24-task1-verified.png"
+    },
+    {
+      "name": "task2-task-entered",
+      "at": "2026-10-29T13:13:38.087Z",
+      "videoOffsetSec": 154.8,
+      "detail": "suggested task \"inbox-update\" placed in the composer",
+      "screenshot": "screenshots/29-task2-task-entered.png"
+    },
+    {
+      "name": "task2-run-accepted",
+      "at": "2026-10-29T13:13:38.286Z",
+      "videoOffsetSec": 155,
+      "runId": "run-1535b0fb-8c9c-4053-b647-92a39c16bd2c",
+      "detail": "run run-1535b0fb-8c9c-4053-b647-92a39c16bd2c persisted by the worker",
+      "screenshot": "screenshots/30-task2-run-accepted.png"
+    },
+    {
+      "name": "task2-tool-search",
+      "at": "2026-10-29T13:13:43.450Z",
+      "videoOffsetSec": 160.2,
+      "runId": "run-1535b0fb-8c9c-4053-b647-92a39c16bd2c",
+      "detail": "a tool was found by search",
+      "screenshot": "screenshots/31-task2-tool-search.png"
+    },
+    {
+      "name": "task2-tool-loaded",
+      "at": "2026-10-29T13:13:43.536Z",
+      "videoOffsetSec": 160.3,
+      "runId": "run-1535b0fb-8c9c-4053-b647-92a39c16bd2c",
+      "detail": "a searched tool became callable",
+      "screenshot": "screenshots/32-task2-tool-loaded.png"
+    },
+    {
+      "name": "task2-skill-used",
+      "at": "2026-10-29T13:13:43.616Z",
+      "videoOffsetSec": 160.4,
+      "runId": "run-1535b0fb-8c9c-4053-b647-92a39c16bd2c",
+      "detail": "a skill card appeared",
+      "screenshot": "screenshots/33-task2-skill-used.png"
+    },
+    {
+      "name": "task2-first-artifact",
+      "at": "2026-10-29T13:13:59.007Z",
+      "videoOffsetSec": 175.8,
+      "runId": "run-1535b0fb-8c9c-4053-b647-92a39c16bd2c",
+      "detail": "first artifact listed",
+      "screenshot": "screenshots/34-task2-first-artifact.png"
+    },
+    {
+      "name": "task2-permission-denial",
+      "at": "2026-10-29T13:14:04.216Z",
+      "videoOffsetSec": 181,
+      "runId": "run-1535b0fb-8c9c-4053-b647-92a39c16bd2c",
+      "detail": "a native tool call was denied by Node policy",
+      "screenshot": "screenshots/35-task2-permission-denial.png"
+    },
+    {
+      "name": "task2-citation-skill-card",
+      "at": "2026-10-29T13:14:14.481Z",
+      "videoOffsetSec": 191.2,
+      "runId": "run-1535b0fb-8c9c-4053-b647-92a39c16bd2c",
+      "detail": "citation-validation skill card visible",
+      "screenshot": "screenshots/36-task2-citation-skill-card.png"
+    },
+    {
+      "name": "task2-first-check",
+      "at": "2026-10-29T13:14:14.586Z",
+      "videoOffsetSec": 191.3,
+      "runId": "run-1535b0fb-8c9c-4053-b647-92a39c16bd2c",
+      "detail": "first check result visible",
+      "screenshot": "screenshots/37-task2-first-check.png"
+    },
+    {
+      "name": "task2-terminal-completed",
+      "at": "2026-10-29T13:14:19.762Z",
+      "videoOffsetSec": 196.5,
+      "runId": "run-1535b0fb-8c9c-4053-b647-92a39c16bd2c",
+      "detail": "run run-1535b0fb-8c9c-4053-b647-92a39c16bd2c ended completed",
+      "screenshot": "screenshots/38-task2-terminal-completed.png"
+    },
+    {
+      "name": "task2-verified",
+      "at": "2026-10-29T13:14:19.906Z",
+      "videoOffsetSec": 196.7,
+      "runId": "run-1535b0fb-8c9c-4053-b647-92a39c16bd2c",
+      "detail": "independent verifier: 18 passed, 0 failed",
+      "screenshot": "screenshots/39-task2-verified.png"
+    }
+  ]
+}

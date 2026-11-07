@@ -30,7 +30,7 @@ Convex **components** mounted in `convex/convex.config.ts`:
 | Component | What it does here |
 |---|---|
 | `@convex-dev/workflow` | Durable multi-step agent jobs. Mounted twice — the second mount, `passiveWorkflow`, exists so background/passive jobs get their own workpool with `maxParallelism = 1` and cannot starve foreground jobs. |
-| `@convex-dev/workpool` (`agentWorkpool`) | Bounded parallelism for agent work. |
+| `@convex-dev/workpool` | Bounded parallelism for agent work, configured through each workflow's `workpoolOptions` (no standalone mount). |
 | `@convex-dev/persistent-text-streaming` | Streams model tokens to the asking tab over HTTP while persisting sentence-flushed chunks, so other tabs and post-refresh reloads still see the reply. |
 | `@ikhrustalev/convex-debouncer` | Debounced writes. |
 | `@convex-dev/prosemirror-sync` | Collaborative rich-text documents. |
@@ -47,9 +47,10 @@ selection, pricing and failover live in `src/nodeagent/models/`
 (`modelCatalog.ts`, `qualityFailover.ts`, `convexModel.ts`). Tool argument
 schemas are Zod 4.
 
-**The app runs with no model key at all.** `src/nodeagent/models/scripted.ts`
-supplies a deterministic scripted model for the in-memory demo tier, which is
-why `npm run dev` needs no secrets.
+**Tests need no model key.** `src/nodeagent/models/scripted.ts` supplies a
+deterministic scripted model for the keyless test harness (the in-memory room
+that Vitest and the product-memory gate drive). That harness is test
+infrastructure, not a product mode; real agent work needs a provider key.
 
 ## Document and data formats
 
@@ -72,7 +73,7 @@ checkout with no private registry access.
 
 ## Hosting
 
-Vercel (`vercel.json` — including the production Content-Security-Policy) with a
-Netlify config also present (`netlify.toml`). `scripts/verify-build-provenance.ts`
+Vercel (`vercel.json` — including the production Content-Security-Policy).
+`scripts/verify-build-provenance.ts`
 runs as part of `npm run build` and fails the build unless the emitted HTML
 carries the exact commit it was built from.

@@ -3,7 +3,8 @@
 > Meta-task: act as the founder + senior staff product engineer. Drive the app, find issues
 > and taste-mismatches the way a real user would, root-cause them, fix, verify live, record.
 > 10 loops, each a sharper/different angle. Seeded by Homen's screen-recording review
-> (`6-14-2026-deep-review.txt` + Gemini 3.5 Flash video judge).
+> (`6-14-2026-deep-review.txt`, removed from the tree, read it at commit `6f1af0f7`,
+> + Gemini 3.5 Flash video judge).
 
 Branch: `founder-loop-fixes` · started 2026-06-14.
 

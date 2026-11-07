@@ -1,25 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { chooseAdaptiveRoute } from "@nodeagent/core/adaptiveRouter";
 import { compactMessages } from "@nodeagent/core/contextCompactor";
 import { evaluateFormula } from "@nodeagent/core/formulaEngine";
-import { splitBulkDiligence } from "@nodeagent/core/orchestrator";
-import { toConvexSafeLifecycleEvent } from "@nodeagent/core/stateBridge";
 import { parseBulkCompanyIngest, splitBulkCompanyRecords } from "@nodeagent/skills/finance/bulkIngest";
 import { computeRunway, runwayChartSvg } from "@nodeagent/skills/finance/runwayForecaster";
-import { createDiligenceDownstreamDrafts, type DownstreamArtifact } from "@nodeagent/skills/integration/downstreamPublish";
-import { searchLinkup } from "@nodeagent/skills/search/linkupClient";
+import { buildDownstreamDiligenceDrafts, createDiligenceDownstreamDrafts, type DownstreamArtifact } from "@nodeagent/skills/integration/downstreamPublish";
 
 describe("src/nodeagent review-alignment surface", () => {
-  it("routes high-risk semantic work to the governed lane", () => {
-    const route = chooseAdaptiveRoute({
-      taskType: "semantic_rebase",
-      risk: "high",
-      preferredModel: "claude-haiku-4-5",
-    });
-    expect(route.lane).toBe("governed");
-    expect(route.modelId).toBeTruthy();
-  });
-
   it("keeps compaction and formula engine imports wired to real implementations", async () => {
     const formula = evaluateFormula("=SUM(A1:A2)", {
       getCell: (ref) => ref === "A1" ? 2 : 3,
@@ -49,17 +35,6 @@ describe("src/nodeagent review-alignment surface", () => {
     expect(runwayChartSvg(result)).toContain("Mercury");
   });
 
-  it("splits bulk orchestration batches without running a model", () => {
-    const batches = splitBulkDiligence(["Mercury", "Ramp", "Brex"], { batchSize: 2 });
-    expect(batches.map((batch) => batch.items)).toEqual([["Mercury", "Ramp"], ["Brex"]]);
-  });
-
-  it("converts lifecycle events into Convex-safe payloads", () => {
-    const event = toConvexSafeLifecycleEvent({ type: "text_delta", runId: "run_1", delta: "streaming" });
-    expect(event.kind).toBe("text_delta");
-    expect(event.payload.delta).toBe("streaming");
-  });
-
   it("creates approval-gated downstream publish drafts", () => {
     const artifact: DownstreamArtifact = {
       id: "report_1",
@@ -76,15 +51,16 @@ describe("src/nodeagent review-alignment surface", () => {
     expect(drafts.find((draft) => draft.destination === "crm_csv")?.status).toBe("ready");
   });
 
-  it("keeps Linkup search bounded and can fall back to explicit source URLs", async () => {
-    const previous = process.env.LINKUP_API_KEY;
-    delete process.env.LINKUP_API_KEY;
-    try {
-      const results = await searchLinkup({ query: "Mercury banking", urls: [], limit: 2 });
-      expect(results).toEqual([]);
-    } finally {
-      if (previous) process.env.LINKUP_API_KEY = previous;
-    }
+  // Moved from the deleted tests/nodeagentStructure.test.ts: this is the only test of buildDownstreamDiligenceDrafts.
+  it("builds draft-ready downstream diligence drafts for every target", () => {
+    const drafts = buildDownstreamDiligenceDrafts({
+      company: "Mercury",
+      summary: "Watch status with sourced runway assumptions.",
+      evidenceUrls: ["https://example.com/source"],
+      artifactIds: ["art_company_research"],
+    });
+    expect(drafts.map((d) => d.target)).toEqual(["csv", "gmail", "notion", "slack", "linear", "linkedin"]);
+    expect(drafts[0].status).toBe("draft_ready");
   });
 });
 

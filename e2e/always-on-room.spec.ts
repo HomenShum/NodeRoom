@@ -1,34 +1,33 @@
 /**
- * Always-On Rooms — public read-only room page (#rooms/<slug>).
- * The route renders fully in memory mode from the demo bundle (honest
- * specimen data), so no backend/keys are needed — same pattern as
- * mobile-story-surfaces.spec.ts.
+ * Always-On Rooms — public read-only room page (#rooms/<slug>) in the browser.
  *
- * Run stably against any built server:
- *   PLAYWRIGHT_REUSE_SERVER=1 PLAYWRIGHT_BASE_URL=http://127.0.0.1:5299 \
- *     npx playwright test always-on-room
- * (point BASE_URL at a `vite preview` of a fresh build).
+ * There is no demo bundle any more: without a backend the route is an honest
+ * setup-required page (checked here in memory mode). The room view itself is
+ * exercised against a Convex-backed server with expositio-pulse seeded
+ * (PLAYWRIGHT_EXPECT_ALWAYS_ON_LIVE=1). Exact seed-content assertions (paper
+ * counts, filters, subscribe outcomes, loading/missing/error states) live in
+ * tests/alwaysOnPublicRoomPage.test.tsx with an injected bundle.
+ *
+ * Run against a live server:
+ *   PLAYWRIGHT_EXPECT_ALWAYS_ON_LIVE=1 PLAYWRIGHT_REUSE_SERVER=1 \
+ *     PLAYWRIGHT_BASE_URL=http://127.0.0.1:5299 npx playwright test always-on-room
  */
 import { test, expect } from "@playwright/test";
 
 const TAB_IDS = ["ao-tab-home", "ao-tab-papers", "ao-tab-topics", "ao-tab-weekly-digest", "ao-tab-trace"] as const;
 
-test.describe("#rooms/expositio-pulse — public read-only room", () => {
+const LIVE = process.env.PLAYWRIGHT_EXPECT_ALWAYS_ON_LIVE === "1";
+
+test.describe("#rooms/expositio-pulse — public read-only room (live)", () => {
+  test.skip(!LIVE, "Requires a Convex-backed server with expositio-pulse seeded.");
   test.beforeEach(async ({ page }) => {
-    // ?mode=memory pins HAS_CONVEX=false (src/app/store.tsx): content
-    // assertions stay deterministic on the demo bundle, and the subscribe
-    // flow can never write to a live deployment from CI.
-    await page.goto("/?mode=memory#rooms/expositio-pulse");
+    await page.goto("/#rooms/expositio-pulse");
     await expect(page.getByTestId("ao-room")).toBeVisible({ timeout: 30_000 });
   });
 
   test("frame, five tabs, proof footer, read-only hint — and no Ops tab without ops=1", async ({ page }) => {
-    // HONEST STAMP: memory mode is the demo bundle and says so on the DOM —
-    // the page must never claim data-ao-source="live" without a real payload.
-    await expect(page.locator(".ao-public")).toHaveAttribute("data-ao-source", "demo");
-    // The specimen viewers chip is demo-only chrome (no viewer tracking
-    // exists); it renders here and is hidden on a live bundle.
-    await expect(page.locator(".ao-rtop")).toContainText("312 viewers this week");
+    await expect(page.locator(".ao-public")).toHaveAttribute("data-ao-source", "live", { timeout: 30_000 });
+    await expect(page.locator(".ao-rtop")).not.toContainText("viewers this week");
 
     for (const id of TAB_IDS) await expect(page.getByTestId(id)).toBeVisible();
     // Ops is owner/demo chrome — ABSENT unless ops=1 is in the URL.
@@ -39,7 +38,6 @@ test.describe("#rooms/expositio-pulse — public read-only room", () => {
     await expect(proof).toBeVisible();
     await expect(proof).toContainText("Status");
     await expect(proof).toContainText("Sources checked");
-    await expect(proof).toContainText("1 / 1 allowed");
     await expect(proof).toContainText("Cost");
     await expect(page.getByTestId("ao-change-postit")).toContainText(/What changed/i);
 
@@ -53,40 +51,30 @@ test.describe("#rooms/expositio-pulse — public read-only room", () => {
   });
 
   test("each tab swaps the main surface content", async ({ page }) => {
-    // Home (default): the agent-authored daily brief on the paper surface.
-    await expect(page.locator(".ao-brief h2")).toContainText("Expositio daily brief");
-    await expect(page.locator(".ao-brief .agent-line")).toContainText(/Room NodeAgent/i);
+    await expect(page.getByTestId("ao-brief-live")).toBeVisible();
 
-    // Papers: sheet with the specimen rows.
     await page.getByTestId("ao-tab-papers").click();
     await expect(page.getByTestId("ao-paper-tools")).toBeVisible();
-    await expect(page.getByTestId("ao-paper-count")).toContainText("6 of 6 papers");
+    await expect(page.getByTestId("ao-paper-count")).toContainText("papers");
     await expect(page.locator(".ao-sheet")).toBeVisible();
-    await expect(page.locator(".ao-sheet")).toContainText("Spectral sequences without tears");
     await expect(page.locator(".ao-brief")).toHaveCount(0);
 
-    // Topics: the hand-laid SVG graph (role=img; the head's link icon svg is aria-hidden).
     await page.getByTestId("ao-tab-topics").click();
-    await expect(page.locator('.ao-graph svg[role="img"]')).toBeVisible();
-    await expect(page.locator('.ao-graph svg[role="img"] .ao-gnode')).not.toHaveCount(0);
+    await expect(page.getByTestId("ao-topics-live")).toBeVisible();
     await expect(page.locator(".ao-sheet")).toHaveCount(0);
 
     // Weekly digest: honest empty state — no fabricated digest.
     await page.getByTestId("ao-tab-weekly-digest").click();
     await expect(page.locator(".ao-empty .h")).toContainText("No weekly digest yet");
 
-    // Trace: run log including the hash-skip row (the cost story in one line).
     await page.getByTestId("ao-tab-trace").click();
     await expect(page.locator(".ao-runlog")).toBeVisible();
-    await expect(page.locator(".ao-runlog")).toContainText("hash unchanged");
-    await expect(page.locator(".ao-run.skipped")).toContainText("0.0 cr");
 
-    // Back Home: brief returns.
     await page.getByTestId("ao-tab-home").click();
-    await expect(page.locator(".ao-brief h2")).toContainText("Expositio daily brief");
+    await expect(page.getByTestId("ao-brief-live")).toBeVisible();
   });
 
-  test("tabs, proof link, and paper filters are keyboard-accessible", async ({ page }) => {
+  test("tabs and the proof link are keyboard-accessible", async ({ page }) => {
     const homeTab = page.getByTestId("ao-tab-home");
     const papersTab = page.getByTestId("ao-tab-papers");
     await expect(homeTab).toHaveAttribute("role", "tab");
@@ -95,23 +83,7 @@ test.describe("#rooms/expositio-pulse — public read-only room", () => {
     await homeTab.focus();
     await homeTab.press("ArrowRight");
     await expect(papersTab).toHaveAttribute("aria-selected", "true");
-    await expect(page.getByTestId("ao-paper-count")).toContainText("6 of 6 papers");
-
-    await page.getByTestId("ao-paper-search").fill("causal");
-    await expect(page.getByTestId("ao-paper-count")).toContainText("1 of 6 papers");
-    await expect(page.locator(".ao-sheet")).toContainText("Causal inference: the missing semester");
-    await expect(page.getByTestId("ao-paper-row")).toHaveCount(1);
-
-    await page.getByTestId("ao-paper-status-new").click();
-    await expect(page.getByTestId("ao-paper-empty")).toBeVisible();
-    await page.getByTestId("ao-paper-clear").click();
-    await expect(page.getByTestId("ao-paper-count")).toContainText("6 of 6 papers");
-
-    await page.getByTestId("ao-tab-topics").click();
-    await page.getByTestId("ao-topic-causal-inference").click();
-    await expect(papersTab).toHaveAttribute("aria-selected", "true");
-    await expect(page.getByTestId("ao-paper-topic")).toContainText("causal inference");
-    await expect(page.getByTestId("ao-paper-count")).toContainText("1 of 6 papers");
+    await expect(page.getByTestId("ao-paper-tools")).toBeVisible();
 
     await page.getByTestId("ao-proof-trace").click();
     await expect(page.getByTestId("ao-tab-trace")).toHaveAttribute("aria-selected", "true");
@@ -161,7 +133,6 @@ test.describe("#rooms/expositio-pulse — public read-only room", () => {
     await page.getByTestId("ao-tab-papers").click();
     await expect(page.getByTestId("ao-paper-tools")).toBeVisible();
     await expect(page.getByTestId("ao-paper-cards")).toBeVisible();
-    await expect(page.getByTestId("ao-paper-cards")).toContainText("Spectral sequences without tears");
     await expect(page.locator(".ao-sheet")).toBeHidden();
     await expect(page.getByTestId("ao-tab-trace")).toBeVisible();
 
@@ -188,7 +159,7 @@ test.describe("#rooms/expositio-pulse — public read-only room", () => {
     await page.getByTestId("ao-subscribe-btn").click();
     const modal = page.getByTestId("ao-subscribe-modal");
     await expect(modal).toBeVisible();
-    await expect(modal).toContainText("Subscribe to Expositio Pulse");
+    await expect(modal).toContainText("Subscribe to");
     // Cadence radios carry the specimen sublabels.
     await expect(modal).toContainText("Daily brief");
     await expect(modal).toContainText("weekday 9:15, after the scan");
@@ -223,28 +194,11 @@ test.describe("#rooms/expositio-pulse — public read-only room", () => {
     await expect(modal).toHaveCount(0);
   });
 
-  test("memory-mode subscribe is honest: success state carries the demo hint", async ({ page }) => {
-    await page.getByTestId("ao-subscribe-btn").click();
-    await page.getByTestId("ao-subscribe-email").fill("reader@university.edu");
-    await page.getByTestId("ao-subscribe-modal").getByRole("button", { name: /^Subscribe$/ }).click();
-    await expect(page.getByTestId("ao-subscribe-success")).toBeVisible();
-    // HONEST_STATUS: memory mode never claims a stored subscription.
-    await expect(page.getByTestId("ao-subscribe-demo-hint")).toContainText(/nothing was stored/i);
-    await expect(page.getByTestId("ao-subscribe-success")).toContainText(/no email was sent/i);
-  });
-
   test("live subscribe success is honest about pending storage vs email delivery", async ({ page }) => {
-    test.skip(
-      process.env.PLAYWRIGHT_EXPECT_ALWAYS_ON_LIVE !== "1" || !process.env.PLAYWRIGHT_LIVE_SUBSCRIBE_EMAIL,
-      "Requires a Convex-backed server and an explicit disposable/live test email."
-    );
-
-    await page.goto("/#rooms/expositio-pulse");
-    await expect(page.getByTestId("ao-room")).toBeVisible({ timeout: 30_000 });
-    await expect(page.locator(".ao-public")).toHaveAttribute("data-ao-source", "live", { timeout: 30_000 });
+    test.skip(!process.env.PLAYWRIGHT_LIVE_SUBSCRIBE_EMAIL, "Requires an explicit disposable/live test email.");
 
     await page.getByTestId("ao-subscribe-btn").click();
-    await page.getByTestId("ao-subscribe-email").fill(process.env.PLAYWRIGHT_LIVE_SUBSCRIBE_EMAIL);
+    await page.getByTestId("ao-subscribe-email").fill(process.env.PLAYWRIGHT_LIVE_SUBSCRIBE_EMAIL!);
     await page.getByTestId("ao-subscribe-modal").getByRole("button", { name: /^Subscribe$/ }).click();
 
     const success = page.getByTestId("ao-subscribe-success");
@@ -262,19 +216,21 @@ test.describe("#rooms/expositio-pulse — public read-only room", () => {
   });
 });
 
-test.describe("#rooms — cold landing, ops gate, unknown slugs", () => {
-  test("cold landing on the plain hash renders the room (demo fallback when no live bundle)", async ({ page }) => {
-    // No ?mode=memory here on purpose: whatever the build (memory or convex
-    // with the alwaysOn module not yet deployed), the page must still render
-    // via the silent demo fallback — the cold-landing contract.
-    await page.goto("/#rooms/expositio-pulse");
-    await expect(page.getByTestId("ao-room")).toBeVisible({ timeout: 30_000 });
-    await expect(page.locator(".ao-rtop .crumb")).toContainText("Expositio Pulse");
-  });
+test.describe("#rooms — no backend: honest setup-required page, never demo data", () => {
+  for (const route of ["/?mode=memory#rooms/expositio-pulse", "/?mode=memory#/rooms/expositio-pulse", "/?mode=memory#rooms/definitely-not-a-room"]) {
+    test(`${route} renders setup-required, no room`, async ({ page }) => {
+      await page.goto(route);
+      await expect(page.getByTestId("setup-required")).toBeVisible({ timeout: 30_000 });
+      await expect(page.getByTestId("setup-required")).toContainText("VITE_CONVEX_URL");
+      await expect(page.getByTestId("ao-room")).toHaveCount(0);
+    });
+  }
+});
 
-  test("live Convex bundle stamps source=live when the backend room exists", async ({ page }) => {
-    test.skip(process.env.PLAYWRIGHT_EXPECT_ALWAYS_ON_LIVE !== "1", "Requires a Convex-backed server with expositio-pulse seeded.");
+test.describe("#rooms — live routing, ops gate, unknown slugs", () => {
+  test.skip(!LIVE, "Requires a Convex-backed server with expositio-pulse seeded.");
 
+  test("live Convex bundle stamps source=live and hides untracked viewer counts", async ({ page }) => {
     await page.goto("/#rooms/expositio-pulse");
     await expect(page.getByTestId("ao-room")).toBeVisible({ timeout: 30_000 });
     await expect(page.locator(".ao-public")).toHaveAttribute("data-ao-source", "live", { timeout: 30_000 });
@@ -284,11 +240,10 @@ test.describe("#rooms — cold landing, ops gate, unknown slugs", () => {
 
     await page.getByTestId("ao-tab-papers").click();
     await expect(page.getByTestId("ao-paper-count")).toContainText("papers");
-    await expect(page.getByTestId("ao-paper-count")).not.toContainText("6 of 6 papers");
   });
 
   test("ops=1 in the hash query reveals the Ops tab and the ops panel", async ({ page }) => {
-    await page.goto("/?mode=memory#rooms/expositio-pulse?ops=1");
+    await page.goto("/#rooms/expositio-pulse?ops=1");
     await expect(page.getByTestId("ao-room")).toBeVisible({ timeout: 30_000 });
     const opsTab = page.getByTestId("ao-tab-ops");
     await expect(opsTab).toBeVisible();
@@ -297,13 +252,13 @@ test.describe("#rooms — cold landing, ops gate, unknown slugs", () => {
   });
 
   test("#/rooms/<slug> variant resolves to the same page", async ({ page }) => {
-    await page.goto("/?mode=memory#/rooms/expositio-pulse");
+    await page.goto("/#/rooms/expositio-pulse");
     await expect(page.getByTestId("ao-room")).toBeVisible({ timeout: 30_000 });
     await expect(page.locator(".ao-rtop .crumb")).toContainText("Expositio Pulse");
   });
 
-  test("unknown slug renders an honest missing state, never relabeled demo data", async ({ page }) => {
-    await page.goto("/?mode=memory#rooms/definitely-not-a-room");
+  test("unknown slug renders an honest missing state, never relabeled data", async ({ page }) => {
+    await page.goto("/#rooms/definitely-not-a-room");
     await expect(page.getByTestId("ao-room-missing")).toBeVisible({ timeout: 30_000 });
     await expect(page.getByTestId("ao-room")).toHaveCount(0);
   });

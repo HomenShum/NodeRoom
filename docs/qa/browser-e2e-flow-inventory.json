@@ -325,7 +325,7 @@
       "id": "official-benchmark-ui",
       "name": "Official benchmark fresh-room UI runs",
       "owner": "quality",
-      "currentCoverage": ["tests/ui-benchmark-drive.spec.ts", "src/eval/spreadsheetBenchRunner.ts", "src/eval/bankerToolBenchRunner.ts", "src/eval/officialBenchmarkUiCoverage.ts"],
+      "currentCoverage": ["src/eval/spreadsheetBenchRunner.ts", "src/eval/bankerToolBenchRunner.ts", "src/eval/officialBenchmarkUiCoverage.ts"],
       "scenarios": [
         {
           "id": "official-benchmark-ui.spreadsheetbench-workbook",

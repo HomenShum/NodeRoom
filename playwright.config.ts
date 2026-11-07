@@ -9,7 +9,9 @@ const reuseExistingServer = process.env.PLAYWRIGHT_REUSE_SERVER === "1";
  *
  * Default specs run against the app in MEMORY mode (`/?mode=memory` → the deterministic in-memory
  * RoomEngine), so they need NO Convex backend and NO provider keys — they are green in plain CI and
- * prove the real rendered UI + the optimistic/honest-status paths (Wave 1).
+ * prove the real rendered UI + the optimistic/honest-status paths (Wave 1). The dev server gets
+ * VITE_NODEROOM_HARNESS=1 so `?mode=memory` still wins when .env.local sets VITE_CONVEX_URL;
+ * builds without that flag ignore `?mode=memory` whenever Convex is configured.
  *
  * Backend-dependent specs (cross-client reactivity, CAS-loser revert) live in *.backend.spec.ts and
  * skip themselves unless E2E_CONVEX_URL is set, because only a real Convex backend can prove reactivity.
@@ -32,6 +34,7 @@ export default defineConfig({
     url: playwrightBaseUrl,
     reuseExistingServer,
     timeout: 120_000,
+    env: { VITE_NODEROOM_HARNESS: "1" },
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
 });

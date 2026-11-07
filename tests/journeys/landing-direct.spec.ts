@@ -1,24 +1,21 @@
 import { expect, test, type Page, type TestInfo } from "@playwright/test";
 
 test.describe("SEO journey: direct landing", () => {
-  test("landing page is understandable and primary CTA opens a room", async ({ page }, testInfo) => {
+  test("landing page is understandable and the live primary CTA is ready", async ({ page }, testInfo) => {
+    test.skip(process.env.E2E_LIVE !== "1", "SEO journeys model a production visitor: run against a Convex-configured server (E2E_LIVE=1).");
     const problems = collectPageProblems(page);
-    await page.goto("/?mode=memory&surface=desktop", { waitUntil: "domcontentloaded" });
+    await page.goto("/?surface=desktop", { waitUntil: "domcontentloaded" });
 
     await expect(page.getByRole("heading", { level: 1 })).toContainText(/Diligence that/i);
-    await expect(page.getByTestId("start-demo-room")).toBeVisible();
+    await expect(page.getByTestId("create-room")).toBeEnabled();
     await expect(page.getByTestId("landing-demo-loop")).toBeVisible();
     await expect(page.getByTestId("landing-proof-pill")).toBeVisible();
     await expect(page.getByText(/Share a code/i)).toBeVisible();
     await expect(page.getByText(/Locks, then smart-merge/i)).toBeVisible();
 
+    await expect(page.getByTestId("start-demo-room")).toHaveCount(0);
+    // Entering a room is sign-in gated in production; that leg is the deployed-auth e2e lane.
     await attachScreenshot(page, testInfo, "landing-direct");
-    await page.getByTestId("start-demo-room").click();
-    await expect(page.getByTestId("artifact-panel")).toBeVisible();
-    if ((page.viewportSize()?.width ?? 0) >= 1000) {
-      await expect(page.getByTestId("public-chat-panel")).toBeVisible();
-    }
-    await attachScreenshot(page, testInfo, "landing-direct-room");
 
     expect(problems.errors, problemsSummary(problems)).toEqual([]);
     expect(problems.failedRequests, problemsSummary(problems)).toEqual([]);
