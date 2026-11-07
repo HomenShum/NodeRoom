@@ -141,7 +141,7 @@ async function runProfessionalRuntimeLiveCase(
   const built = buildRuntimeRoom(scenario);
   const agent = options.modelName === "scripted"
     ? scriptedModel(runtimeSmokePlan(scenario, built.noteId), `scripted:${evalCase.id}`)
-    : realModel(options.modelName);
+    : realModel(options.modelName, { operatorSelected: true });
   const started = Date.now();
   try {
     const result = await runAgent({

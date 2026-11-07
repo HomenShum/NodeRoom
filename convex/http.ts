@@ -15,6 +15,7 @@ import type { StreamId } from "@convex-dev/persistent-text-streaming";
 import { streamingComponent } from "./streaming";
 import { streamPrivateReplyText } from "./streamingModel";
 import { privateAgentSystemPrompt } from "./agentPrompts";
+import { DEFAULT_AGENT_MODEL } from "./modelDefaults";
 import { auth } from "./auth";
 
 const http = httpRouter();
@@ -32,7 +33,7 @@ const NVIDIA_STT_MODEL = "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning";
 const NVIDIA_AUDIO_MAX_BYTES = 5 * 1024 * 1024;
 const CLOUDFLARE_AI_MODEL_TTS = "@cf/myshell-ai/melotts";
 const GEMINI_TTS_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/models";
-const GEMINI_TTS_MODEL = "gemini-3.1-flash-tts-preview";
+const GEMINI_TTS_MODEL = "gemini-3.8-flash-tts";
 const GOOGLE_TTS_URL = "https://texttospeech.googleapis.com/v1/text:synthesize";
 type VoiceSttProvider = "openai" | "nvidia";
 type VoiceTtsProvider = "openai" | "cloudflare" | "gemini" | "google" | "disabled";
@@ -172,7 +173,7 @@ http.route({
       const userMsg = `ROOM CONTEXT\n${meta.roomContext}\n\n${meta.requesterName} asks: ${meta.goal}`;
       let answer = "";
       try {
-        answer = await streamPrivateReplyText(process.env.AGENT_MODEL ?? "gemini-3.5-flash", system, userMsg, append);
+        answer = await streamPrivateReplyText(process.env.AGENT_MODEL ?? DEFAULT_AGENT_MODEL, system, userMsg, append);
       } catch (error) {
         // HONEST_STATUS: the partial text persists, the error is visible text, never a silent 2xx void.
         const msg = `(private agent error: ${error instanceof Error ? error.message.slice(0, 160) : "model call failed"})`;

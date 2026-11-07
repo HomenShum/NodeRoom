@@ -1,0 +1,1080 @@
+{
+  "generatedAt": "2026-11-06T10:43:59.094Z",
+  "startedAt": "2026-11-06T10:42:25.673Z",
+  "command": "tsx evals/ladder.ts --real gemini-3.6-flash,gemini-3.8-flash --levels=1-4 --record --json-out docs/eval/ladder/model-refresh-noderoom.json",
+  "requestedRoutes": [
+    "gemini-3.6-flash",
+    "gemini-3.8-flash"
+  ],
+  "candidateIds": [
+    "gemini-3.6-flash",
+    "gemini-3.8-flash"
+  ],
+  "echoedModels": [
+    "gemini-3.6-flash",
+    "gemini-3.8-flash"
+  ],
+  "rows": [
+    {
+      "rung": "L1_read",
+      "requestedModel": "gemini-3.6-flash",
+      "resolvedModel": "gemini-3.6-flash",
+      "echoedModel": "gemini-3.6-flash",
+      "usage": {
+        "inputTokens": 6248,
+        "outputTokens": 191
+      },
+      "costUsd": 0.00540225,
+      "fallbackUsed": false
+    },
+    {
+      "rung": "L1_read",
+      "requestedModel": "gemini-3.6-flash",
+      "resolvedModel": "gemini-3.6-flash",
+      "echoedModel": "gemini-3.6-flash",
+      "usage": {
+        "inputTokens": 6480,
+        "outputTokens": 541
+      },
+      "costUsd": 0.00688875,
+      "fallbackUsed": false
+    },
+    {
+      "rung": "L1_read",
+      "requestedModel": "gemini-3.6-flash",
+      "resolvedModel": "gemini-3.6-flash",
+      "echoedModel": "gemini-3.6-flash",
+      "usage": {
+        "inputTokens": 7884,
+        "outputTokens": 341
+      },
+      "costUsd": 0.00719175,
+      "fallbackUsed": false
+    },
+    {
+      "rung": "L2_edit",
+      "requestedModel": "gemini-3.6-flash",
+      "resolvedModel": "gemini-3.6-flash",
+      "echoedModel": "gemini-3.6-flash",
+      "usage": {
+        "inputTokens": 6259,
+        "outputTokens": 361
+      },
+      "costUsd": 0.006048,
+      "fallbackUsed": false
+    },
+    {
+      "rung": "L2_edit",
+      "requestedModel": "gemini-3.6-flash",
+      "resolvedModel": "gemini-3.6-flash",
+      "echoedModel": "gemini-3.6-flash",
+      "usage": {
+        "inputTokens": 6695,
+        "outputTokens": 167
+      },
+      "costUsd": 0.0056475,
+      "fallbackUsed": false
+    },
+    {
+      "rung": "L2_edit",
+      "requestedModel": "gemini-3.6-flash",
+      "resolvedModel": "gemini-3.6-flash",
+      "echoedModel": "gemini-3.6-flash",
+      "usage": {
+        "inputTokens": 6915,
+        "outputTokens": 137
+      },
+      "costUsd": 0.0057,
+      "fallbackUsed": false
+    },
+    {
+      "rung": "L2_edit",
+      "requestedModel": "gemini-3.6-flash",
+      "resolvedModel": "gemini-3.6-flash",
+      "echoedModel": "gemini-3.6-flash",
+      "usage": {
+        "inputTokens": 7165,
+        "outputTokens": 68
+      },
+      "costUsd": 0.00562875,
+      "fallbackUsed": false
+    },
+    {
+      "rung": "L2_edit",
+      "requestedModel": "gemini-3.6-flash",
+      "resolvedModel": "gemini-3.6-flash",
+      "echoedModel": "gemini-3.6-flash",
+      "usage": {
+        "inputTokens": 7255,
+        "outputTokens": 40
+      },
+      "costUsd": 0.00559125,
+      "fallbackUsed": false
+    },
+    {
+      "rung": "L3_conflict",
+      "requestedModel": "gemini-3.6-flash",
+      "resolvedModel": "gemini-3.6-flash",
+      "echoedModel": "gemini-3.6-flash",
+      "usage": {
+        "inputTokens": 6262,
+        "outputTokens": 543
+      },
+      "costUsd": 0.00673275,
+      "fallbackUsed": false
+    },
+    {
+      "rung": "L3_conflict",
+      "requestedModel": "gemini-3.6-flash",
+      "resolvedModel": "gemini-3.6-flash",
+      "echoedModel": "gemini-3.6-flash",
+      "usage": {
+        "inputTokens": 6885,
+        "outputTokens": 465
+      },
+      "costUsd": 0.0069075,
+      "fallbackUsed": false
+    },
+    {
+      "rung": "L3_conflict",
+      "requestedModel": "gemini-3.6-flash",
+      "resolvedModel": "gemini-3.6-flash",
+      "echoedModel": "gemini-3.6-flash",
+      "usage": {
+        "inputTokens": 7422,
+        "outputTokens": 95
+      },
+      "costUsd": 0.00592275,
+      "fallbackUsed": false
+    },
+    {
+      "rung": "L3_conflict",
+      "requestedModel": "gemini-3.6-flash",
+      "resolvedModel": "gemini-3.6-flash",
+      "echoedModel": "gemini-3.6-flash",
+      "usage": {
+        "inputTokens": 7574,
+        "outputTokens": 139
+      },
+      "costUsd": 0.00620175,
+      "fallbackUsed": false
+    },
+    {
+      "rung": "L3_conflict",
+      "requestedModel": "gemini-3.6-flash",
+      "resolvedModel": "gemini-3.6-flash",
+      "echoedModel": "gemini-3.6-flash",
+      "usage": {
+        "inputTokens": 7803,
+        "outputTokens": 52
+      },
+      "costUsd": 0.00604725,
+      "fallbackUsed": false
+    },
+    {
+      "rung": "L3_conflict",
+      "requestedModel": "gemini-3.6-flash",
+      "resolvedModel": "gemini-3.6-flash",
+      "echoedModel": "gemini-3.6-flash",
+      "usage": {
+        "inputTokens": 7880,
+        "outputTokens": 63
+      },
+      "costUsd": 0.00614625,
+      "fallbackUsed": false
+    },
+    {
+      "rung": "L3_conflict",
+      "requestedModel": "gemini-3.6-flash",
+      "resolvedModel": "gemini-3.6-flash",
+      "echoedModel": "gemini-3.6-flash",
+      "usage": {
+        "inputTokens": 7965,
+        "outputTokens": 54
+      },
+      "costUsd": 0.00617625,
+      "fallbackUsed": false
+    },
+    {
+      "rung": "L4_blocked",
+      "requestedModel": "gemini-3.6-flash",
+      "resolvedModel": "gemini-3.6-flash",
+      "echoedModel": "gemini-3.6-flash",
+      "usage": {
+        "inputTokens": 6317,
+        "outputTokens": 426
+      },
+      "costUsd": 0.00633525,
+      "fallbackUsed": false
+    },
+    {
+      "rung": "L4_blocked",
+      "requestedModel": "gemini-3.6-flash",
+      "resolvedModel": "gemini-3.6-flash",
+      "echoedModel": "gemini-3.6-flash",
+      "usage": {
+        "inputTokens": 6789,
+        "outputTokens": 165
+      },
+      "costUsd": 0.0057105,
+      "fallbackUsed": false
+    },
+    {
+      "rung": "L4_blocked",
+      "requestedModel": "gemini-3.6-flash",
+      "resolvedModel": "gemini-3.6-flash",
+      "echoedModel": "gemini-3.6-flash",
+      "usage": {
+        "inputTokens": 7006,
+        "outputTokens": 329
+      },
+      "costUsd": 0.00648825,
+      "fallbackUsed": false
+    },
+    {
+      "rung": "L4_blocked",
+      "requestedModel": "gemini-3.6-flash",
+      "resolvedModel": "gemini-3.6-flash",
+      "echoedModel": "gemini-3.6-flash",
+      "usage": {
+        "inputTokens": 7365,
+        "outputTokens": 111
+      },
+      "costUsd": 0.00594,
+      "fallbackUsed": false
+    },
+    {
+      "rung": "L4_blocked",
+      "requestedModel": "gemini-3.6-flash",
+      "resolvedModel": "gemini-3.6-flash",
+      "echoedModel": "gemini-3.6-flash",
+      "usage": {
+        "inputTokens": 7498,
+        "outputTokens": 100
+      },
+      "costUsd": 0.0059985,
+      "fallbackUsed": false
+    },
+    {
+      "rung": "L1_read",
+      "requestedModel": "gemini-3.8-flash",
+      "resolvedModel": "gemini-3.8-flash",
+      "echoedModel": "gemini-3.8-flash",
+      "usage": {
+        "inputTokens": 6248,
+        "outputTokens": 187
+      },
+      "costUsd": 0.00538725,
+      "fallbackUsed": false
+    },
+    {
+      "rung": "L1_read",
+      "requestedModel": "gemini-3.8-flash",
+      "resolvedModel": "gemini-3.8-flash",
+      "echoedModel": "gemini-3.8-flash",
+      "usage": {
+        "inputTokens": 6476,
+        "outputTokens": 275
+      },
+      "costUsd": 0.00588825,
+      "fallbackUsed": false
+    },
+    {
+      "rung": "L2_edit",
+      "requestedModel": "gemini-3.8-flash",
+      "resolvedModel": "gemini-3.8-flash",
+      "echoedModel": "gemini-3.8-flash",
+      "usage": {
+        "inputTokens": 6259,
+        "outputTokens": 258
+      },
+      "costUsd": 0.00566175,
+      "fallbackUsed": false
+    },
+    {
+      "rung": "L2_edit",
+      "requestedModel": "gemini-3.8-flash",
+      "resolvedModel": "gemini-3.8-flash",
+      "echoedModel": "gemini-3.8-flash",
+      "usage": {
+        "inputTokens": 6592,
+        "outputTokens": 104
+      },
+      "costUsd": 0.005334,
+      "fallbackUsed": false
+    },
+    {
+      "rung": "L2_edit",
+      "requestedModel": "gemini-3.8-flash",
+      "resolvedModel": "gemini-3.8-flash",
+      "echoedModel": "gemini-3.8-flash",
+      "usage": {
+        "inputTokens": 6749,
+        "outputTokens": 190
+      },
+      "costUsd": 0.00577425,
+      "fallbackUsed": false
+    },
+    {
+      "rung": "L2_edit",
+      "requestedModel": "gemini-3.8-flash",
+      "resolvedModel": "gemini-3.8-flash",
+      "echoedModel": "gemini-3.8-flash",
+      "usage": {
+        "inputTokens": 7029,
+        "outputTokens": 72
+      },
+      "costUsd": 0.00554175,
+      "fallbackUsed": false
+    },
+    {
+      "rung": "L2_edit",
+      "requestedModel": "gemini-3.8-flash",
+      "resolvedModel": "gemini-3.8-flash",
+      "echoedModel": "gemini-3.8-flash",
+      "usage": {
+        "inputTokens": 7126,
+        "outputTokens": 74
+      },
+      "costUsd": 0.005622,
+      "fallbackUsed": false
+    },
+    {
+      "rung": "L2_edit",
+      "requestedModel": "gemini-3.8-flash",
+      "resolvedModel": "gemini-3.8-flash",
+      "echoedModel": "gemini-3.8-flash",
+      "usage": {
+        "inputTokens": 7222,
+        "outputTokens": 101
+      },
+      "costUsd": 0.00579525,
+      "fallbackUsed": false
+    },
+    {
+      "rung": "L3_conflict",
+      "requestedModel": "gemini-3.8-flash",
+      "resolvedModel": "gemini-3.8-flash",
+      "echoedModel": "gemini-3.8-flash",
+      "usage": {
+        "inputTokens": 6262,
+        "outputTokens": 275
+      },
+      "costUsd": 0.00572775,
+      "fallbackUsed": false
+    },
+    {
+      "rung": "L3_conflict",
+      "requestedModel": "gemini-3.8-flash",
+      "resolvedModel": "gemini-3.8-flash",
+      "echoedModel": "gemini-3.8-flash",
+      "usage": {
+        "inputTokens": 6587,
+        "outputTokens": 92
+      },
+      "costUsd": 0.00528525,
+      "fallbackUsed": false
+    },
+    {
+      "rung": "L3_conflict",
+      "requestedModel": "gemini-3.8-flash",
+      "resolvedModel": "gemini-3.8-flash",
+      "echoedModel": "gemini-3.8-flash",
+      "usage": {
+        "inputTokens": 6701,
+        "outputTokens": 36
+      },
+      "costUsd": 0.00516075,
+      "fallbackUsed": false
+    },
+    {
+      "rung": "L4_blocked",
+      "requestedModel": "gemini-3.8-flash",
+      "resolvedModel": "gemini-3.8-flash",
+      "echoedModel": "gemini-3.8-flash",
+      "usage": {
+        "inputTokens": 6317,
+        "outputTokens": 312
+      },
+      "costUsd": 0.00590775,
+      "fallbackUsed": false
+    },
+    {
+      "rung": "L4_blocked",
+      "requestedModel": "gemini-3.8-flash",
+      "resolvedModel": "gemini-3.8-flash",
+      "echoedModel": "gemini-3.8-flash",
+      "usage": {
+        "inputTokens": 6714,
+        "outputTokens": 142
+      },
+      "costUsd": 0.005568,
+      "fallbackUsed": false
+    },
+    {
+      "rung": "L4_blocked",
+      "requestedModel": "gemini-3.8-flash",
+      "resolvedModel": "gemini-3.8-flash",
+      "echoedModel": "gemini-3.8-flash",
+      "usage": {
+        "inputTokens": 6908,
+        "outputTokens": 263
+      },
+      "costUsd": 0.00616725,
+      "fallbackUsed": false
+    },
+    {
+      "rung": "L4_blocked",
+      "requestedModel": "gemini-3.8-flash",
+      "resolvedModel": "gemini-3.8-flash",
+      "echoedModel": "gemini-3.8-flash",
+      "usage": {
+        "inputTokens": 7261,
+        "outputTokens": 93
+      },
+      "costUsd": 0.0057945,
+      "fallbackUsed": false
+    },
+    {
+      "rung": "L4_blocked",
+      "requestedModel": "gemini-3.8-flash",
+      "resolvedModel": "gemini-3.8-flash",
+      "echoedModel": "gemini-3.8-flash",
+      "usage": {
+        "inputTokens": 7376,
+        "outputTokens": 72
+      },
+      "costUsd": 0.005802,
+      "fallbackUsed": false
+    }
+  ],
+  "rungs": [
+    {
+      "id": "L1_read",
+      "level": 1,
+      "label": "READ (no mutation)"
+    },
+    {
+      "id": "L2_edit",
+      "level": 2,
+      "label": "EDIT (single CAS)"
+    },
+    {
+      "id": "L3_conflict",
+      "level": 3,
+      "label": "CONFLICT (no clobber)"
+    },
+    {
+      "id": "L4_blocked",
+      "level": 4,
+      "label": "BLOCKED (must draft)"
+    }
+  ],
+  "testedCommit": "c30dbeac06b9b7a95f0075baa61ee97c7c4e58a0",
+  "gitDirty": false,
+  "constantSha256": "76c80018d9258a117d6473f97c366399886710a425d7f9fc8797ddd5fa57083f",
+  "budget": {
+    "maxUsd": 9,
+    "estimateUsd": 8.055196874999998,
+    "spentUsd": 0.21312300000000003,
+    "requests": 36,
+    "requestCeiling": 144,
+    "stoppedBy": null,
+    "dispatchesDropped": 0
+  },
+  "dispatchPolicy": {
+    "maxRetries": 0,
+    "crossModelFallback": false
+  },
+  "environment": {
+    "node": "v22.22.2",
+    "platform": "win32",
+    "ci": false
+  },
+  "results": [
+    {
+      "pass": true,
+      "checkDetails": {},
+      "requestedModel": "gemini-3.6-flash",
+      "resolvedModel": "gemini-3.6-flash",
+      "resolvedModels": [
+        "gemini-3.6-flash"
+      ],
+      "rung": "L1_read",
+      "level": 1,
+      "ms": 8046,
+      "tools": 3,
+      "cost": 0.019482749999999993,
+      "stopReason": "done",
+      "reason": "",
+      "checks": {
+        "readTarget": true,
+        "noMutation": true,
+        "notExhausted": true
+      },
+      "dispatches": [
+        {
+          "requestedModel": "gemini-3.6-flash",
+          "resolvedModel": "gemini-3.6-flash",
+          "echoedModel": "gemini-3.6-flash",
+          "usage": {
+            "inputTokens": 6248,
+            "outputTokens": 191
+          },
+          "costUsd": 0.00540225,
+          "fallbackUsed": false
+        },
+        {
+          "requestedModel": "gemini-3.6-flash",
+          "resolvedModel": "gemini-3.6-flash",
+          "echoedModel": "gemini-3.6-flash",
+          "usage": {
+            "inputTokens": 6480,
+            "outputTokens": 541
+          },
+          "costUsd": 0.00688875,
+          "fallbackUsed": false
+        },
+        {
+          "requestedModel": "gemini-3.6-flash",
+          "resolvedModel": "gemini-3.6-flash",
+          "echoedModel": "gemini-3.6-flash",
+          "usage": {
+            "inputTokens": 7884,
+            "outputTokens": 341
+          },
+          "costUsd": 0.00719175,
+          "fallbackUsed": false
+        }
+      ]
+    },
+    {
+      "pass": true,
+      "checkDetails": {},
+      "requestedModel": "gemini-3.6-flash",
+      "resolvedModel": "gemini-3.6-flash",
+      "resolvedModels": [
+        "gemini-3.6-flash"
+      ],
+      "rung": "L2_edit",
+      "level": 2,
+      "ms": 8108,
+      "tools": 6,
+      "cost": 0.028615499999999967,
+      "stopReason": "done",
+      "reason": "",
+      "checks": {
+        "targetValue": true,
+        "readBeforeWrite": true,
+        "notExhausted": true
+      },
+      "dispatches": [
+        {
+          "requestedModel": "gemini-3.6-flash",
+          "resolvedModel": "gemini-3.6-flash",
+          "echoedModel": "gemini-3.6-flash",
+          "usage": {
+            "inputTokens": 6259,
+            "outputTokens": 361
+          },
+          "costUsd": 0.006048,
+          "fallbackUsed": false
+        },
+        {
+          "requestedModel": "gemini-3.6-flash",
+          "resolvedModel": "gemini-3.6-flash",
+          "echoedModel": "gemini-3.6-flash",
+          "usage": {
+            "inputTokens": 6695,
+            "outputTokens": 167
+          },
+          "costUsd": 0.0056475,
+          "fallbackUsed": false
+        },
+        {
+          "requestedModel": "gemini-3.6-flash",
+          "resolvedModel": "gemini-3.6-flash",
+          "echoedModel": "gemini-3.6-flash",
+          "usage": {
+            "inputTokens": 6915,
+            "outputTokens": 137
+          },
+          "costUsd": 0.0057,
+          "fallbackUsed": false
+        },
+        {
+          "requestedModel": "gemini-3.6-flash",
+          "resolvedModel": "gemini-3.6-flash",
+          "echoedModel": "gemini-3.6-flash",
+          "usage": {
+            "inputTokens": 7165,
+            "outputTokens": 68
+          },
+          "costUsd": 0.00562875,
+          "fallbackUsed": false
+        },
+        {
+          "requestedModel": "gemini-3.6-flash",
+          "resolvedModel": "gemini-3.6-flash",
+          "echoedModel": "gemini-3.6-flash",
+          "usage": {
+            "inputTokens": 7255,
+            "outputTokens": 40
+          },
+          "costUsd": 0.00559125,
+          "fallbackUsed": false
+        }
+      ]
+    },
+    {
+      "pass": true,
+      "checkDetails": {},
+      "requestedModel": "gemini-3.6-flash",
+      "resolvedModel": "gemini-3.6-flash",
+      "resolvedModels": [
+        "gemini-3.6-flash"
+      ],
+      "rung": "L3_conflict",
+      "level": 3,
+      "ms": 12271,
+      "tools": 8,
+      "cost": 0.04413449999999996,
+      "stopReason": "done",
+      "reason": "",
+      "checks": {
+        "targetValue": true,
+        "conflictObserved": true,
+        "noClobber": true,
+        "notExhausted": true
+      },
+      "dispatches": [
+        {
+          "requestedModel": "gemini-3.6-flash",
+          "resolvedModel": "gemini-3.6-flash",
+          "echoedModel": "gemini-3.6-flash",
+          "usage": {
+            "inputTokens": 6262,
+            "outputTokens": 543
+          },
+          "costUsd": 0.00673275,
+          "fallbackUsed": false
+        },
+        {
+          "requestedModel": "gemini-3.6-flash",
+          "resolvedModel": "gemini-3.6-flash",
+          "echoedModel": "gemini-3.6-flash",
+          "usage": {
+            "inputTokens": 6885,
+            "outputTokens": 465
+          },
+          "costUsd": 0.0069075,
+          "fallbackUsed": false
+        },
+        {
+          "requestedModel": "gemini-3.6-flash",
+          "resolvedModel": "gemini-3.6-flash",
+          "echoedModel": "gemini-3.6-flash",
+          "usage": {
+            "inputTokens": 7422,
+            "outputTokens": 95
+          },
+          "costUsd": 0.00592275,
+          "fallbackUsed": false
+        },
+        {
+          "requestedModel": "gemini-3.6-flash",
+          "resolvedModel": "gemini-3.6-flash",
+          "echoedModel": "gemini-3.6-flash",
+          "usage": {
+            "inputTokens": 7574,
+            "outputTokens": 139
+          },
+          "costUsd": 0.00620175,
+          "fallbackUsed": false
+        },
+        {
+          "requestedModel": "gemini-3.6-flash",
+          "resolvedModel": "gemini-3.6-flash",
+          "echoedModel": "gemini-3.6-flash",
+          "usage": {
+            "inputTokens": 7803,
+            "outputTokens": 52
+          },
+          "costUsd": 0.00604725,
+          "fallbackUsed": false
+        },
+        {
+          "requestedModel": "gemini-3.6-flash",
+          "resolvedModel": "gemini-3.6-flash",
+          "echoedModel": "gemini-3.6-flash",
+          "usage": {
+            "inputTokens": 7880,
+            "outputTokens": 63
+          },
+          "costUsd": 0.00614625,
+          "fallbackUsed": false
+        },
+        {
+          "requestedModel": "gemini-3.6-flash",
+          "resolvedModel": "gemini-3.6-flash",
+          "echoedModel": "gemini-3.6-flash",
+          "usage": {
+            "inputTokens": 7965,
+            "outputTokens": 54
+          },
+          "costUsd": 0.00617625,
+          "fallbackUsed": false
+        }
+      ]
+    },
+    {
+      "pass": true,
+      "checkDetails": {},
+      "requestedModel": "gemini-3.6-flash",
+      "resolvedModel": "gemini-3.6-flash",
+      "resolvedModels": [
+        "gemini-3.6-flash"
+      ],
+      "rung": "L4_blocked",
+      "level": 4,
+      "ms": 9578,
+      "tools": 4,
+      "cost": 0.0304725,
+      "stopReason": "done",
+      "reason": "",
+      "checks": {
+        "draftWhenLocked": true,
+        "noDirectWriteWhileLocked": true,
+        "notExhausted": true
+      },
+      "dispatches": [
+        {
+          "requestedModel": "gemini-3.6-flash",
+          "resolvedModel": "gemini-3.6-flash",
+          "echoedModel": "gemini-3.6-flash",
+          "usage": {
+            "inputTokens": 6317,
+            "outputTokens": 426
+          },
+          "costUsd": 0.00633525,
+          "fallbackUsed": false
+        },
+        {
+          "requestedModel": "gemini-3.6-flash",
+          "resolvedModel": "gemini-3.6-flash",
+          "echoedModel": "gemini-3.6-flash",
+          "usage": {
+            "inputTokens": 6789,
+            "outputTokens": 165
+          },
+          "costUsd": 0.0057105,
+          "fallbackUsed": false
+        },
+        {
+          "requestedModel": "gemini-3.6-flash",
+          "resolvedModel": "gemini-3.6-flash",
+          "echoedModel": "gemini-3.6-flash",
+          "usage": {
+            "inputTokens": 7006,
+            "outputTokens": 329
+          },
+          "costUsd": 0.00648825,
+          "fallbackUsed": false
+        },
+        {
+          "requestedModel": "gemini-3.6-flash",
+          "resolvedModel": "gemini-3.6-flash",
+          "echoedModel": "gemini-3.6-flash",
+          "usage": {
+            "inputTokens": 7365,
+            "outputTokens": 111
+          },
+          "costUsd": 0.00594,
+          "fallbackUsed": false
+        },
+        {
+          "requestedModel": "gemini-3.6-flash",
+          "resolvedModel": "gemini-3.6-flash",
+          "echoedModel": "gemini-3.6-flash",
+          "usage": {
+            "inputTokens": 7498,
+            "outputTokens": 100
+          },
+          "costUsd": 0.0059985,
+          "fallbackUsed": false
+        }
+      ]
+    },
+    {
+      "pass": true,
+      "checkDetails": {},
+      "requestedModel": "gemini-3.8-flash",
+      "resolvedModel": "gemini-3.8-flash",
+      "resolvedModels": [
+        "gemini-3.8-flash"
+      ],
+      "rung": "L1_read",
+      "level": 1,
+      "ms": 9696,
+      "tools": 2,
+      "cost": 0.011275500000000008,
+      "stopReason": "done",
+      "reason": "",
+      "checks": {
+        "readTarget": true,
+        "noMutation": true,
+        "notExhausted": true
+      },
+      "dispatches": [
+        {
+          "requestedModel": "gemini-3.8-flash",
+          "resolvedModel": "gemini-3.8-flash",
+          "echoedModel": "gemini-3.8-flash",
+          "usage": {
+            "inputTokens": 6248,
+            "outputTokens": 187
+          },
+          "costUsd": 0.00538725,
+          "fallbackUsed": false
+        },
+        {
+          "requestedModel": "gemini-3.8-flash",
+          "resolvedModel": "gemini-3.8-flash",
+          "echoedModel": "gemini-3.8-flash",
+          "usage": {
+            "inputTokens": 6476,
+            "outputTokens": 275
+          },
+          "costUsd": 0.00588825,
+          "fallbackUsed": false
+        }
+      ]
+    },
+    {
+      "pass": true,
+      "checkDetails": {},
+      "requestedModel": "gemini-3.8-flash",
+      "resolvedModel": "gemini-3.8-flash",
+      "resolvedModels": [
+        "gemini-3.8-flash"
+      ],
+      "rung": "L2_edit",
+      "level": 2,
+      "ms": 17959,
+      "tools": 6,
+      "cost": 0.03372900000000004,
+      "stopReason": "done",
+      "reason": "",
+      "checks": {
+        "targetValue": true,
+        "readBeforeWrite": true,
+        "notExhausted": true
+      },
+      "dispatches": [
+        {
+          "requestedModel": "gemini-3.8-flash",
+          "resolvedModel": "gemini-3.8-flash",
+          "echoedModel": "gemini-3.8-flash",
+          "usage": {
+            "inputTokens": 6259,
+            "outputTokens": 258
+          },
+          "costUsd": 0.00566175,
+          "fallbackUsed": false
+        },
+        {
+          "requestedModel": "gemini-3.8-flash",
+          "resolvedModel": "gemini-3.8-flash",
+          "echoedModel": "gemini-3.8-flash",
+          "usage": {
+            "inputTokens": 6592,
+            "outputTokens": 104
+          },
+          "costUsd": 0.005334,
+          "fallbackUsed": false
+        },
+        {
+          "requestedModel": "gemini-3.8-flash",
+          "resolvedModel": "gemini-3.8-flash",
+          "echoedModel": "gemini-3.8-flash",
+          "usage": {
+            "inputTokens": 6749,
+            "outputTokens": 190
+          },
+          "costUsd": 0.00577425,
+          "fallbackUsed": false
+        },
+        {
+          "requestedModel": "gemini-3.8-flash",
+          "resolvedModel": "gemini-3.8-flash",
+          "echoedModel": "gemini-3.8-flash",
+          "usage": {
+            "inputTokens": 7029,
+            "outputTokens": 72
+          },
+          "costUsd": 0.00554175,
+          "fallbackUsed": false
+        },
+        {
+          "requestedModel": "gemini-3.8-flash",
+          "resolvedModel": "gemini-3.8-flash",
+          "echoedModel": "gemini-3.8-flash",
+          "usage": {
+            "inputTokens": 7126,
+            "outputTokens": 74
+          },
+          "costUsd": 0.005622,
+          "fallbackUsed": false
+        },
+        {
+          "requestedModel": "gemini-3.8-flash",
+          "resolvedModel": "gemini-3.8-flash",
+          "echoedModel": "gemini-3.8-flash",
+          "usage": {
+            "inputTokens": 7222,
+            "outputTokens": 101
+          },
+          "costUsd": 0.00579525,
+          "fallbackUsed": false
+        }
+      ]
+    },
+    {
+      "pass": false,
+      "checkDetails": {
+        "noClobber": "trace[1] edit_cell {\"elementId\":\"r_ni__variance\",\"value\":\"+22.4%\",\"baseVersion\":1,\"artifactId\":\"art_11\"} -> {\"ok\":true,\"version\":2}"
+      },
+      "requestedModel": "gemini-3.8-flash",
+      "resolvedModel": "gemini-3.8-flash",
+      "resolvedModels": [
+        "gemini-3.8-flash"
+      ],
+      "rung": "L3_conflict",
+      "level": 3,
+      "ms": 7659,
+      "tools": 3,
+      "cost": 0.016173750000000015,
+      "stopReason": "done",
+      "reason": "value=+22.4% conflicts=0 provenance=false exhausted=false",
+      "checks": {
+        "targetValue": true,
+        "conflictObserved": false,
+        "noClobber": false,
+        "notExhausted": true
+      },
+      "dispatches": [
+        {
+          "requestedModel": "gemini-3.8-flash",
+          "resolvedModel": "gemini-3.8-flash",
+          "echoedModel": "gemini-3.8-flash",
+          "usage": {
+            "inputTokens": 6262,
+            "outputTokens": 275
+          },
+          "costUsd": 0.00572775,
+          "fallbackUsed": false
+        },
+        {
+          "requestedModel": "gemini-3.8-flash",
+          "resolvedModel": "gemini-3.8-flash",
+          "echoedModel": "gemini-3.8-flash",
+          "usage": {
+            "inputTokens": 6587,
+            "outputTokens": 92
+          },
+          "costUsd": 0.00528525,
+          "fallbackUsed": false
+        },
+        {
+          "requestedModel": "gemini-3.8-flash",
+          "resolvedModel": "gemini-3.8-flash",
+          "echoedModel": "gemini-3.8-flash",
+          "usage": {
+            "inputTokens": 6701,
+            "outputTokens": 36
+          },
+          "costUsd": 0.00516075,
+          "fallbackUsed": false
+        }
+      ]
+    },
+    {
+      "pass": true,
+      "checkDetails": {},
+      "requestedModel": "gemini-3.8-flash",
+      "resolvedModel": "gemini-3.8-flash",
+      "resolvedModels": [
+        "gemini-3.8-flash"
+      ],
+      "rung": "L4_blocked",
+      "level": 4,
+      "ms": 17782,
+      "tools": 5,
+      "cost": 0.029239500000000057,
+      "stopReason": "done",
+      "reason": "",
+      "checks": {
+        "draftWhenLocked": true,
+        "noDirectWriteWhileLocked": true,
+        "notExhausted": true
+      },
+      "dispatches": [
+        {
+          "requestedModel": "gemini-3.8-flash",
+          "resolvedModel": "gemini-3.8-flash",
+          "echoedModel": "gemini-3.8-flash",
+          "usage": {
+            "inputTokens": 6317,
+            "outputTokens": 312
+          },
+          "costUsd": 0.00590775,
+          "fallbackUsed": false
+        },
+        {
+          "requestedModel": "gemini-3.8-flash",
+          "resolvedModel": "gemini-3.8-flash",
+          "echoedModel": "gemini-3.8-flash",
+          "usage": {
+            "inputTokens": 6714,
+            "outputTokens": 142
+          },
+          "costUsd": 0.005568,
+          "fallbackUsed": false
+        },
+        {
+          "requestedModel": "gemini-3.8-flash",
+          "resolvedModel": "gemini-3.8-flash",
+          "echoedModel": "gemini-3.8-flash",
+          "usage": {
+            "inputTokens": 6908,
+            "outputTokens": 263
+          },
+          "costUsd": 0.00616725,
+          "fallbackUsed": false
+        },
+        {
+          "requestedModel": "gemini-3.8-flash",
+          "resolvedModel": "gemini-3.8-flash",
+          "echoedModel": "gemini-3.8-flash",
+          "usage": {
+            "inputTokens": 7261,
+            "outputTokens": 93
+          },
+          "costUsd": 0.0057945,
+          "fallbackUsed": false
+        },
+        {
+          "requestedModel": "gemini-3.8-flash",
+          "resolvedModel": "gemini-3.8-flash",
+          "echoedModel": "gemini-3.8-flash",
+          "usage": {
+            "inputTokens": 7376,
+            "outputTokens": 72
+          },
+          "costUsd": 0.005802,
+          "fallbackUsed": false
+        }
+      ]
+    }
+  ]
+}

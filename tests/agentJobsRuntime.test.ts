@@ -2,7 +2,7 @@
 import { convexTest } from "convex-test";
 import { internalAction } from "../convex/_generated/server";
 import { v } from "convex/values";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import schema from "../convex/schema";
 import { api, internal } from "../convex/_generated/api";
 import { hashToken } from "../convex/lib";
@@ -71,7 +71,7 @@ describe("agentJobs runtime contract", () => {
       scope: "public_room" as const,
       routePolicy: "explicit" as const,
       runtimePolicy: "workflow_sliced" as const,
-      modelPolicy: "test-model",
+      modelPolicy: "z-ai/glm-5.2",
       idempotencyKey: "job-runtime-central-start",
       approvalPolicy: "auto_commit_safe" as const,
       evidencePolicy: "public_only" as const,
@@ -83,7 +83,7 @@ describe("agentJobs runtime contract", () => {
     expect(blockedStart).toMatchObject({
       reused: false,
       status: "blocked",
-      modelPolicy: "test-model",
+      modelPolicy: "z-ai/glm-5.2",
       routePolicy: "explicit",
       runtimePolicy: "workflow_sliced",
     });
@@ -94,7 +94,7 @@ describe("agentJobs runtime contract", () => {
       scope: "public_room",
       routePolicy: "explicit",
       runtimePolicy: "workflow_sliced",
-      modelPolicy: "test-model",
+      modelPolicy: "z-ai/glm-5.2",
       runtime: "workflow",
     });
     expect(blockedDetail?.job.workflowId).toBeUndefined();
@@ -107,7 +107,7 @@ describe("agentJobs runtime contract", () => {
       scope: "public_room",
       routePolicy: "explicit",
       runtimePolicy: "workflow_sliced",
-      modelPolicy: "test-model",
+      modelPolicy: "z-ai/glm-5.2",
       traceLevel: "standard",
     });
   });
@@ -660,6 +660,36 @@ describe("agentJobs runtime contract", () => {
     })).rejects.toThrow("investigation_write_scope_too_large");
     const jobs = await t.query(api.agentJobs.list, { roomId, requester: proof });
     expect(jobs).toHaveLength(0);
+  });
+
+  it("derives the default model per route policy from the refreshed ids when no env or client model is set", async () => {
+    // SPEC A.2.9: top_paid was "anthropic/claude-sonnet-4" (retired 2026-06-15); the orchestrator default was
+    // "gemini-3.5-flash" (deprecated 2026-10-08). SPEC-v9 D2 (2026-10-16, no OpenRouter key): top_paid is the newest :free
+    // OpenRouter row with tools + structured outputs + a long context, from the public list fetched 2026-10-16T11:32Z
+    // (docs/eval/openrouter-free-models-2026-10-16.json); rounds 1-4 expected "anthropic/claude-sonnet-5.5" here. The ids are literals here on purpose.
+    for (const name of ["AGENT_MODEL", "AGENT_TOP_PAID_MODEL", "AGENT_ORCHESTRATOR_MODEL"]) vi.stubEnv(name, undefined);
+    try {
+      const { t, proof, roomId, artifactId } = await setupRoom({ seedElement: true });
+      const policies: Array<[string, string]> = [];
+      for (const routePolicy of ["top_paid", "fast_default"] as const) {
+        const started = await t.mutation(api.agentJobs.startPublicAsk, {
+          roomId,
+          requester: proof,
+          goal: `default model for ${routePolicy}`,
+          contextArtifactId: String(artifactId),
+          routePolicy,
+          disposition: "redirect" as const,
+        });
+        const detail = await t.query(api.agentJobs.detail, { jobId: started.jobId, requester: proof });
+        policies.push([routePolicy, String(detail?.job.modelPolicy)]);
+      }
+      expect(policies).toEqual([
+        ["top_paid", "nvidia/nemotron-3.5-super-vl:free"],
+        ["fast_default", "gemini-3.8-flash"],
+      ]);
+    } finally {
+      vi.unstubAllEnvs();
+    }
   });
 
   it("starts public chat asks server-side against the active work-surface artifact", async () => {
@@ -2813,6 +2843,175 @@ describe("agentJobs runtime contract", () => {
     expect(hostDetail).toBeNull();
     expect(hostAttempts).toEqual([]);
   });
+  // SPEC A.0.10 at the public API boundary. Persona: a client (or a script holding a room token) names a model the
+  // catalog has never heard of; the job row must not persist a string that could only ever fail later, in the runner.
+  describe("unknown model ids are refused at the public mutations", () => {
+    const UNKNOWN = "gemini-not-in-catalog";
+
+    it("createOrReuse refuses an unknown modelPolicy and persists no job", async () => {
+      const { t, proof, roomId, artifactId } = await setupRoom();
+      await expect(t.mutation(api.agentJobs.createOrReuse, { ...jobArgs({ roomId, artifactId, proof, idempotencyKey: "job-unknown-create" }), modelPolicy: UNKNOWN }))
+        .rejects.toThrow("unknown_model_policy");
+      expect(await t.run(async (ctx) => (await ctx.db.query("agentJobs").collect()).length)).toBe(0);
+    });
+
+    it("start refuses an unknown modelPolicy on the explicit route", async () => {
+      const { t, proof, roomId, artifactId } = await setupRoom();
+      await expect(t.mutation(api.agentJobs.start, { ...jobArgs({ roomId, artifactId, proof, idempotencyKey: "job-unknown-start" }), routePolicy: "explicit" as const, modelPolicy: UNKNOWN }))
+        .rejects.toThrow("unknown_model_policy");
+      expect(await t.run(async (ctx) => (await ctx.db.query("agentJobs").collect()).length)).toBe(0);
+    });
+
+    it("startPublicAsk refuses an unknown modelPolicy on the explicit route", async () => {
+      const { t, proof, roomId, artifactId } = await setupRoom({ seedElement: true });
+      await expect(t.mutation(api.agentJobs.startPublicAsk, { roomId, requester: proof, goal: "compute the metrics", contextArtifactId: String(artifactId), routePolicy: "explicit" as const, modelPolicy: UNKNOWN }))
+        .rejects.toThrow("unknown_model_policy");
+      expect(await t.run(async (ctx) => (await ctx.db.query("agentJobs").collect()).length)).toBe(0);
+    });
+
+    it("a catalog id, an alias and a declared-but-unpriced id still start (nothing the repo knows is refused)", async () => {
+      const { t, proof, roomId, artifactId } = await setupRoom();
+      // The job stores the RESOLVED route (review round 1, defect 1), so the egress gate and the dispatch read one id:
+      // the alias "claude-sonnet" is stored as "claude-sonnet-4-6" (before round 1 it was stored as written).
+      for (const [i, [modelPolicy, stored]] of [["gemini-3.8-flash", "gemini-3.8-flash"], ["claude-sonnet", "claude-sonnet-4-6"], ["anthropic/claude-fable-5", "anthropic/claude-fable-5"]].entries()) {
+        const started = await t.mutation(api.agentJobs.createOrReuse, { ...jobArgs({ roomId, artifactId, proof, idempotencyKey: `job-known-${i}` }), modelPolicy });
+        const detail = await t.query(api.agentJobs.detail, { jobId: started.jobId, requester: proof });
+        expect(detail?.job.modelPolicy).toBe(stored);
+      }
+    });
+
+    // Regression (review round 3, defect 2): runRoomAgent records a PlanPreview-blocked run with the marker
+    // modelPolicy "not_started" (no model runs, so no id to check). The boundary check threw unknown_model_policy there,
+    // so the plan message and the credit-hold release after createOrReuse were never reached.
+    it("runRoomAgent's PlanPreview-blocked branch still records the job, posts the plan and releases the credit hold", async () => {
+      const { t, proof, roomId, artifactId } = await setupRoom();
+      const { runRoomAgent } = await import("../convex/agent");
+      const { getFunctionName } = await import("convex/server");
+      const calls: string[] = [];
+      vi.stubEnv("CREDITS_ENFORCED", "true");
+      const ctx = {
+        runQuery: async (ref: any) => {
+          const name = getFunctionName(ref);
+          if (name === "rooms:full") return { members: [{ id: proof.actor.id }], artifacts: [{ id: artifactId, kind: "sheet", title: "Sheet", order: [] }], sessions: [{ id: "s", scope: "public", agentId: "agent_room", agentName: "Agent" }] };
+          if (name === "agentRuns:roomSpendSince") return 0;
+          if (name === "agentRuns:globalSpendSince") return { totalUsd: 0, distinctRooms: 0, runCount: 0, truncated: false };
+          if (name === "artifacts:listProposals") return [];
+          throw new Error(`unexpected query ${name}`);
+        },
+        runMutation: async (ref: any, args: any) => {
+          const name = getFunctionName(ref);
+          calls.push(name);
+          if (name === "agentJobs:createOrReuse") return t.mutation(api.agentJobs.createOrReuse, args);
+          if (name === "credits:reserve") return { ok: true };
+          if (name === "credits:settle" || name === "messages:sendAgent") return null;
+          throw new Error(`unexpected mutation ${name}`);
+        },
+      };
+      try {
+        const result = await (runRoomAgent as any)._handler(ctx, { roomId, artifactId, requester: proof, goal: "Wait for human approval before changing anything." });
+        expect(result.stopReason).toBe("plan_blocked");
+        expect(calls).toEqual(["credits:reserve", "agentJobs:createOrReuse", "messages:sendAgent", "credits:settle"]);
+        const detail = await t.query(api.agentJobs.detail, { jobId: result.jobId, requester: proof });
+        expect(detail?.job).toMatchObject({ status: "blocked", modelPolicy: "not_started" });
+      } finally {
+        vi.unstubAllEnvs();
+      }
+    }, 60_000); // the first import of convex/agent.ts pulls in the whole runtime graph
+
+    it("the no-model marker is accepted only with initialStatus blocked; otherwise it is an unknown model", async () => {
+      const { t, proof, roomId, artifactId } = await setupRoom();
+      await expect(t.mutation(api.agentJobs.createOrReuse, { ...jobArgs({ roomId, artifactId, proof, idempotencyKey: "job-marker-running" }), modelPolicy: "not_started" }))
+        .rejects.toThrow("unknown_model_policy");
+    });
+
+    // Review round 6, defect 3. Persona: an operator sets a default-model env var on the deployment with a typo or a retired
+    // name and a user starts a job without naming any model. The default reaches the job row exactly like a caller's argument,
+    // so it passes the same boundary check; before this, six env x endpoint combinations persisted the unknown string.
+    describe.each([
+      { env: "AGENT_ORCHESTRATOR_MODEL", args: {} },
+      { env: "AGENT_MODEL", args: {} },
+      { env: "AGENT_TOP_PAID_MODEL", args: { routePolicy: "top_paid" as const } },
+      { env: "AGENT_RESEARCH_MODEL", args: { mode: "research" as const } },
+    ])("an unknown $env default", ({ env, args: extra }) => {
+      const arrange = () => {
+        for (const name of ["AGENT_ORCHESTRATOR_MODEL", "AGENT_MODEL", "AGENT_TOP_PAID_MODEL", "AGENT_RESEARCH_MODEL", "AGENT_WORKER_MODEL"]) vi.stubEnv(name, "");
+        vi.stubEnv(env, UNKNOWN);
+      };
+      afterEach(() => { vi.unstubAllEnvs(); });
+
+      it("is refused by start and persists no job", async () => {
+        arrange();
+        const { t, proof, roomId, artifactId } = await setupRoom();
+        const { modelPolicy: _omit, ...base } = jobArgs({ roomId, artifactId, proof, idempotencyKey: `job-env-start-${env}` });
+        await expect(t.mutation(api.agentJobs.start, { ...base, ...extra })).rejects.toThrow("unknown_model_policy");
+        expect(await t.run(async (ctx) => (await ctx.db.query("agentJobs").collect()).length)).toBe(0);
+      });
+
+      if (!("mode" in extra)) it("is refused by startPublicAsk and persists no job", async () => {
+        arrange();
+        const { t, proof, roomId, artifactId } = await setupRoom({ seedElement: true });
+        await expect(t.mutation(api.agentJobs.startPublicAsk, { roomId, requester: proof, goal: "compute the metrics", contextArtifactId: String(artifactId), ...extra }))
+          .rejects.toThrow("unknown_model_policy");
+        expect(await t.run(async (ctx) => (await ctx.db.query("agentJobs").collect()).length)).toBe(0);
+      });
+    });
+
+    // Review round 1, defect 1. The id is unknown but free-looking, so it dispatches as openrouter/free-auto; the egress gate and the
+    // stored policy must both be that route, and nothing may reach a provider.
+    it.each(["unknown-model-free", "acme/thing-free"])("an unknown free-looking id (%s) with an uploaded file is blocked at the free-route gate, stored as the resolved route, with zero provider requests", async (freeLooking) => {
+      const requests: string[] = [];
+      vi.stubGlobal("fetch", async (input: string | URL | Request) => {
+        requests.push(typeof input === "string" ? input : input instanceof URL ? input.href : input.url);
+        return new Response("{}", { status: 500 });
+      });
+      vi.stubEnv("FREE_AUTO_ALLOW_FILE_EGRESS_PROMOTION", "");
+      vi.stubEnv("OPENROUTER_FREE_ALLOW_FILE_EGRESS", "");
+      try {
+        const { t, proof, roomId, artifactId, actor } = await setupRoom({ seedElement: true });
+        await t.run((ctx) =>
+          ctx.db.insert("artifacts", {
+            roomId, kind: "note" as const, title: "source_financials.csv", version: 1, order: ["source"], updatedAt: Date.now(), createdBy: actor,
+            visibility: "room" as const, meta: { upload: { fileName: "source_financials.csv", mimeType: "text/csv", size: 96 } },
+          }),
+        );
+        const started = await t.mutation(api.agentJobs.startPublicAsk, {
+          roomId, requester: proof, goal: "compute the uploaded financial metrics", contextArtifactId: String(artifactId),
+          routePolicy: "explicit" as const, modelPolicy: freeLooking,
+        });
+        const detail = await t.query(api.agentJobs.detail, { jobId: started.jobId, requester: proof });
+        expect(started).toMatchObject({ status: "blocked", modelPolicy: "openrouter/free-auto" });
+        expect(detail?.job).toMatchObject({
+          status: "blocked",
+          modelPolicy: "openrouter/free-auto",
+          error: "provider_egress_blocked:free_file_egress_requires_OPENROUTER_FREE_ALLOW_FILE_EGRESS",
+        });
+        expect(requests).toEqual([]);
+      } finally {
+        vi.unstubAllEnvs();
+        vi.unstubAllGlobals();
+      }
+    });
+
+    it("an unknown file-egress model is refused when a free job is promoted to it, and no job persists", async () => {
+      vi.stubEnv("FREE_AUTO_ALLOW_FILE_EGRESS_PROMOTION", "1");
+      vi.stubEnv("AGENT_FILE_EGRESS_MODEL", UNKNOWN);
+      try {
+        const { t, proof, roomId, artifactId, actor } = await setupRoom({ seedElement: true });
+        await t.run((ctx) =>
+          ctx.db.insert("artifacts", {
+            roomId, kind: "note" as const, title: "source_financials.csv", version: 1, order: ["source"], updatedAt: Date.now(), createdBy: actor,
+            visibility: "room" as const, meta: { upload: { fileName: "source_financials.csv", mimeType: "text/csv", size: 96 } },
+          }),
+        );
+        await expect(t.mutation(api.agentJobs.startPublicAsk, { roomId, requester: proof, goal: "compute the uploaded financial metrics", contextArtifactId: String(artifactId), routePolicy: "free_auto" as const }))
+          .rejects.toThrow("unknown_model_policy");
+        expect(await t.run(async (ctx) => (await ctx.db.query("agentJobs").collect()).length)).toBe(0);
+      } finally {
+        vi.unstubAllEnvs();
+      }
+    });
+  });
+
 });
 
 async function setupRoom(options: { seedElement?: boolean; extraMember?: boolean; researchPolicy?: boolean; autoAllow?: boolean } = {}) {
@@ -3024,7 +3223,7 @@ function jobArgs(args: {
     goal: "Verify the unified agent job runtime",
     entrypoint: "public_ask" as const,
     scope: "public_room" as const,
-    modelPolicy: "test-model",
+    modelPolicy: "z-ai/glm-5.2",
     idempotencyKey: args.idempotencyKey,
     approvalPolicy: "auto_commit_safe" as const,
     evidencePolicy: "public_only" as const,

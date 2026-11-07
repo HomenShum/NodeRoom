@@ -17,7 +17,8 @@ describe("hosted free-tier voice TTS providers", () => {
   it("wires the documented hosted TTS adapters without making OpenAI the free-only default", () => {
     expect(httpSource).toContain("synthesizeWithGemini");
     expect(httpSource).toContain("https://generativelanguage.googleapis.com/v1beta/models");
-    expect(httpSource).toContain("gemini-3.1-flash-tts-preview");
+    // was "gemini-3.1-flash-tts-preview" (Google shutdown 2026-11-17); vendor-named replacement, SPEC A.0.7 voice exception.
+    expect(httpSource).toContain("gemini-3.8-flash-tts");
     expect(httpSource).toContain(":generateContent");
     expect(httpSource).toContain('responseModalities: ["AUDIO"]');
     expect(httpSource).toContain("prebuiltVoiceConfig");

@@ -1,5 +1,5 @@
 /**
- * Gemini GIF judge — every demo GIF must be JUDGED AND VISUALLY VERIFIED by gemini-3.5-flash
+ * Gemini GIF judge — every demo GIF must be JUDGED AND VISUALLY VERIFIED by gemini-3.6-flash
  * before "demo ready" can be claimed (standing rule, 2026-06-11).
  *
  * The judge decodes the SHIPPED .gif itself (ImageMagick `-coalesce` for composed frames +
@@ -21,7 +21,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { WORKFLOWS } from "./workflow-preview/capture";
 
-const JUDGE_MODEL = "gemini-3.5-flash";
+const JUDGE_MODEL = process.env.GEMINI_JUDGE_MODEL ?? "gemini-3.6-flash";
 const GIF_DIR = "docs/eval/workflow-previews";
 const OUT_DIR = "docs/eval/gif-judge";
 const MAX_FRAMES = 12;
@@ -126,7 +126,7 @@ async function judge(id: string, gifPath: string): Promise<Verdict> {
     const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${JUDGE_MODEL}:generateContent?key=${key}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ contents: [{ parts }], generationConfig: { responseMimeType: "application/json", temperature: 0 } }),
+      body: JSON.stringify({ contents: [{ parts }], generationConfig: { responseMimeType: "application/json" } }),
       signal: controller.signal,
     });
     if (!res.ok) throw new Error(`judge HTTP ${res.status}: ${(await res.text()).slice(0, 200)}`);
@@ -172,5 +172,5 @@ for (const id of targets) {
   for (const issue of v.topIssues.slice(0, 2)) console.log(`     · ${issue}`);
 }
 const failed = results.filter((r) => !r.pass);
-console.log(`\n${results.length - failed.length}/${results.length} shipped GIFs pass the gemini-3.5-flash judge -> ${OUT_DIR}/`);
+console.log(`\n${results.length - failed.length}/${results.length} shipped GIFs pass the gemini-3.6-flash judge -> ${OUT_DIR}/`);
 if (failed.length) { console.log(`FAILING: ${failed.map((f) => f.workflow).join(", ")} — fix and re-judge before claiming demo-ready.`); process.exit(1); }

@@ -34,10 +34,13 @@ export interface CompactionOpts {
 const DEFAULTS = { maxChars: 24_000, keepRecent: 8, staleTools: ["read_range"] };
 const MAX_COMPACTED_READ_CELLS = 200;
 
-/** Cheap size estimate — character count of content + serialized tool calls. */
+/** Cheap size estimate — character count of content + serialized tool calls + thinking blocks (text, signature, redacted data). */
 export function estimateChars(messages: AgentMessage[]): number {
   let n = 0;
-  for (const m of messages) n += (m.content?.length ?? 0) + (m.toolCalls ? JSON.stringify(m.toolCalls).length : 0);
+  for (const m of messages) {
+    n += (m.content?.length ?? 0) + (m.toolCalls ? JSON.stringify(m.toolCalls).length : 0);
+    for (const b of m.thinking ?? []) n += b.type === "thinking" ? b.thinking.length + b.signature.length : b.data.length;
+  }
   return n;
 }
 

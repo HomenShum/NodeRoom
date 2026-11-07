@@ -25,10 +25,17 @@ describe("live provider parser helpers", () => {
   });
 
   it("prefers explicit and env models before defaults without duplicates", () => {
-    const candidates = providerParserModelCandidates("gemini", "gemini-3.5-flash", {
-      PROVIDER_PARSER_GEMINI_MODEL: "gemini-2.5-flash",
+    // Defaults were [3.5-flash, 3-flash-preview, 2.5-flash, 2.0-flash]; 2.5 expires on OpenRouter 2026-10-20 and 2.0 is
+    // shut down, so the defaults are [3.8-flash, 3.6-flash]. The env id is NOT a default (3.5-flash-lite), so its
+    // position proves the precedence: preferred first, then env, then the defaults. The preferred id is a default,
+    // so it also proves de-duplication.
+    const candidates = providerParserModelCandidates("gemini", "gemini-3.8-flash", {
+      PROVIDER_PARSER_GEMINI_MODEL: "gemini-3.5-flash-lite",
     });
-    expect(candidates.slice(0, 3)).toEqual(["gemini-3.5-flash", "gemini-2.5-flash", "gemini-3-flash-preview"]);
+    expect(candidates).toEqual(["gemini-3.8-flash", "gemini-3.5-flash-lite", "gemini-3.6-flash"]);
+    // An env id that IS a default is listed once, at the env position.
+    expect(providerParserModelCandidates("gemini", "gemini-3.8-flash", { PROVIDER_PARSER_GEMINI_MODEL: "gemini-3.6-flash" }))
+      .toEqual(["gemini-3.8-flash", "gemini-3.6-flash"]);
   });
 
   it("redacts API key values from provider errors", () => {

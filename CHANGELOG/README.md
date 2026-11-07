@@ -23,6 +23,7 @@ entries have not been invented or backfilled.
 ## Quality assurance
 
 - [Benchmark timeout budgets](qa/benchmark-timeout-budgets.md)
+- [Model default refresh](qa/model-refresh-noderoom.md)
 - [NodeKit note reference proof](qa/nodekit-note-reference-proof.md)
 
 See [TEMPLATE.md](TEMPLATE.md) before adding or editing a lane.

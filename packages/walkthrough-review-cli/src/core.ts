@@ -75,7 +75,7 @@ type CommandVariables = {
 };
 
 const DEFAULT_CONFIG = "walkthrough-review.config.json";
-const DEFAULT_MODEL = "gemini-3.5-flash";
+const DEFAULT_MODEL = "gemini-3.6-flash";
 const DEFAULT_OUTPUT_ROOT = join("docs", "eval", "walkthrough-review");
 const DEFAULT_DRY_OUTPUT_ROOT = join(".tmp-qa", "walkthrough-review");
 const DEFAULT_MEDIA_ROOT = join("docs", "walkthroughs");

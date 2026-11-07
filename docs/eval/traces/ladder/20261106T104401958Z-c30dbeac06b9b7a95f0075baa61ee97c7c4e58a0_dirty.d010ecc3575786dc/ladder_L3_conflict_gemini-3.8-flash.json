@@ -1,0 +1,117 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-11-06T10:44:01.958Z",
+  "commitSha": "c30dbeac06b9b7a95f0075baa61ee97c7c4e58a0",
+  "worktreeHash": "d010ecc3575786dc",
+  "gitDirty": true,
+  "suite": "ladder",
+  "caseId": "ladder:L3_conflict:gemini-3.8-flash",
+  "score": 0.5,
+  "checks": {
+    "targetValue": true,
+    "conflictObserved": false,
+    "noClobber": false,
+    "notExhausted": true
+  },
+  "checkDetails": {
+    "noClobber": "trace[1] edit_cell {\"elementId\":\"r_ni__variance\",\"value\":\"+22.4%\",\"baseVersion\":1,\"artifactId\":\"art_11\"} -> {\"ok\":true,\"version\":2}"
+  },
+  "result": {
+    "pass": false,
+    "checkDetails": {
+      "noClobber": "trace[1] edit_cell {\"elementId\":\"r_ni__variance\",\"value\":\"+22.4%\",\"baseVersion\":1,\"artifactId\":\"art_11\"} -> {\"ok\":true,\"version\":2}"
+    },
+    "requestedModel": "gemini-3.8-flash",
+    "resolvedModel": "gemini-3.8-flash",
+    "resolvedModels": [
+      "gemini-3.8-flash"
+    ],
+    "rung": "L3_conflict",
+    "level": 3,
+    "ms": 7659,
+    "tools": 3,
+    "cost": 0.016173750000000015,
+    "stopReason": "done",
+    "reason": "value=+22.4% conflicts=0 provenance=false exhausted=false",
+    "checks": {
+      "targetValue": true,
+      "conflictObserved": false,
+      "noClobber": false,
+      "notExhausted": true
+    },
+    "dispatches": [
+      {
+        "requestedModel": "gemini-3.8-flash",
+        "resolvedModel": "gemini-3.8-flash",
+        "echoedModel": "gemini-3.8-flash",
+        "usage": {
+          "inputTokens": 6262,
+          "outputTokens": 275
+        },
+        "costUsd": 0.00572775,
+        "fallbackUsed": false
+      },
+      {
+        "requestedModel": "gemini-3.8-flash",
+        "resolvedModel": "gemini-3.8-flash",
+        "echoedModel": "gemini-3.8-flash",
+        "usage": {
+          "inputTokens": 6587,
+          "outputTokens": 92
+        },
+        "costUsd": 0.00528525,
+        "fallbackUsed": false
+      },
+      {
+        "requestedModel": "gemini-3.8-flash",
+        "resolvedModel": "gemini-3.8-flash",
+        "echoedModel": "gemini-3.8-flash",
+        "usage": {
+          "inputTokens": 6701,
+          "outputTokens": 36
+        },
+        "costUsd": 0.00516075,
+        "fallbackUsed": false
+      }
+    ]
+  },
+  "trace": [
+    {
+      "step": 0,
+      "tool": "say",
+      "args": {
+        "text": "Setting Net income variance to +22.4% without locking."
+      },
+      "result": {
+        "ok": true
+      },
+      "ms": 0
+    },
+    {
+      "step": 0,
+      "tool": "edit_cell",
+      "args": {
+        "elementId": "r_ni__variance",
+        "value": "+22.4%",
+        "baseVersion": 1,
+        "artifactId": "art_11"
+      },
+      "result": {
+        "ok": true,
+        "version": 2
+      },
+      "ms": 0
+    },
+    {
+      "step": 1,
+      "tool": "say",
+      "args": {
+        "text": "Net income variance (r_ni__variance) updated to +22.4%."
+      },
+      "result": {
+        "ok": true
+      },
+      "ms": 0
+    }
+  ]
+}

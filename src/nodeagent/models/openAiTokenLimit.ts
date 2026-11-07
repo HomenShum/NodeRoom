@@ -18,5 +18,5 @@ function isDirectOpenAiEndpoint(endpoint: string): boolean {
 }
 
 function requiresMaxCompletionTokens(modelId: string): boolean {
-  return /^gpt-5(?:[.-]|$)/i.test(modelId);
+  return /^gpt-[56](?:[.-]|$)/i.test(modelId);
 }

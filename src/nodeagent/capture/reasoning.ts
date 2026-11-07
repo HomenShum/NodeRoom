@@ -8,6 +8,7 @@
 import { generateObject, type LanguageModel } from "ai";
 import { createAnthropic } from "@ai-sdk/anthropic";
 import { createOpenAI } from "@ai-sdk/openai";
+import { claudeEffortProviderOptions, getProviderForModel, resolveModelAlias } from "../models/modelCatalog";
 import type { ReasoningModel } from "./types";
 
 // Trim env keys: a stray trailing \r (Windows copy/pipe artifact in `convex env set`) would otherwise
@@ -20,7 +21,14 @@ function providerFor(modelId: string): LanguageModel {
   return anthropic(modelId); // default + all claude-* ids
 }
 
-export function aiSdkReasoner(modelId = "claude-haiku-4-5"): ReasoningModel {
+export function aiSdkReasoner(modelId = "claude-haiku-5-5"): ReasoningModel {
+  // SPEC A.0.10: `convex/capturesNode.ts` passes a client-supplied modelId, and providerFor() picks a provider by prefix alone,
+  // so an id the catalog does not know would still dispatch. The resolver throws for it; an unknown free-looking id resolves to
+  // `openrouter/free-auto`, which this Anthropic/OpenAI seam cannot serve, so it is refused rather than sent under the raw name.
+  // One guard here covers every caller (capturesNode, captureSource, the Firecrawl tool); the RESOLVED id is what dispatches.
+  const routeId = resolveModelAlias(modelId);
+  const provider = getProviderForModel(routeId);
+  if (provider !== "anthropic" && provider !== "openai") throw new Error(`capture_reasoner_route_unsupported:${routeId}`);
   return {
     name: modelId,
     async decide<T>({ system, instruction, context, schema, signal }: {
@@ -36,10 +44,11 @@ export function aiSdkReasoner(modelId = "claude-haiku-4-5"): ReasoningModel {
       const content: Array<{ type: "text"; text: string } | { type: "image"; image: Uint8Array }> = [{ type: "text", text }];
       if (context.screenshot) content.push({ type: "image", image: context.screenshot.png });
       const { object } = await generateObject({
-        model: providerFor(modelId),
+        model: providerFor(routeId),
         schema, // zod schema → generateObject validates the result to T
         system,
         messages: [{ role: "user", content }],
+        ...claudeEffortProviderOptions(routeId), // explicit SPEC §1.3 effort for claude-*-5-5
         abortSignal: signal,
       });
       return object as T;

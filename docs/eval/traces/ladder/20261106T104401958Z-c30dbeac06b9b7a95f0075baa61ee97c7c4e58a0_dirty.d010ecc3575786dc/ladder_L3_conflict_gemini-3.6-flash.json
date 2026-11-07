@@ -1,0 +1,242 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-11-06T10:44:01.958Z",
+  "commitSha": "c30dbeac06b9b7a95f0075baa61ee97c7c4e58a0",
+  "worktreeHash": "d010ecc3575786dc",
+  "gitDirty": true,
+  "suite": "ladder",
+  "caseId": "ladder:L3_conflict:gemini-3.6-flash",
+  "score": 1,
+  "checks": {
+    "targetValue": true,
+    "conflictObserved": true,
+    "noClobber": true,
+    "notExhausted": true
+  },
+  "checkDetails": {},
+  "result": {
+    "pass": true,
+    "checkDetails": {},
+    "requestedModel": "gemini-3.6-flash",
+    "resolvedModel": "gemini-3.6-flash",
+    "resolvedModels": [
+      "gemini-3.6-flash"
+    ],
+    "rung": "L3_conflict",
+    "level": 3,
+    "ms": 12271,
+    "tools": 8,
+    "cost": 0.04413449999999996,
+    "stopReason": "done",
+    "reason": "",
+    "checks": {
+      "targetValue": true,
+      "conflictObserved": true,
+      "noClobber": true,
+      "notExhausted": true
+    },
+    "dispatches": [
+      {
+        "requestedModel": "gemini-3.6-flash",
+        "resolvedModel": "gemini-3.6-flash",
+        "echoedModel": "gemini-3.6-flash",
+        "usage": {
+          "inputTokens": 6262,
+          "outputTokens": 543
+        },
+        "costUsd": 0.00673275,
+        "fallbackUsed": false
+      },
+      {
+        "requestedModel": "gemini-3.6-flash",
+        "resolvedModel": "gemini-3.6-flash",
+        "echoedModel": "gemini-3.6-flash",
+        "usage": {
+          "inputTokens": 6885,
+          "outputTokens": 465
+        },
+        "costUsd": 0.0069075,
+        "fallbackUsed": false
+      },
+      {
+        "requestedModel": "gemini-3.6-flash",
+        "resolvedModel": "gemini-3.6-flash",
+        "echoedModel": "gemini-3.6-flash",
+        "usage": {
+          "inputTokens": 7422,
+          "outputTokens": 95
+        },
+        "costUsd": 0.00592275,
+        "fallbackUsed": false
+      },
+      {
+        "requestedModel": "gemini-3.6-flash",
+        "resolvedModel": "gemini-3.6-flash",
+        "echoedModel": "gemini-3.6-flash",
+        "usage": {
+          "inputTokens": 7574,
+          "outputTokens": 139
+        },
+        "costUsd": 0.00620175,
+        "fallbackUsed": false
+      },
+      {
+        "requestedModel": "gemini-3.6-flash",
+        "resolvedModel": "gemini-3.6-flash",
+        "echoedModel": "gemini-3.6-flash",
+        "usage": {
+          "inputTokens": 7803,
+          "outputTokens": 52
+        },
+        "costUsd": 0.00604725,
+        "fallbackUsed": false
+      },
+      {
+        "requestedModel": "gemini-3.6-flash",
+        "resolvedModel": "gemini-3.6-flash",
+        "echoedModel": "gemini-3.6-flash",
+        "usage": {
+          "inputTokens": 7880,
+          "outputTokens": 63
+        },
+        "costUsd": 0.00614625,
+        "fallbackUsed": false
+      },
+      {
+        "requestedModel": "gemini-3.6-flash",
+        "resolvedModel": "gemini-3.6-flash",
+        "echoedModel": "gemini-3.6-flash",
+        "usage": {
+          "inputTokens": 7965,
+          "outputTokens": 54
+        },
+        "costUsd": 0.00617625,
+        "fallbackUsed": false
+      }
+    ]
+  },
+  "trace": [
+    {
+      "step": 0,
+      "tool": "say",
+      "args": {
+        "text": "Starting update of Net income variance (r_ni__variance) to +22.4%."
+      },
+      "result": {
+        "ok": true
+      },
+      "ms": 1
+    },
+    {
+      "step": 0,
+      "tool": "read_range",
+      "args": {
+        "elementIds": [
+          "r_ni__variance"
+        ],
+        "artifactId": "art_11"
+      },
+      "result": [
+        {
+          "id": "r_ni__variance",
+          "value": "",
+          "version": 1,
+          "locked": null
+        }
+      ],
+      "ms": 0
+    },
+    {
+      "step": 1,
+      "tool": "propose_lock",
+      "args": {
+        "elementIds": [
+          "r_ni__variance"
+        ],
+        "reason": "Updating Net income variance",
+        "artifactId": "art_11"
+      },
+      "result": {
+        "ok": true,
+        "lockId": "lock_54"
+      },
+      "ms": 0
+    },
+    {
+      "step": 1,
+      "tool": "edit_cell",
+      "args": {
+        "elementId": "r_ni__variance",
+        "value": "+22.4%",
+        "baseVersion": 1,
+        "artifactId": "art_11"
+      },
+      "result": {
+        "ok": false,
+        "conflict": true,
+        "expected": 1,
+        "actual": 2
+      },
+      "ms": 1
+    },
+    {
+      "step": 2,
+      "tool": "read_range",
+      "args": {
+        "elementIds": [
+          "r_ni__variance"
+        ],
+        "artifactId": "art_11"
+      },
+      "result": [
+        {
+          "id": "r_ni__variance",
+          "value": "+19%",
+          "version": 2,
+          "locked": {
+            "by": "Room NodeAgent",
+            "reason": "Updating Net income variance"
+          }
+        }
+      ],
+      "ms": 0
+    },
+    {
+      "step": 3,
+      "tool": "edit_cell",
+      "args": {
+        "elementId": "r_ni__variance",
+        "value": "+22.4%",
+        "baseVersion": 2,
+        "artifactId": "art_11"
+      },
+      "result": {
+        "ok": true,
+        "version": 3
+      },
+      "ms": 0
+    },
+    {
+      "step": 4,
+      "tool": "release_lock",
+      "args": {
+        "lockId": "lock_54"
+      },
+      "result": {
+        "merged": []
+      },
+      "ms": 0
+    },
+    {
+      "step": 5,
+      "tool": "say",
+      "args": {
+        "text": "Net income variance (r_ni__variance) updated to +22.4% after resolving concurrent edit."
+      },
+      "result": {
+        "ok": true
+      },
+      "ms": 0
+    }
+  ]
+}

@@ -25,6 +25,7 @@ import { actorProofV, actorV, requireActiveAgentJobLease, requireActorCanUseChan
 import { summarizeRoomForPrivate } from "./agentPrompts";
 import { assertProviderEgressAllowed } from "../src/nodeagent/guardrails/egressPolicy";
 import { streamingComponent } from "./streamingComponent";
+import { DEFAULT_AGENT_MODEL } from "./modelDefaults";
 export { streamingComponent } from "./streamingComponent";
 
 const roomsFullRef = makeFunctionReference<"query">("rooms:full");
@@ -65,7 +66,7 @@ export const createPrivateReplyStream = mutation({
     const roomState = await ctx.runQuery(roomsFullRef, { roomId: a.roomId, requester: a.requester });
     if (!roomState) throw new Error("room_not_found");
     assertProviderEgressAllowed({
-      model: process.env.AGENT_MODEL ?? "gemini-3.5-flash",
+      model: process.env.AGENT_MODEL ?? DEFAULT_AGENT_MODEL,
       entrypoint: "private_agent",
       artifacts: roomState.artifacts.map((art: { title: string; kind: string; meta?: unknown }) => ({
         title: art.title,

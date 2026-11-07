@@ -1,5 +1,5 @@
 /**
- * State-set vision judge — gemini-3.5-flash scores each SURFACE's full set of state captures
+ * State-set vision judge — gemini-3.6-flash scores each SURFACE's full set of state captures
  * (default/hover/focus/disabled/error/empty/locked/proposal/...) against the same adversarial
  * discipline as the GIF judge. The manifest's `mustBeTrue` line per capture tells the model what
  * each state is supposed to demonstrate, so the judge measures intent-vs-pixels, not vibes.
@@ -14,7 +14,7 @@ import "./benchmark/loadEnv";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
-const JUDGE_MODEL = "gemini-3.5-flash";
+const JUDGE_MODEL = process.env.GEMINI_JUDGE_MODEL ?? "gemini-3.6-flash";
 const CAP_DIR = "docs/qa/state-captures";
 const OUT_DIR = "docs/qa/state-judge";
 const MANIFEST = join(CAP_DIR, "manifest.json");
@@ -82,7 +82,7 @@ async function judge(surface: string, caps: Capture[]): Promise<Verdict> {
     const res = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${JUDGE_MODEL}:generateContent?key=${key}`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ contents: [{ parts }], generationConfig: { responseMimeType: "application/json", temperature: 0 } }),
+      body: JSON.stringify({ contents: [{ parts }], generationConfig: { responseMimeType: "application/json" } }),
       signal: controller.signal,
     });
     if (!res.ok) throw new Error(`judge HTTP ${res.status}: ${(await res.text()).slice(0, 200)}`);
@@ -122,5 +122,5 @@ for (const s of surfaces) {
   for (const issue of v.topIssues.slice(0, 2)) console.log(`     · ${issue}`);
 }
 const failed = results.filter((r) => !r.pass);
-console.log(`\n${results.length - failed.length}/${results.length} surfaces pass the gemini-3.5-flash state judge -> ${OUT_DIR}/`);
+console.log(`\n${results.length - failed.length}/${results.length} surfaces pass the gemini-3.6-flash state judge -> ${OUT_DIR}/`);
 if (failed.length) { console.log(`FAILING: ${failed.map((f) => f.surface).join(", ")} — fix and re-judge.`); process.exit(1); }

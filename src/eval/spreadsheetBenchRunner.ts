@@ -10,7 +10,7 @@ import {
 } from "./spreadsheetBenchScorer";
 import type { SpreadsheetBenchTrack } from "./spreadsheetBenchAdapter";
 import type { AgentModel, TokenUsage } from "../nodeagent/core/types";
-import { priceRun } from "../nodeagent/models/adapter";
+import { priceRequest, priceRun } from "../nodeagent/models/adapter";
 import { getModelPricing } from "../nodeagent/models/modelCatalog";
 import {
   runSpreadsheetBenchNodeAgentBridge,
@@ -1444,7 +1444,7 @@ async function prepareBatchedModelPlans(
       .digest("hex")
       .slice(0, 16);
     const totalCostUsd = getModelPricing(modelName)
-      ? priceRun(modelName, usage.inputTokens, usage.outputTokens)
+      ? priceRequest(modelName, usage.inputTokens, usage.outputTokens) // one batch = one provider request
       : 0;
 
     for (const [taskIndex, item] of batchPrepared.entries()) {
@@ -1715,7 +1715,7 @@ async function emitModelEditCandidateWorkbook(args: {
       args.trajectory.push({ step: "call_model_for_edit_plan", detail: args.model.name });
       const usage = step.usage ?? { inputTokens: 0, outputTokens: 0 };
       const modelName = args.model.name || attemptedModelName;
-      const costUsd = step.usage && getModelPricing(modelName) ? priceRun(modelName, usage.inputTokens, usage.outputTokens) : 0;
+      const costUsd = step.usage && getModelPricing(modelName) ? priceRequest(modelName, usage.inputTokens, usage.outputTokens) : 0;
       modelInfo = {
         name: modelName,
         ...(requestedModelName && requestedModelName !== modelName ? { requestedName: requestedModelName } : {}),
@@ -1987,7 +1987,7 @@ function aggregateModelPlanningStep(
   const usage = step.usage ?? { inputTokens: 0, outputTokens: 0 };
   const resolved = resolvedName || current.name;
   const stepCost = step.usage && getModelPricing(resolved)
-    ? priceRun(resolved, usage.inputTokens, usage.outputTokens)
+    ? priceRequest(resolved, usage.inputTokens, usage.outputTokens)
     : 0;
   return {
     ...current,
