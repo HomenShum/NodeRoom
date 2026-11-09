@@ -109,3 +109,28 @@ Rules:
 - Use the code graph and UI contracts before guessing files, selectors, or routes.
 
 <!-- proofloop-agent-friendly:end -->
+
+## 审查要点
+
+Review points for the automated delivery reviewer (agent-autoloop, `ops/delivery.json`).
+A PR labelled `deliver` is reviewed, then merged once CI `verify` passes. Merging to
+`main` deploys noderoom.live through Vercel, so report anything below as a finding:
+
+- Immutable files: any change to a path in `IMMUTABLE_FILES`
+  (`src/eval/scaffoldProposal.ts`) or under `.github/workflows/`.
+- Weakened checks: a loosened assertion, an expected value edited to match new
+  behaviour, a skipped or deleted test, or a raised budget, threshold or staleness
+  window, unless the PR cites the spec or measurement that justifies it.
+- Fabricated proof: a receipt, eval result or proof JSON whose numbers did not come
+  from a real run, or a "verified" claim with no command or artifact behind it.
+- Convex boundary: a new public query, mutation or action without an auth gate,
+  internal logic exposed as public, or an unbounded read on a user-controlled table.
+- Agent writes: engine or backend state mutated outside `RoomTools`, or an outreach
+  draft to a named person without a verified research hook (`skills/probe-first/`).
+- Secrets and personal data: keys, tokens, real emails or phone numbers in code,
+  fixtures, logs or receipts.
+- Dependencies: `package.json` and `package-lock.json` out of sync, an `overrides`
+  entry with no stated reason, or a change that makes
+  `npm audit --omit=dev --audit-level=moderate` fail.
+- Production: a removed route, a client component that renders only a fallback in
+  SSR, or any user-visible regression on noderoom.live.
