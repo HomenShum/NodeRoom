@@ -103,7 +103,7 @@ function workspace() {
 describe("Investigation report surface", () => {
   it("lets a diligence lead inspect contract-derived trust counts and exact master-detail relationships", () => {
     const current = workspace();
-    render(<InvestigationReport workspace={current} mode="memory" />);
+    render(<InvestigationReport workspace={current} />);
     const report = screen.getByTestId("investigation-report");
 
     expect(screen.getByTestId("analysis-dataset-version").textContent).toContain(current.dataset?.versionId);
@@ -116,7 +116,8 @@ describe("Investigation report surface", () => {
     expect(report.getAttribute("data-plan-state")).toBe("valid");
     expect(report.getAttribute("data-runtime-state")).toBe("idle");
     expect(report.getAttribute("data-evidence-state")).toBe("supported");
-    expect(report.getAttribute("data-consent-state")).toBe("not_required");
+    // was "not_required" under mode="memory"; consent is now always required until approved.
+    expect(report.getAttribute("data-consent-state")).toBe("required");
 
     const sourceRefs = current.researchPack?.sourceRefs ?? current.dataset?.sourceRefs ?? [];
     const verifiedRefs = sourceRefs.filter((source) => source.verificationStatus === "verified");
@@ -168,7 +169,7 @@ describe("Investigation report surface", () => {
     const view = render(
       <InvestigationReport
         workspace={current}
-        mode="convex"
+       
         externalApproved={false}
         onRunResearch={runResearch}
       />,
@@ -187,7 +188,7 @@ describe("Investigation report surface", () => {
     view.rerender(
       <InvestigationReport
         workspace={current}
-        mode="convex"
+       
         externalApproved
         onRunResearch={runResearch}
       />,
@@ -245,7 +246,7 @@ describe("Investigation report surface", () => {
     render(
       <InvestigationReport
         workspace={waiting}
-        mode="convex"
+       
         externalApproved
         onRunResearch={runResearch}
       />,
@@ -276,7 +277,7 @@ describe("Investigation report surface", () => {
     expect(pending.validation.valid).toBe(true);
     expect(pending.researchPack?.claims.some((claim) => claim.status === "needs_review")).toBe(true);
 
-    render(<InvestigationReport workspace={pending} mode="memory" />);
+    render(<InvestigationReport workspace={pending} />);
 
     const status = screen.getByTestId("investigation-workspace-status");
     expect(status.textContent).toBe("Plan ready · evidence pending");
@@ -299,7 +300,7 @@ describe("Investigation report surface", () => {
     });
     expect(stale.researchPack?.claims.some((claim) => claim.status === "stale")).toBe(true);
 
-    render(<InvestigationReport workspace={{ ...stale, state: "complete" }} mode="memory" />);
+    render(<InvestigationReport workspace={{ ...stale, state: "complete" }} />);
 
     const status = screen.getByTestId("investigation-workspace-status");
     expect(status.textContent).toBe("Run complete · review pending");
@@ -309,7 +310,7 @@ describe("Investigation report surface", () => {
 
   it("shows fail-closed validation and runtime errors without invented progress", () => {
     const blocked = buildInvestigationWorkspaceV1({ roomId: "room-1", artifacts: [], traces: [], now });
-    render(<InvestigationReport workspace={blocked} mode="memory" runtimeError="Provider unavailable." />);
+    render(<InvestigationReport workspace={blocked} runtimeError="Provider unavailable." />);
 
     expect(screen.getByTestId("research-plan-status").textContent).toContain("Blocked");
     expect(screen.getByTestId("investigation-runtime-error").textContent).toContain("Provider unavailable.");

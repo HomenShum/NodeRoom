@@ -1,7 +1,7 @@
 {
   "$schema": "https://aka.ms/codetour-schema",
   "title": "2 — The agent: one loop, two hosts",
-  "description": "How a goal becomes tool calls, where tools are registered, and how the same loop runs both in a browser tab with no keys and as a durable server job. Read tour 1 first.",
+  "description": "How a goal becomes tool calls, where tools are registered, and how the same loop runs both as a durable server job (the product) and in a browser tab against the keyless test harness. Read tour 1 first.",
   "ref": "wave3-human-ready",
   "steps": [
     {
@@ -23,7 +23,7 @@
       "line": 279,
       "pattern": "export interface RoomTools",
       "title": "RoomTools — the port",
-      "description": "One interface, implemented twice. This is the seam that makes the keyless demo genuinely the same product as the live tier rather than a mock of it.\n\nNothing automatically checks that both implementations stay in step. See docs/codebase/CONCERNS.md."
+      "description": "One interface, implemented twice. This is the seam that lets the keyless test harness exercise the same loop and tools as the live room rather than a mock of it.\n\nNothing automatically checks that both implementations stay in step. See docs/codebase/CONCERNS.md."
     },
     {
       "file": "src/nodeagent/skills/spreadsheet/cellMutator.ts",
@@ -44,7 +44,7 @@
       "line": 339,
       "pattern": "async editCell\\(elementId: string",
       "title": "Implementation 1 — in the browser",
-      "description": "`InMemoryRoomTools.editCell` forwards to `RoomEngine.applyEdit`. No network, no keys. This is what runs in the sample room."
+      "description": "`InMemoryRoomTools.editCell` forwards to `RoomEngine.applyEdit`. No network, no keys. This is what the keyless test harness runs; it is test infrastructure, not a product mode."
     },
     {
       "file": "convex/convexRoomTools.ts",
@@ -62,7 +62,7 @@
     },
     {
       "file": "convex/convex.config.ts",
-      "line": 14,
+      "line": 13,
       "pattern": "app\\.use\\(workflow, \\{ name: \"passiveWorkflow\" \\}\\)",
       "title": "Why there are two workflow components",
       "description": "A second `workflow` mount named `passiveWorkflow` exists so background/passive jobs get their own workpool with `maxParallelism = 1` and can never starve a foreground agent run. One line, one real production failure mode."

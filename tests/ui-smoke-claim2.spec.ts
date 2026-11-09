@@ -92,8 +92,8 @@ test("ui smoke — claim 2: app renders a canonical surface in memory mode", asy
     if (status >= 500 || status === 404) badResponses.push({ url, status });
   });
 
-  // Memory mode skips Convex entirely — the deterministic lane the existing e2e suite uses.
-  await page.goto(`${PREVIEW_URL}/?mode=memory`, { waitUntil: "domcontentloaded" });
+  // Load the landing exactly as the build serves it (live when built with VITE_CONVEX_URL).
+  await page.goto(`${PREVIEW_URL}/`, { waitUntil: "domcontentloaded" });
 
   // The page must render *something* — a non-empty body is the fatal-crash floor.
   const bodyHandle = await page.locator("body").elementHandle();
@@ -102,7 +102,8 @@ test("ui smoke — claim 2: app renders a canonical surface in memory mode", asy
   // Canonical surface check — match ANY of the well-known noderoom anchors. We accept any
   // hit because the landing vs in-room state both qualify as "the UI lane is up".
   const surfaceCandidates = [
-    page.getByTestId("start-demo-room"), // Landing CTA
+    page.getByTestId("create-room"), // Live landing CTA
+    page.getByTestId("start-demo-room"), // Landing CTA of a build without VITE_CONVEX_URL
     page.getByTestId("artifact-panel"), // Work surface (in-room)
     page.getByTestId("room-shell"), // Shell wrapper if present
     page.getByTestId("chat-composer"), // Public chat composer textarea
@@ -123,7 +124,7 @@ test("ui smoke — claim 2: app renders a canonical surface in memory mode", asy
   }
   expect(
     surfaceMatched,
-    "expected at least one canonical noderoom surface (start-demo-room / artifact-panel / room-shell / chat-composer / [data-noderoom-surface])",
+    "expected at least one canonical noderoom surface (create-room / start-demo-room / artifact-panel / room-shell / chat-composer / [data-noderoom-surface])",
   ).not.toEqual("");
 
   // Screenshot proof — full page so the reviewer can SEE the lane was reachable.

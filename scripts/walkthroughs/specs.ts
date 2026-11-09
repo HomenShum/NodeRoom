@@ -26,10 +26,8 @@ export type FeatureSpec = {
   id: string;
   title: string;
   /** createRoom = fresh live room (sheet+note+wall seeded). seedResearchRoom additionally creates
-   *  a Company research artifact with 3 seeded accounts via the room's own session token.
-   *  memoryDemo = the deterministic in-browser demo engine at the SAME prod URL (?mode=memory) —
-   *  same UI, scripted agent; used where a live-LLM step is too nondeterministic to walk through. */
-  setup: "createRoom" | "seedResearchRoom" | "startupJoinRoom" | "memoryDemo" | "story" | "roomTour";
+   *  a Company research artifact with 3 seeded accounts via the room's own session token. */
+  setup: "createRoom" | "seedResearchRoom" | "startupJoinRoom" | "story";
   /** Real-LLM features get retries (fresh room per attempt); deterministic ones don't need them. */
   retries?: number;
   /** Opt-in specs are SKIPPED by default runs — they need a special server (e.g. the naive
@@ -38,10 +36,6 @@ export type FeatureSpec = {
   /** seedResearchRoom only: override the seeded accounts (episodes for high-trust audiences use
    *  FICTIONAL companies — that restraint is itself the trust signal). */
   seedCompanies?: Array<{ company: string; website?: string; tier?: string; owner?: string }>;
-  /** memoryDemo only: extra query params appended to `?mode=memory` (e.g.
-   *  "demo=scale&name=Host" for the 1,000-row scale room, which auto-enters —
-   *  no start-demo-room click). */
-  demoQuery?: string;
   /** Close panels the story doesn't use — fewer panels = the feature renders larger (the judge's
    *  systemic "text too small at phone size" finding). Legacy keys map to current toggles:
    *  left = Room Binder, artifact = Work Surface, priv = Copilot. */
@@ -128,129 +122,6 @@ export const FEATURES: FeatureSpec[] = [
         afterCaption: "Applied via the same no-clobber CAS path — synced to everyone",
       },
       { kind: "state", caption: "Human-in-the-loop, one click, in context", settleMs: 1200, holdMs: 2400 },
-    ],
-  },
-  {
-    id: "room-home",
-    closePanels: ["left", "priv"],
-    title: "Room Home — the pinned command center",
-    setup: "memoryDemo",
-    steps: [
-      { kind: "state", caption: "A populated deal room — artifacts open as tabs", holdMs: 2000 },
-      {
-        kind: "click", sel: '[data-testid="home-tab"]', caption: "A pinned Home tab — always one click away",
-        afterCaption: "Room Home: command bar, inventory, and quick actions",
-        after: { sel: '[data-testid="room-home-surface"]', state: "visible" },
-      },
-      { kind: "state", caption: "The full inventory — every artifact, even unopened ones", holdMs: 2200 },
-      {
-        kind: "click", sel: '[data-testid="room-home-artifact"]:has-text("Runway")', caption: "Dive into any artifact",
-        afterCaption: "It opens as a tab — Home steps aside",
-        after: { textSel: '[data-testid="artifact-tabs"]', includes: "Runway" },
-      },
-      { kind: "state", caption: "Your command center, never buried in tabs", settleMs: 1200, holdMs: 2400 },
-    ],
-  },
-  {
-    id: "brief",
-    closePanels: ["left", "priv"],
-    title: "Today's Brief — ranked next actions, each with a source",
-    setup: "memoryDemo",
-    steps: [
-      { kind: "state", caption: "A populated deal room — the agent has done the research", holdMs: 1600 },
-      {
-        kind: "click", sel: '[data-testid="home-tab"]', caption: "Open Room Home",
-        afterCaption: "The full inventory — every artifact, including Today's Brief",
-        after: { sel: '[data-testid="room-home-surface"]', state: "visible" },
-      },
-      {
-        kind: "click", sel: '[data-testid="room-home-artifact"]:has-text("Brief")', caption: "Open Today's Brief — it's just another notebook artifact",
-        afterCaption: "A document: ranked next actions, risk first, each backed by a source",
-        after: { sel: '[data-testid="brief-surface"]', state: "visible" },
-      },
-      { kind: "state", caption: "Reads like the wiki — a short, ranked memo of what to do next", holdMs: 2400 },
-      {
-        kind: "click", sel: '[data-testid="brief-handoff-gmail"]', caption: "Hand it off — draft the update",
-        afterCaption: "A ready-to-send draft, assembled from the room's own sources",
-        after: { sel: '[data-testid="brief-draft"]', state: "visible" },
-      },
-      { kind: "state", caption: "Messy context in, a sourced next action out", settleMs: 1000, holdMs: 2400 },
-    ],
-  },
-  {
-    id: "notebook-agent-lane",
-    title: "The notebook agent lane — governed notes, attributed output",
-    // Deterministic memory demo: the scripted "notes" intent drives the REAL
-    // read_notebook + append_notebook_outline tools — no LLM, no backend.
-    setup: "memoryDemo",
-    closePanels: ["left"],
-    steps: [
-      { kind: "state", caption: "A live room — notes, sheets, and a room agent", holdMs: 2000 },
-      {
-        kind: "click", sel: '[data-testid="artifact-filetab"]:has-text("Capture Notebook")',
-        caption: "Open the Capture Notebook",
-        afterCaption: "The notebook is paper — ink on parchment",
-        after: { sel: '[data-testid="notebook-paper-frame"]', state: "visible" }, afterHoldMs: 2200,
-      },
-      {
-        kind: "type", sel: COMPOSER, text: "@nodeagent summarize my meeting notes", pressEnter: true,
-        caption: "Ask the agent to structure the notes",
-      },
-      {
-        // The scripted plan's intermediate says are harness-internal; the
-        // OBSERVABLE beats are the agent's completion message in chat and the
-        // report heading landing in the notebook — wait on those, never on
-        // text the UI doesn't render.
-        kind: "waitResult", predicate: "textVisible", arg: "Report written under",
-        caption: "The agent reads, then writes — one governed pass", timeoutMs: 60_000,
-      },
-      {
-        kind: "waitResult", predicate: "textVisible", arg: "Report: Notebook summary",
-        caption: "A structured report lands under Agent notes", timeoutMs: 60_000,
-      },
-      { kind: "state", caption: "Agent blocks carry the NodeRoom mark — attributed ink", settleMs: 1000, holdMs: 2400 },
-      { kind: "state", caption: "The unverified claim is flagged, never asserted", settleMs: 400, holdMs: 2400 },
-    ],
-  },
-  {
-    id: "parity-tour",
-    title: "Design parity tour — receipts, palette, paper notebook, run trace",
-    // The 1,000-row scale room: deterministic, auto-enters, every parity
-    // surface seeded (mixed status chips, lock rows, receipts in chat).
-    setup: "memoryDemo",
-    demoQuery: "demo=scale&name=Host",
-    steps: [
-      { kind: "state", caption: "1,000 rows under calm mode — dot statuses, lock rows, honest filter counts", holdMs: 2400 },
-      {
-        kind: "click", sel: '[data-testid="grid-cite-chip"]', caption: "Every sourced cell carries its receipts",
-        afterCaption: "Hover a cite chip — the quoted source, checked time, and confidence",
-        after: { sel: '[data-testid="evidence-popover"]', state: "visible" }, afterHoldMs: 2200,
-      },
-      {
-        kind: "key", key: "Control+k", caption: "One keystroke to anywhere — the command palette",
-        after: { sel: '[data-testid="command-palette"]', state: "visible" },
-      },
-      {
-        kind: "type", sel: '[data-testid="command-palette-input"]', text: "Capture", pressEnter: true,
-        caption: "Jump to the Capture Notebook",
-        afterCaption: "The notebook is paper — ink on parchment inside the dark room",
-        after: { sel: '[data-testid="notebook-paper-frame"]', state: "visible" }, afterHoldMs: 2600,
-      },
-      {
-        kind: "click", sel: '[data-testid="trace-tab"]', caption: "Every agent action leaves a trace",
-        after: { sel: '[data-testid="trace-view-runs"]', state: "visible" },
-      },
-      {
-        kind: "click", sel: '[data-testid="trace-view-runs"]', caption: "Runs view — one agent run as a span tree",
-        afterCaption: "Context, retrieval, writes — durations honest, failures kept as evidence",
-        after: { sel: '[data-testid="trace-runs"]', state: "visible" }, afterHoldMs: 2400,
-      },
-      {
-        kind: "click", sel: '[data-testid="people-trigger"]', caption: "62 people and agents, live",
-        afterCaption: "Role groups, live location, and Follow — see the room through anyone's eyes",
-        after: { sel: '[data-testid="people-panel"]', state: "visible" }, afterHoldMs: 2400,
-      },
-      { kind: "state", caption: "Diligence that shows its work", settleMs: 800, holdMs: 2000 },
     ],
   },
 ];

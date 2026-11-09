@@ -95,7 +95,8 @@ Each journey states, in this order:
 ## J4 — Steering journey: "Nothing the assistant writes lands until I say so"
 
 - **Persona and situation:** A host is willing to let an assistant touch the deal
-  sheet only if she reviews each change first. DEMO.md §4.2 promises exactly this:
+  sheet only if she reviews each change first. DEMO.md §4.2 (the stage script, since
+  removed; read it at commit `6f1af0f7`) promised exactly this:
   auto-allow off by default, agent edits arriving as proposals the host approves
   or rejects, with a conflict surfaced instead of a false "applied".
 - **Goal:** Turn auto-allow off (`data-testid="auto-allow-switch"`), have the

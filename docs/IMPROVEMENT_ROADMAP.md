@@ -1,3 +1,5 @@
+> **HISTORICAL — June 2026 roadmap, rationale only; statuses superseded.** The P0s below (including the USD spend ceiling and lease-epoch fencing) were closed after this was written, and its code citations (for example "9min, convex/agentJobRunner.ts:25") are stale: the default slice budget is 7 minutes (`convex/agentJobRunner.ts`). Current status: [`PRODUCTION_READINESS.md`](PRODUCTION_READINESS.md) and [`GAPS_NOT_DONE.md`](GAPS_NOT_DONE.md).
+
 <!-- Provenance: synthesized by ultra workflow wf_c8370206-f4e (2026-06-09): 25 agents, 4.0M tokens, 554 tool calls.
      Pipeline: 6 subsystem deep-reads + 5 production-pattern researchers -> 10 root-cause clusters -> altitude judges
      -> adversarial skeptic (killed 7 of 88 candidates) -> completeness critic -> this synthesis. -->

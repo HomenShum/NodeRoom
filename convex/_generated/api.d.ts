@@ -52,10 +52,6 @@ import type * as lib_cellsToGoldenOutputs from "../lib/cellsToGoldenOutputs.js";
 import type * as lib_goldenRubrics from "../lib/goldenRubrics.js";
 import type * as lib_noteSurfaceReferenceAuthority from "../lib/noteSurfaceReferenceAuthority.js";
 import type * as locks from "../locks.js";
-import type * as loopAttempts from "../loopAttempts.js";
-import type * as loopPolicies from "../loopPolicies.js";
-import type * as loopRewards from "../loopRewards.js";
-import type * as memory from "../memory.js";
 import type * as messages from "../messages.js";
 import type * as metrics from "../metrics.js";
 import type * as modelFrontier from "../modelFrontier.js";
@@ -141,10 +137,6 @@ declare const fullApi: ApiFromModules<{
   "lib/goldenRubrics": typeof lib_goldenRubrics;
   "lib/noteSurfaceReferenceAuthority": typeof lib_noteSurfaceReferenceAuthority;
   locks: typeof locks;
-  loopAttempts: typeof loopAttempts;
-  loopPolicies: typeof loopPolicies;
-  loopRewards: typeof loopRewards;
-  memory: typeof memory;
   messages: typeof messages;
   metrics: typeof metrics;
   modelFrontier: typeof modelFrontier;
@@ -209,7 +201,6 @@ export declare const internal: FilterApi<
 export declare const components: {
   workflow: import("@convex-dev/workflow/_generated/component.js").ComponentApi<"workflow">;
   passiveWorkflow: import("@convex-dev/workflow/_generated/component.js").ComponentApi<"passiveWorkflow">;
-  agentWorkpool: import("@convex-dev/workpool/_generated/component.js").ComponentApi<"agentWorkpool">;
   persistentTextStreaming: import("@convex-dev/persistent-text-streaming/_generated/component.js").ComponentApi<"persistentTextStreaming">;
   debouncer: import("@ikhrustalev/convex-debouncer/_generated/component.js").ComponentApi<"debouncer">;
   prosemirrorSync: import("@convex-dev/prosemirror-sync/_generated/component.js").ComponentApi<"prosemirrorSync">;

@@ -1,0 +1,143 @@
+{
+  "engine": "openai-agents",
+  "sdk": "@openai/agents",
+  "sdkVersion": "0.21.0",
+  "model": "gpt-5.4-mini",
+  "helperModel": "gpt-5.4-mini",
+  "ranAt": "2026-10-29T12:35:19.352Z",
+  "wallMs": 21827,
+  "costUsd": 0.014495,
+  "eventCounts": {
+    "run1": {
+      "run.started": 1,
+      "context.usage": 10,
+      "usage": 10,
+      "tool.call": 10,
+      "skill.search": 1,
+      "tool.result": 10,
+      "skill.loaded": 1,
+      "goals.updated": 2,
+      "helper.started": 2,
+      "helper.progress": 6,
+      "tool.search": 2,
+      "tool.loaded": 2,
+      "message": 3,
+      "helper.completed": 2,
+      "message.delta": 1,
+      "context.compacted": 1
+    },
+    "run2": {
+      "run.started": 1,
+      "context.usage": 2,
+      "usage": 2,
+      "tool.call": 2,
+      "goals.updated": 1,
+      "tool.result": 1,
+      "helper.started": 1,
+      "helper.completed": 1
+    },
+    "run3": {
+      "run.started": 1,
+      "context.usage": 5,
+      "usage": 5,
+      "tool.call": 4,
+      "goals.updated": 1,
+      "tool.result": 4,
+      "helper.started": 1,
+      "helper.progress": 3,
+      "tool.search": 1,
+      "tool.loaded": 1,
+      "message": 2,
+      "helper.completed": 1,
+      "message.delta": 1
+    }
+  },
+  "outcomes": [
+    {
+      "status": "completed",
+      "ms": 13666,
+      "costUsd": 0.008947,
+      "finalText": "notes/alpha.txt: 14 words [src:notes/alpha.txt#L1]\nnotes/beta.txt: 11 words [src:notes/beta.txt#L1]\nTotal: 25 words"
+    },
+    {
+      "status": "interrupted",
+      "error": "qualification: interrupt at first helper",
+      "ms": 2134,
+      "costUsd": 0.001667,
+      "finalText": ""
+    },
+    {
+      "status": "completed",
+      "ms": 6025,
+      "costUsd": 0.003881,
+      "finalText": "You asked about `notes/alpha.txt`.\n\nThe word count is **14**."
+    }
+  ],
+  "capabilities": {
+    "start": {
+      "status": "NATIVE",
+      "evidence": "run.started x1 with nativeSessionId oas_4a47b7ea-4430-4529-8a92-36f36c5ea313; run1 status completed"
+    },
+    "stream": {
+      "status": "NATIVE",
+      "evidence": "message.delta x1 (main agent)"
+    },
+    "interrupt": {
+      "status": "NATIVE",
+      "evidence": "run2 interrupted at helper.started; status=interrupted; helper.completed status=stopped"
+    },
+    "resume": {
+      "status": "NATIVE",
+      "evidence": "run3 resumed session oas_63ccbd5c-c781-4b70-b37a-df1a4e0ea71e: status=completed, finalText mentions alpha.txt"
+    },
+    "subagents": {
+      "status": "NATIVE",
+      "evidence": "helper.started x2, 2 started before the first helper.completed (concurrent); helper.completed x2"
+    },
+    "childEventIdentity": {
+      "status": "NATIVE",
+      "evidence": "4 child tool.call events carry agentId = spawn_helper call id (call_mbkW00RLkEoRIrPfUOS70wBb, call_0MrfDrBKFTRpxlAFGMyTX60p)"
+    },
+    "compaction": {
+      "status": "NATIVE",
+      "evidence": "context.compacted x1 (preTokens 1363, nativeRef cmp_08fbb94ffc7b4e38006ae33d9393a487d1aa596e71bffb838e) with contextManagement compactThreshold=1000"
+    },
+    "toolSearch": {
+      "status": "NATIVE",
+      "evidence": "tool.search(native) x2 -> results word_count; tool.loaded x2; word_count called x1 after search"
+    },
+    "skillLoad": {
+      "status": "APP-IMPLEMENTED",
+      "evidence": "skill.loaded(via node) x1 for word-stats; skill.search x1. Native SDK local skills need the UnixLocal sandbox, which throws 'Required file I/O protection is supported only on Unix hosts.' on win32 (agents-core sandbox/sandboxes/shared/unixLocalFiles.mjs)"
+    },
+    "skillRefresh": {
+      "status": "UNTESTED",
+      "evidence": "not exercised; no native skill cache (Node skill tools read disk per call)"
+    },
+    "goals": {
+      "status": "APP-IMPLEMENTED",
+      "evidence": "goals.updated x2 via Node update_goals; last statuses done,done,done"
+    },
+    "permissions": {
+      "status": "APP-IMPLEMENTED",
+      "evidence": "native tool.calls observed only spawn_helper,tool_search; no shell/apply_patch exposed, so every side effect goes through the Node gateway (gateway denial itself not exercised by the fake host)"
+    },
+    "usage": {
+      "status": "NATIVE",
+      "evidence": "usage x10; run1 totals in=6749 cached=3200 out=810 turns=10"
+    },
+    "costUsd": {
+      "status": "APP-IMPLEMENTED",
+      "evidence": "SDK reports tokens only; priceUsage(gpt-5.4-mini) -> $0.008947 (price-table)"
+    }
+  },
+  "notes": [
+    "Compaction knob: server-side modelSettings.contextManagement [{type:'compaction', compactThreshold:1000}] set from spec.context.autoCompactTokens (lowered for qualification); context.compacted only from compaction_item_created.",
+    "Helpers: Agent.asTool('spawn_helper'); child events via onStream (toolCall.callId = helperId); child tool executions get agentId via AsyncLocalStorage.",
+    "Resume: file-backed SDK Session under host.stateDir/openai-sessions; nativeSessionId = session id.",
+    "Tracing export disabled (Runner tracingDisabled, asTool runConfig tracingDisabled). API key passed per run via OpenAIProvider({ apiKey }); process.env untouched.",
+    "Workspace: os.tmpdir()/nodeagent-qual/openai-agents-1793277319345",
+    "An earlier attempt the same day spent $0.0165 (total across both attempts $0.031): gpt-5.4-mini issued the two spawn_helper calls in consecutive turns (not concurrent) and main context peaked at 1387 input tokens, below compactThreshold 2000, so no compaction item. The task prompt was tightened to demand both calls in one message and the threshold lowered to 1000; this report is the second attempt.",
+    "Fixture test/fixtures/openai-agents-native.jsonl: records tagged with run (main|interrupt) after capture; first 12 main text deltas kept, strings capped at 300 chars, encrypted_content and providerData stripped."
+  ]
+}

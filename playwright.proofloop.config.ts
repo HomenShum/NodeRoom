@@ -30,6 +30,7 @@ export default defineConfig({
     url: playwrightBaseUrl,
     reuseExistingServer,
     timeout: 120_000,
+    env: { VITE_NODEROOM_HARNESS: "1" }, // lets the accounting/notion specs' ?mode=memory win over .env.local's VITE_CONVEX_URL
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
 });

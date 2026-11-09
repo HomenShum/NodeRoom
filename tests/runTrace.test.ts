@@ -14,13 +14,12 @@
  *                propagated to the phase span and the mission root; ok-status rows
  *                whose result payload says ok:false surface as errors (HONEST_STATUS)
  *   honesty    — steps without measured ms render durMs:null ("—" + sequence tick),
- *                never a fabricated bar; memory-mode event spans are points
+ *                never a fabricated bar
  *   adversarial— forged proof rejected; a non-owner naming a private runId gets an
  *                empty result, not someone else's span tree
  *   burst      — a 250-step runaway run is bounded at 200 spans with an honest
  *                truncation flag (BOUND)
- *   sustained  — 35 runs of history keep the picker at the newest 10; 600-event
- *                memory sessions stay bounded at 200 events
+ *   sustained  — 35 runs of history keep the picker at the newest 10
  *
  * convex-test setup mirrors tests/watches.test.ts (the documented pattern:
  * module glob minus "use node" modules, workflow/workpool components registered,
@@ -46,15 +45,11 @@ import {
   type RunStepInput,
 } from "../convex/runTrace";
 import {
-  buildMemoryRunsFromTraces,
   flattenRunSpans,
   fmtSpanMs,
   runTreeTotalMs,
   spanBarGeometry,
-  MEMORY_RUN_MAX_EVENTS,
-  MEMORY_RUN_MAX_RUNS,
 } from "../src/ui/panels/TraceSurface";
-import type { TraceEvent } from "../src/engine/types";
 import workflowSchema from "../node_modules/@convex-dev/workflow/dist/component/schema.js";
 import workpoolSchema from "../node_modules/@convex-dev/workpool/dist/component/schema.js";
 
@@ -284,72 +279,6 @@ describe("assembleRunSpans — mission root → kind-grouped phase spans", () =>
     expect(issues.some((r) => r.span.id === "s2")).toBe(true); // the failed fetch stays
     expect(issues.some((r) => r.span.id === "s5")).toBe(false); // the clean say row filtered
     expect(issues.some((r) => r.span.parentId === null)).toBe(true); // root always shown
-  });
-});
-
-/* ── memory mode: spans from the engine's scripted trace list ──────────────── */
-
-const AGENT = { kind: "agent" as const, id: "agent_room", name: "Room NodeAgent" };
-const MAYA = { kind: "user" as const, id: "u_maya", name: "Maya" };
-
-function evt(id: string, type: TraceEvent["type"], ts: number, summary: string, actor: TraceEvent["actor"] = AGENT): TraceEvent {
-  return { id, roomId: "r1", ts, actor, type, summary };
-}
-
-describe("buildMemoryRunsFromTraces — scripted runs, honest sequence timing", () => {
-  it("splits runs on agent_session_started, keeps real ts offsets, durations honestly unknown", () => {
-    const t0 = 1_000_000;
-    const traces: TraceEvent[] = [
-      evt("t1", "room_created", t0, "Room created", MAYA),
-      evt("t2", "member_joined", t0 + 100, "Maya joined", MAYA),
-      evt("t3", "agent_session_started", t0 + 5_000, "Enrich the diligence sheet"),
-      evt("t4", "lock_denied", t0 + 5_200, "Lock denied on rows 81–120"),
-      evt("t5", "lock_acquired", t0 + 5_600, "Lock acquired on rows 81–120"),
-      evt("t6", "edit_applied", t0 + 6_400, "40 cells written"),
-      evt("t7", "message", t0 + 7_000, "Draft posted"),
-    ];
-    const runs = buildMemoryRunsFromTraces(traces);
-    expect(runs.length).toBe(2);
-    // newest first: the agent run leads, room plumbing trails
-    expect(runs[0].summary.goal).toBe("Enrich the diligence sheet");
-    expect(runs[1].summary.goal).toBe("Room activity");
-
-    const spans = runs[0].spans;
-    const root = spans.find((s) => s.parentId === null)!;
-    expect(root.kind).toBe("mission");
-    expect(root.durMs).toBe(2_000); // real event window (t7 − t3)
-    // real timestamp offsets, no invented per-event durations
-    const denied = spans.find((s) => s.name === "lock_denied")!;
-    const acquired = spans.find((s) => s.name === "lock_acquired")!;
-    expect(denied.startMs).toBe(200);
-    expect(acquired.startMs).toBe(600);
-    expect(denied.durMs).toBeNull();
-    expect(acquired.durMs).toBeNull();
-    // conflict → later same-family success = retry + retried·ok, root shows retry
-    expect(denied.status).toBe("retry");
-    expect(acquired.status).toBe("retryok");
-    expect(root.status).toBe("retry");
-    // kinds derive from the trace type
-    expect(denied.kind).toBe("spreadsheet");
-    expect(spans.find((s) => s.name === "message")?.kind).toBe("synthesis");
-  });
-
-  it("sustained scale: 600-event sessions bound at 200; a 15-session history keeps the newest 10", () => {
-    const t0 = 2_000_000;
-    const flood: TraceEvent[] = [evt("s0", "agent_session_started", t0, "Long run")];
-    for (let i = 1; i <= 600; i++) flood.push(evt(`f${i}`, "edit_applied", t0 + i * 10, `write ${i}`));
-    const [run] = buildMemoryRunsFromTraces(flood);
-    expect(run.spans.length).toBe(1 + MEMORY_RUN_MAX_EVENTS);
-    expect(run.spans[0].attrs.some(([k]) => k === "events.truncated")).toBe(true);
-
-    const many: TraceEvent[] = [];
-    for (let s = 0; s < 15; s++) {
-      many.push(evt(`ss${s}`, "agent_session_started", t0 + s * 1000, `Run ${s}`));
-      many.push(evt(`se${s}`, "edit_applied", t0 + s * 1000 + 500, "write"));
-    }
-    const runs = buildMemoryRunsFromTraces(many);
-    expect(runs.length).toBe(MEMORY_RUN_MAX_RUNS);
-    expect(runs[0].summary.goal).toBe("Run 14"); // newest first
   });
 });
 

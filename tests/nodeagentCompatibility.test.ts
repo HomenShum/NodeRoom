@@ -1,21 +1,8 @@
-import { afterEach, describe, expect, it } from "vitest";
-import { chooseModelRoute } from "../src/nodeagent/core/adaptiveRouter";
+import { describe, expect, it } from "vitest";
 import { parseBulkCompanyIngest, splitBulkCompanyRecords } from "../src/nodeagent/skills/finance/bulkIngest";
 import { prepareDownstreamDrafts } from "../src/nodeagent/skills/integration/downstreamPublish";
 
-const originalResearchModel = process.env.AGENT_RESEARCH_MODEL;
-
-afterEach(() => {
-  if (originalResearchModel === undefined) delete process.env.AGENT_RESEARCH_MODEL;
-  else process.env.AGENT_RESEARCH_MODEL = originalResearchModel;
-});
-
 describe("nodeagent compatibility tree", () => {
-  it("routes the research lane through AGENT_RESEARCH_MODEL", () => {
-    process.env.AGENT_RESEARCH_MODEL = "gemini-2.5-flash";
-    expect(chooseModelRoute({ taskType: "research" }).model).toBe("gemini-2.5-flash");
-  });
-
   it("parses and batches bulk company ingest rows", () => {
     const companies = parseBulkCompanyIngest([
       "Acme, https://acme.test, T1, outbound",

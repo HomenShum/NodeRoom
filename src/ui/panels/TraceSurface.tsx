@@ -6,8 +6,8 @@
  *  - Runs: one agent run as an OpenTelemetry-style span tree (design-reference/trace) — run picker
  *    (newest 10) → mission root span → kind-grouped child spans with duration bars proportional to
  *    the run wall-clock, status chips (ok / retry / retried·ok / error) and expandable attr rows.
- *    Live mode reads agentRuns + agentSteps via convex/runTrace.listRunSpans; memory mode assembles
- *    the same span shape from the engine's trace list with honest sequence timing (no invented bars).
+ *    Reads agentRuns + agentSteps via convex/runTrace.listRunSpans; without a signed-in live
+ *    session the view says sign-in is required (no locally assembled runs).
  */
 import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
 import { useQuery } from "convex/react";
@@ -15,7 +15,6 @@ import type { FunctionReference } from "convex/server";
 import { Activity, Wrench, FileCheck2, Camera, ShieldAlert, ShieldCheck, ShieldQuestion } from "lucide-react";
 import { api } from "../../../convex/_generated/api";
 import { useStore, type ActorProof } from "../../app/store";
-import type { TraceEvent } from "../../engine/types";
 import type { RunSpan, RunSpanKind, RunSpanStatus, RunSpansResult, RunSummary } from "../../../convex/runTrace";
 import "./trace-run.css";
 import { buildBankerCoachPacket } from "../bankerCoachPacket";
@@ -196,7 +195,7 @@ export function TraceSurface({ roomId, onOpenSource }: {
     <div className="r-art-body r-tracevu" data-testid="trace-surface" data-noderoom-surface="workSurface.trace">
       <aside className="r-tracevu-list" aria-label="Trace records">
         <TraceViewToggle view={view} onView={setView} />
-        {store.mode === "convex" && <CaptureForm roomId={roomId} onCapture={store.captureSource} onSec={store.secFacts} />}
+        {store.privateStreamAccess("trace-capture")?.requester && <CaptureForm roomId={roomId} onCapture={store.captureSource} onSec={store.secFacts} />}
         {records.map((r) => (
           <button key={r.id} type="button" className="r-tracevu-rec" data-on={String(r.id === record.id)} data-testid="trace-record"
             onClick={() => { setSelectedId(r.id); setTab("overview"); }}>
@@ -512,184 +511,8 @@ export function flattenRunSpans(spans: ReadonlyArray<RunSpan>, collapsed: Readon
   return rows;
 }
 
-/* ── memory mode: spans from the engine's scripted trace list ──────────────── */
-
 /** Same step bound as the live query (convex/runTrace.RUN_TRACE_MAX_STEPS). */
-export const MEMORY_RUN_MAX_EVENTS = 200;
-export const MEMORY_RUN_MAX_RUNS = 10;
-
-const MEMORY_KIND_BY_TYPE: Record<string, RunSpanKind> = {
-  lock_acquired: "spreadsheet", lock_released: "spreadsheet", lock_denied: "spreadsheet",
-  edit_applied: "spreadsheet", edit_blocked: "spreadsheet", edit_proposed: "spreadsheet",
-  proposal_resolved: "spreadsheet", proposal_resolve_failed: "spreadsheet",
-  draft_created: "spreadsheet", draft_merged: "spreadsheet", draft_conflict: "spreadsheet",
-  semantic_conflict: "spreadsheet", schema_changed: "spreadsheet",
-  notebook_read_model: "notebook",
-  agent_work_plan_proposed: "synthesis", agent_work_plan_approved: "synthesis", message: "synthesis",
-  room_created: "context", member_joined: "context", auto_allow_toggled: "context",
-  agent_session_started: "context", agent_status: "context",
-};
-
-/** Conflict-class events and the later event type that resolves them into "retried · ok". */
-const MEMORY_FAILURE_TYPES: Record<string, "retry" | "error"> = {
-  lock_denied: "retry", edit_blocked: "retry", draft_conflict: "retry",
-  semantic_conflict: "retry", proposal_resolve_failed: "error",
-};
-const MEMORY_RETRY_FAMILY: Record<string, string> = {
-  lock_denied: "lock", lock_acquired: "lock",
-  edit_blocked: "edit", edit_applied: "edit",
-  draft_conflict: "draft", semantic_conflict: "draft", draft_merged: "draft",
-  proposal_resolve_failed: "proposal", proposal_resolved: "proposal",
-};
-
-function memorySpanName(e: TraceEvent): string {
-  const head = e.summary.split(" · ")[0]?.trim();
-  return head && /^[a-z][a-z0-9_-]*\.[a-z0-9_.-]+$/i.test(head) ? head : e.type;
-}
-
-type MemorySpanMeta = {
-  id?: string;
-  parentId?: string;
-  name?: string;
-  kind?: RunSpanKind;
-  startMs?: number;
-  durMs?: number;
-  status?: RunSpanStatus;
-  attrs?: [string, string][];
-};
-
-const RUN_SPAN_KINDS = new Set<RunSpanKind>(["mission", "context", "privacy", "retrieval", "synthesis", "notebook", "spreadsheet", "mcp"]);
-const RUN_SPAN_STATUSES = new Set<RunSpanStatus>(["ok", "retry", "retryok", "error"]);
-
-function parseFiniteMs(value: string | undefined): number | undefined {
-  if (!value) return undefined;
-  const n = Number(value);
-  return Number.isFinite(n) && n >= 0 ? n : undefined;
-}
-
-function memorySpanMeta(e: TraceEvent): MemorySpanMeta {
-  const text = e.detail ?? "";
-  const read = (key: string) => {
-    const match = new RegExp(`(?:^|[;\\s])span\\.${key}=([^;\\s]+)`, "i").exec(text);
-    return match?.[1];
-  };
-  const attrs: [string, string][] = [];
-  for (const match of text.matchAll(/(?:^|[;\s])attr\.([a-z0-9_.-]+)=([^;]+)/gi)) {
-    attrs.push([match[1], match[2].trim().replace(/_/g, " ")]);
-  }
-  const kind = read("kind");
-  const status = read("status");
-  return {
-    id: read("id"),
-    parentId: read("parent"),
-    name: read("name")?.replace(/_/g, "."),
-    kind: kind && RUN_SPAN_KINDS.has(kind as RunSpanKind) ? kind as RunSpanKind : undefined,
-    startMs: parseFiniteMs(read("start_ms")),
-    durMs: parseFiniteMs(read("duration_ms")),
-    status: status && RUN_SPAN_STATUSES.has(status as RunSpanStatus) ? status as RunSpanStatus : undefined,
-    attrs,
-  };
-}
-
-export type MemoryRun = { summary: RunSummary; spans: RunSpan[] };
-
-/**
- * Build span trees from the in-memory engine's trace list. Runs split on
- * agent_session_started markers (events before the first marker = room activity).
- * HONEST timing: event timestamps are real, so startMs offsets are measured; the
- * events are points with no recorded duration, so every durMs is null (sequence
- * ticks, never invented bars). Root duration = the run's real event window.
- */
-export function buildMemoryRunsFromTraces(traces: ReadonlyArray<TraceEvent>): MemoryRun[] {
-  const ordered = [...traces].sort((a, b) => a.ts - b.ts);
-  const segments: TraceEvent[][] = [];
-  for (const evt of ordered) {
-    if (evt.type === "agent_session_started" || segments.length === 0) segments.push([evt]);
-    else segments[segments.length - 1].push(evt);
-  }
-  const runs: MemoryRun[] = segments.map((events, segIdx) => {
-    const truncated = events.length > MEMORY_RUN_MAX_EVENTS;
-    const bounded = events.slice(0, MEMORY_RUN_MAX_EVENTS);
-    const t0 = bounded[0].ts;
-    const tEnd = bounded[bounded.length - 1].ts;
-    const isAgentRun = bounded[0].type === "agent_session_started";
-    const goal = isAgentRun ? bounded[0].summary : "Room activity";
-
-    // Retry pass: a conflict-class event resolved by a later same-family success
-    // becomes error/retry → retried·ok (mirrors the live assembler's tool-based pass).
-    const statuses: RunSpanStatus[] = bounded.map((e) => MEMORY_FAILURE_TYPES[e.type] ?? "ok");
-    const pending = new Map<string, number[]>();
-    const resolved = new Set<number>();
-    bounded.forEach((e, i) => {
-      const family = MEMORY_RETRY_FAMILY[e.type];
-      if (!family) return;
-      if (statuses[i] !== "ok") { pending.set(family, [...(pending.get(family) ?? []), i]); return; }
-      const open = pending.get(family) ?? [];
-      if (open.length > 0) {
-        statuses[i] = "retryok";
-        for (const idx of open) resolved.add(idx);
-        pending.set(family, []);
-      }
-    });
-
-    const spanEvents = bounded.map((e, i) => ({ e, i, meta: memorySpanMeta(e) }));
-    const visibleEvents = spanEvents.some((row) => row.meta.id)
-      ? spanEvents.filter((row) => row.meta.id && !/^tok-|^(cost|conf)$/.test(row.meta.id))
-      : spanEvents;
-    const children: RunSpan[] = visibleEvents.map(({ e, i, meta }) => {
-      const attrs: [string, string][] = meta.attrs?.length ? [] : [["summary", e.summary], ["actor", e.actor.name]];
-      if (e.detail && !meta.attrs?.length) attrs.push(["detail", e.detail]);
-      if (meta.attrs?.length) attrs.push(...meta.attrs);
-      if (meta.durMs == null) {
-      attrs.push(["duration", "not recorded — events are points"]);
-      }
-      const span: RunSpan = {
-        id: meta.id ?? e.id,
-        parentId: meta.parentId ?? "run",
-        name: meta.name ?? memorySpanName(e),
-        kind: meta.kind ?? MEMORY_KIND_BY_TYPE[e.type] ?? "context",
-        startMs: meta.startMs ?? Math.max(0, e.ts - t0),
-        durMs: meta.durMs ?? null,
-        status: meta.status ?? statuses[i],
-        attrs,
-      };
-      if (span.status === "error") span.error = e.summary;
-      return span;
-    });
-
-    // Root status: an UNRESOLVED failure is an error; a recovered one reads retry
-    // (the failed span itself keeps its status — failures are evidence).
-    const hasRecordedSpans = visibleEvents.some((row) => row.meta.id);
-    let rootStatus: RunSpanStatus = "ok";
-    if (!hasRecordedSpans) {
-      if (children.some((c, i) => c.status === "error" && !resolved.has(i))) rootStatus = "error";
-      else if (children.some((c) => c.status === "retry" || c.status === "retryok")) rootStatus = "retry";
-      if (rootStatus === "error" && children.some((c) => c.status === "retryok")) rootStatus = "retry";
-    }
-
-    const measuredExtent = children.reduce((max, span) => Math.max(max, span.startMs + (span.durMs ?? 0)), 0);
-    const windowMs = Math.max(tEnd - t0, measuredExtent);
-    const rootAttrs: [string, string][] = [
-      ["actor", bounded[0].actor.name],
-      ["reason", goal],
-      ["timing", "event-window offsets · per-event durations not recorded"],
-    ];
-    if (truncated) rootAttrs.push(["events.truncated", `showing first ${MEMORY_RUN_MAX_EVENTS} of ${events.length}`]);
-    const root: RunSpan = {
-      id: "run", parentId: null, name: goal, kind: "mission",
-      startMs: 0, durMs: windowMs > 0 ? windowMs : null, status: rootStatus, attrs: rootAttrs,
-    };
-    return {
-      summary: {
-        id: `mem-run-${segIdx}`, goal, agentId: bounded[0].actor.id, model: "scripted demo",
-        steps: children.length, toolCalls: children.length, costUsd: 0,
-        ms: windowMs > 0 ? windowMs : 0, exhausted: false, createdAt: t0,
-      },
-      spans: [root, ...children],
-    };
-  });
-  return runs.reverse().slice(0, MEMORY_RUN_MAX_RUNS); // newest first, picker depth = 10
-}
+const RUN_MAX_EVENTS = 200;
 
 /* ── components ────────────────────────────────────────────────────────────── */
 
@@ -799,7 +622,7 @@ function RunSpanTree({ spans, truncated }: { spans: RunSpan[]; truncated: boolea
       <div className="trc-foot">
         <span><b>{spanCount}</b> spans</span>
         <span>wall-clock <b>{fmtSpanMs(root?.durMs ?? null)}</b></span>
-        {truncated && <span data-testid="trace-run-truncated">first {MEMORY_RUN_MAX_EVENTS} steps shown</span>}
+        {truncated && <span data-testid="trace-run-truncated">first {RUN_MAX_EVENTS} steps shown</span>}
         <span className="grow" />
         <span>bars ∝ run wall-clock · dashed tick = duration not recorded</span>
       </div>
@@ -883,38 +706,11 @@ function LiveRunsView({ roomId, requester, toggle }: { roomId: string; requester
   );
 }
 
-/** Memory: same span shape assembled from the engine's scripted trace list. */
-function MemoryRunsView({ roomId, toggle }: { roomId: string; toggle: ReactNode }) {
-  const store = useStore();
-  const traces = store.listTraces(roomId);
-  const runs = useMemo(() => buildMemoryRunsFromTraces(traces), [traces]);
-  const [picked, setPicked] = useState<string | null>(null);
-  const defaultRun =
-    runs.find((r) => /room nodeagent|reconciled/i.test(r.summary.goal) || /agent_room/i.test(r.summary.agentId)) ??
-    [...runs].sort((a, b) => b.summary.steps - a.summary.steps)[0] ??
-    null;
-  const selected = runs.find((r) => r.summary.id === picked) ?? defaultRun;
-  return (
-    <RunsPane
-      toggle={toggle}
-      runs={runs.map((r) => r.summary)}
-      selectedId={selected?.summary.id ?? null}
-      onPick={setPicked}
-      spans={selected?.spans ?? []}
-      truncated={false}
-      emptyHint="No trace events yet — run the demo agent and its scripted run appears here."
-    />
-  );
-}
-
 function RunsView({ roomId, toggle }: { roomId: string; toggle: ReactNode }) {
   const store = useStore();
-  // The store's proof accessor: privateStreamAccess returns the verified requester proof in
-  // convex mode (null in memory mode). The Trace surface receives no proof prop, and its
-  // mount site (Artifact.tsx) is outside this change's blast radius, so we read it here.
-  const requester = store.mode === "convex" ? store.privateStreamAccess("trace-runs-view")?.requester ?? null : null;
-  if (store.mode === "convex" && requester) {
-    return <LiveRunsView roomId={roomId} requester={requester} toggle={toggle} />;
-  }
-  return <MemoryRunsView roomId={roomId} toggle={toggle} />;
+  // privateStreamAccess is the store's only proof-bearing accessor (null without a signed-in
+  // live session). Runs are read from the live room log, so no proof means no runs to show.
+  const requester = store.privateStreamAccess("trace-runs-view")?.requester ?? null;
+  if (requester) return <LiveRunsView roomId={roomId} requester={requester} toggle={toggle} />;
+  return <RunsPane toggle={toggle} runs={[]} selectedId={null} onPick={() => {}} spans={[]} truncated={false} emptyHint="Sign-in required — agent runs are read from the live room log." />;
 }

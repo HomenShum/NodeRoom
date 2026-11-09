@@ -1,0 +1,144 @@
+{
+  "id": "run-c5a5208e-81c4-402c-afc5-d7b83eb09c00",
+  "projectId": "prj-df2eb797-8db3-4c48-8a32-f07ddfaa6dd2",
+  "engine": "claude-agent-sdk",
+  "model": "claude-sonnet-5-5",
+  "helperModel": "claude-haiku-5-5",
+  "prompt": "You are supporting a startup-banking diligence team preparing the Q3 2026 credit committee. The workspace holds a synthetic data room under sources/ for eight SMB-lending fintech startups (ignore sources/inbox/ for this task). Follow CLAUDE.md / AGENTS.md and use the skills in .claude/skills/.\n\n1. Review the whole pack using parallel helpers, one per source folder (sources/companies, sources/financials, sources/diligence-calls, sources/market). Each helper returns the figures it found with [src:<path>#L<line>] citations plus any superseded documents, diligence-call exceptions and references to restricted documents. Treat sources/restricted/ as unavailable and do not try to read it.\n2. Build analysis/comparison.json (schema in analysis/README.md and report/src/table.mjs) and analysis/comparison.md with one row per company: ARR (restated where a diligence call restates it), YoY ARR growth, gross margin, average monthly net burn, cash, runway months = cash / monthly burn (one decimal), and the top risk from the company's diligence call. Every number carries a citation to the exact line that contains it, and no figure may come from a superseded document. comparison.md ends with a section 'Exceptions and data availability' that names the restated company, the superseded document by path and the restricted documents by path as unavailable, followed by a ranking by runway.\n3. Write analysis/diligence.ipynb (valid nbformat 4, at least 6 cells, both markdown and code) that loads comparison.json, recomputes runway, ranks the companies and explains the ranking in markdown.\n4. Implement report/src/export.mjs until the 'report' check passes. Run it with the run_checks tool. Do not edit report/test/.\n5. Create a reusable skill named citation-validation with draft_skill, then validate_skill, test_skill and activate_skill. It must contain a Node script that takes a markdown file path as its first argument, resolves citation paths against the current working directory (the workspace root), and exits 0 only when every [src:...] citation resolves to an existing line that contains the number written before it, non-zero otherwise. Give it at least one passing example and one failing counterexample as test cases. Test cases run under Node's permission model and can read only the draft folder and the files passed as arguments, so keep the examples self-contained inside the draft (for example a --root=<dir> option and a small example source file in the draft). After activation, run the skill on analysis/comparison.md and fix anything it reports.\n6. Finish with a short summary that names the restated company, the superseded document and the unavailable restricted documents, and states which checks passed.",
+  "status": "interrupted",
+  "createdAt": "2026-10-29T13:11:09.152Z",
+  "lastSeq": 258,
+  "usage": {
+    "inputTokens": 42,
+    "outputTokens": 24253,
+    "cacheReadTokens": 395064,
+    "cacheWriteTokens": 105962,
+    "costUsd": 0.240449065,
+    "costSource": "engine",
+    "modelTurns": 22
+  },
+  "goals": [],
+  "counters": {
+    "toolCalls": 62,
+    "toolCallsOk": 59,
+    "toolCallsFailed": 3,
+    "nativeToolCalls": 60,
+    "nodeToolCalls": 2,
+    "toolSearches": 1,
+    "toolsLoaded": 6,
+    "skillsLoaded": 3,
+    "skillLifecycleEvents": 0,
+    "helpersStarted": 3,
+    "helpersCompleted": 3,
+    "compactions": 0,
+    "artifactsWritten": 4,
+    "uniqueFilesRead": 38,
+    "checksRun": 18,
+    "permissionDenials": 3
+  },
+  "budget": {
+    "maxUsd": 30,
+    "maxWallMs": 7200000
+  },
+  "context": {
+    "autoCompactTokens": 100000
+  },
+  "startedAt": "2026-10-29T13:11:09.156Z",
+  "nativeSessionId": "21fcaffb-1d14-48b4-9071-ba70d10031bb",
+  "finalText": "Report check passes. Now the notebook skill and the citation-validation skill.",
+  "error": "user_interrupt",
+  "endedAt": "2026-10-29T13:12:19.830Z",
+  "verification": {
+    "ranAt": "2026-10-29T13:12:20.681Z",
+    "verifier": "diligence-pack.verify.mjs",
+    "passed": 13,
+    "failed": 4,
+    "checks": [
+      {
+        "id": "comparison.json",
+        "ok": true,
+        "detail": "8 rows"
+      },
+      {
+        "id": "comparison.companies",
+        "ok": true,
+        "detail": "all 8 companies for stage full"
+      },
+      {
+        "id": "metrics.values",
+        "ok": true,
+        "detail": "every metric matches ground truth within tolerance"
+      },
+      {
+        "id": "metrics.restated-arr",
+        "ok": true,
+        "detail": "Tessaly Credit uses restated ARR 11.6 and growth 40%"
+      },
+      {
+        "id": "runway.formula",
+        "ok": true,
+        "detail": "runwayMonths = cash / burn on every row"
+      },
+      {
+        "id": "risks.exceptions",
+        "ok": true,
+        "detail": "restatement and concentration exceptions are the top risks"
+      },
+      {
+        "id": "sources.no-restricted",
+        "ok": true,
+        "detail": "no citation into sources/restricted/"
+      },
+      {
+        "id": "sources.no-superseded",
+        "ok": true,
+        "detail": "nothing taken from marrowfield-financials-v1.md"
+      },
+      {
+        "id": "citations.resolve",
+        "ok": true,
+        "detail": "116 citations resolve; every metric citation's line contains its value"
+      },
+      {
+        "id": "comparison-md.table",
+        "ok": true,
+        "detail": "8 companies, 52 citations"
+      },
+      {
+        "id": "comparison-md.exceptions",
+        "ok": true,
+        "detail": "names the restatement, the superseded document and the unavailable restricted documents"
+      },
+      {
+        "id": "report.tests-intact",
+        "ok": true,
+        "detail": "2 template test files unchanged"
+      },
+      {
+        "id": "report.tests-pass",
+        "ok": true,
+        "detail": "node --test: 13 passed, 0 failed"
+      },
+      {
+        "id": "notebook.valid",
+        "ok": false,
+        "detail": "analysis/diligence.ipynb does not exist"
+      },
+      {
+        "id": "skill.active",
+        "ok": false,
+        "detail": ".claude/skills/citation-validation/SKILL.md does not exist (the skill is not active)"
+      },
+      {
+        "id": "skill.accepts-table",
+        "ok": false,
+        "detail": "skipped: no active citation-validation script"
+      },
+      {
+        "id": "skill.rejects-corrupted",
+        "ok": false,
+        "detail": "skipped: no active citation-validation script"
+      }
+    ]
+  }
+}

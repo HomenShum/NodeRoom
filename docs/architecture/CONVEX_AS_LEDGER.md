@@ -153,7 +153,7 @@ For each: what to **KEEP**, what to **CHANGE**, and **already-exists (cite) vs n
   Keep proposals as the conflict-resolution lane for human-active cells. Never use blanket
   last-write-wins on authoritative finance cells; CAS + proposals is the correct discipline.
 - **CHANGE — this is where the rule genuinely CONTRADICTS current behavior.** Today a long job is
-  **expected to hold a 5-minute renewing range lock across 9-minute slices**: `LOCK_TTL_MS = 5*60_000`
+  **expected to hold a 5-minute renewing range lock across 7-minute slices** (code default; earlier drafts said 9): `LOCK_TTL_MS = 5*60_000`
   with the comment "the write path RENEWS this on every successful locked write" (`lib.ts:150-153`);
   renewal on each locked write (`artifacts.ts:280-282`); the modeled long job takes
   `propose_lock` on **all** targets at turn 1 and releases at turn 4

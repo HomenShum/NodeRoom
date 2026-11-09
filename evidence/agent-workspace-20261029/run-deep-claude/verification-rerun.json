@@ -1,0 +1,193 @@
+{
+  "ranAt": "2026-10-29T17:37:36.819Z",
+  "verifier": "diligence-pack.verify.mjs (stage deep)",
+  "passed": 36,
+  "failed": 1,
+  "checks": [
+    {
+      "id": "comparison.json",
+      "ok": true,
+      "detail": "10 rows"
+    },
+    {
+      "id": "comparison.companies",
+      "ok": true,
+      "detail": "all 10 companies for stage deep"
+    },
+    {
+      "id": "metrics.values",
+      "ok": true,
+      "detail": "every metric matches ground truth within tolerance"
+    },
+    {
+      "id": "metrics.restated-arr",
+      "ok": true,
+      "detail": "Tessaly Credit uses restated ARR 11.6 and growth 40%"
+    },
+    {
+      "id": "runway.formula",
+      "ok": true,
+      "detail": "runwayMonths = cash / burn on every row"
+    },
+    {
+      "id": "risks.exceptions",
+      "ok": true,
+      "detail": "restatement and concentration exceptions are the top risks"
+    },
+    {
+      "id": "sources.no-restricted",
+      "ok": true,
+      "detail": "no citation into sources/restricted/"
+    },
+    {
+      "id": "sources.no-superseded",
+      "ok": true,
+      "detail": "nothing taken from marrowfield-financials-v1.md"
+    },
+    {
+      "id": "citations.resolve",
+      "ok": true,
+      "detail": "146 citations resolve; every metric citation's line contains its value"
+    },
+    {
+      "id": "comparison-md.table",
+      "ok": true,
+      "detail": "10 companies, 66 citations"
+    },
+    {
+      "id": "comparison-md.exceptions",
+      "ok": true,
+      "detail": "names the restatement, the superseded document and the unavailable restricted documents"
+    },
+    {
+      "id": "report.tests-intact",
+      "ok": true,
+      "detail": "2 template test files unchanged"
+    },
+    {
+      "id": "report.tests-pass",
+      "ok": true,
+      "detail": "node --test: 23 passed, 0 failed"
+    },
+    {
+      "id": "notebook.valid",
+      "ok": true,
+      "detail": "nbformat 4, 10 cells (4 code, 6 markdown)"
+    },
+    {
+      "id": "skill.active",
+      "ok": true,
+      "detail": "active with script .claude/skills/citation-validation/scripts/validate.mjs"
+    },
+    {
+      "id": "skill.ledger",
+      "ok": true,
+      "detail": "active files match the Node activation 7511d3bb947f"
+    },
+    {
+      "id": "skill.accepts-table",
+      "ok": true,
+      "detail": "exit 0 on analysis/comparison.md"
+    },
+    {
+      "id": "skill.rejects-corrupted",
+      "ok": true,
+      "detail": "exit 1 on a corrupted copy, exit 0 on an unmodified copy"
+    },
+    {
+      "id": "memos.present",
+      "ok": true,
+      "detail": "10 company memos in analysis/memos/"
+    },
+    {
+      "id": "memos.sections",
+      "ok": true,
+      "detail": "every memo names its company and has Overview, Financials, Risks, Exceptions, Sources sections"
+    },
+    {
+      "id": "memos.citations",
+      "ok": false,
+      "detail": "analysis/memos/brindlewood-credit.md line 43: [src:sources/diligence-calls/brindlewood-call-notes.md#L20]: cited line does not contain 25; analysis/memos/corvane-credit.md line 35: [src:sources/diligence-calls/corvane-call-notes.md#L48]: cited line does not contain 6.1; analysis/memos/halvorine-credit.md line 36: [src:sources/diligence-calls/halvorine-call-notes.md#L31]: cited line does not contain 12; analysis/memos/halvorine-credit.md line 46: [src:sources/market/credit-committee-criteria-q3-2026.md#L23]: cited line does not contain 11.7; analysis/memos/kestrelmoor-credit.md line 47: [src:sources/market/credit-committee-criteria-q3-2026.md#L37]: cited line does not contain 25; ... (25 total)"
+    },
+    {
+      "id": "memos.no-restricted",
+      "ok": true,
+      "detail": "no memo cites sources/restricted/"
+    },
+    {
+      "id": "memos.restatement",
+      "ok": true,
+      "detail": "analysis/memos/tessaly-credit.md explains the restatement to 11.6 citing the call notes"
+    },
+    {
+      "id": "memos.concentration",
+      "ok": true,
+      "detail": "analysis/memos/ynderra-credit.md states the 46% concentration citing the call notes"
+    },
+    {
+      "id": "risk-matrix.table",
+      "ok": true,
+      "detail": "10 companies rated on 5 risks, every rationale cited"
+    },
+    {
+      "id": "risk-matrix.citations",
+      "ok": true,
+      "detail": "72 citations resolve to source lines; every cited figure is on its cited line"
+    },
+    {
+      "id": "risk-matrix.ratings",
+      "ok": true,
+      "detail": "10 committee-threshold ratings consistent with the evidence"
+    },
+    {
+      "id": "sensitivity.json",
+      "ok": true,
+      "detail": "10 companies"
+    },
+    {
+      "id": "sensitivity.values",
+      "ok": true,
+      "detail": "base, +20% and -20% burn runway match cash / (burn x factor) for every company"
+    },
+    {
+      "id": "sensitivity.citations",
+      "ok": true,
+      "detail": "every row cites its cash and burn lines"
+    },
+    {
+      "id": "notebook.sensitivity",
+      "ok": true,
+      "detail": "markdown and code cells cover the burn stress test and name the companies crossing a threshold at +20% burn"
+    },
+    {
+      "id": "report.html-escape",
+      "ok": true,
+      "detail": "html export: <table> with the column labels and Sources in <th>, <script>, &, \" and ' escaped, runway order, uncited rows refused"
+    },
+    {
+      "id": "report.html-tests",
+      "ok": true,
+      "detail": "html-export.test.mjs: node --test exit 0, 10 passed, 0 failed"
+    },
+    {
+      "id": "memo-lint.active",
+      "ok": true,
+      "detail": "active with script .claude/skills/memo-lint/scripts/lint.mjs"
+    },
+    {
+      "id": "memo-lint.ledger",
+      "ok": true,
+      "detail": "active files match the Node activation b9c7141f061e"
+    },
+    {
+      "id": "memo-lint.accepts-memos",
+      "ok": true,
+      "detail": "exit 0 on analysis/memos/"
+    },
+    {
+      "id": "memo-lint.rejects-corrupted",
+      "ok": true,
+      "detail": "exit non-zero on all 3 corrupted copies of analysis/memos/tessaly-credit.md (altered cited figures, Risks section removed, restricted citation added), exit 0 on a valid copy"
+    }
+  ]
+}

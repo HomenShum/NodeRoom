@@ -1,0 +1,166 @@
+{
+  "engine": "google-adk",
+  "sdk": "@google/adk",
+  "sdkVersion": "2.4.0",
+  "model": "gemini-3.5-flash",
+  "helperModel": "gemini-3.5-flash-lite",
+  "ranAt": "2026-10-29T12:41:09.234Z",
+  "wallMs": 48407,
+  "costUsd": null,
+  "spendUpperBoundUsd": 0.1244,
+  "spendCapUsd": 0.5,
+  "eventCounts": {
+    "main": {
+      "run.started": 1,
+      "tool.call": 8,
+      "goals.updated": 2,
+      "tool.result": 8,
+      "context.usage": 11,
+      "usage": 14,
+      "skill.loaded": 1,
+      "tool.search": 1,
+      "run.status": 4,
+      "context.compacted": 2,
+      "tool.loaded": 1,
+      "helper.started": 2,
+      "helper.progress": 2,
+      "message": 3,
+      "helper.completed": 2,
+      "message.delta": 8
+    },
+    "interrupt": {
+      "run.started": 1,
+      "message.delta": 12,
+      "usage": 2,
+      "engine.raw": 1
+    },
+    "resume": {
+      "run.started": 1,
+      "tool.call": 4,
+      "goals.updated": 2,
+      "tool.result": 4,
+      "context.usage": 4,
+      "usage": 5,
+      "skill.search": 1,
+      "message.delta": 2,
+      "message": 1
+    }
+  },
+  "runs": [
+    {
+      "name": "main",
+      "status": "completed",
+      "wallMs": 14542,
+      "nativeSessionId": "7ace895d-8c2a-4a9f-bbf5-b6efa97d63da",
+      "usage": {
+        "inputTokens": 14404,
+        "outputTokens": 1429,
+        "cacheReadTokens": 0,
+        "cacheWriteTokens": 0,
+        "costUsd": null,
+        "costSource": "unknown",
+        "modelTurns": 13
+      },
+      "finalText": "### Word Count Summary\n\n- **`notes/alpha.txt`**: 137 words\n- **`notes/beta.txt`**: 89 words\n- **Total Sum**: 226 words\n\n---\n\n### What Was Done\n1. **Goal List Updated**: Initialized and tracked all tasks via `update_goals`.\n2. **Skill Loaded**: Loaded instructions from the `word-stats` skill.\n3. **Tool Discovered & Loaded**: Searched for and loaded the `word_count` tool.\n4. **Parallel Execution**: "
+    },
+    {
+      "name": "interrupt",
+      "status": "interrupted",
+      "error": "qualification interrupt after first streamed text",
+      "wallMs": 22787,
+      "nativeSessionId": "9506f821-605a-4af3-ae83-078ece47f108",
+      "usage": {
+        "inputTokens": 1182,
+        "outputTokens": 3787,
+        "cacheReadTokens": 0,
+        "cacheWriteTokens": 0,
+        "costUsd": null,
+        "costSource": "unknown",
+        "modelTurns": 1
+      },
+      "finalText": ""
+    },
+    {
+      "name": "resume",
+      "status": "completed",
+      "wallMs": 11076,
+      "nativeSessionId": "9506f821-605a-4af3-ae83-078ece47f108",
+      "usage": {
+        "inputTokens": 9178,
+        "outputTokens": 1024,
+        "cacheReadTokens": 0,
+        "cacheWriteTokens": 0,
+        "costUsd": null,
+        "costSource": "unknown",
+        "modelTurns": 4
+      },
+      "finalText": "I was writing about how word counting works in text editors, and `list_skills` returned the skills `line-stats` and `word-stats`."
+    }
+  ],
+  "capabilities": {
+    "start": {
+      "status": "NATIVE",
+      "evidence": "run.started nativeSessionId=7ace895d-8c2a-4a9f-bbf5-b6efa97d63da; main run completed"
+    },
+    "stream": {
+      "status": "NATIVE",
+      "evidence": "message.delta main=8 interrupt-run=12"
+    },
+    "interrupt": {
+      "status": "NATIVE",
+      "evidence": "second run status=interrupted (qualification interrupt after first streamed text) after 12 deltas"
+    },
+    "resume": {
+      "status": "APP-IMPLEMENTED",
+      "evidence": "resume run status=completed sessionId same=true; final=\"I was writing about how word counting works in text editors, and `list_skills` returned the skills `line-stats` and `word-stats`.\""
+    },
+    "subagents": {
+      "status": "APP-IMPLEMENTED",
+      "evidence": "helper.started=2 helper.completed=2 (completed,completed); 2 helpers started before the first completed (concurrent)"
+    },
+    "childEventIdentity": {
+      "status": "APP-IMPLEMENTED",
+      "evidence": "2 tool.call events carry a helper agentId (call_447930.h2, call_447930.h1)"
+    },
+    "compaction": {
+      "status": "NATIVE",
+      "evidence": "context.compacted=2 (preTokens 1806,1977, threshold 1800 via TokenBasedContextCompactor.tokenThreshold)"
+    },
+    "toolSearch": {
+      "status": "APP-IMPLEMENTED",
+      "evidence": "tool.search=1 tool.loaded=1 (word_count); word_count tool.call=2, first after load=true"
+    },
+    "skillLoad": {
+      "status": "NATIVE",
+      "evidence": "skill.loaded via native: word-stats sha256=8a4073cc36af"
+    },
+    "skillRefresh": {
+      "status": "APP-IMPLEMENTED",
+      "evidence": "resume run: run.started.skills=[word-stats], list_skills after refresh=[line-stats,word-stats]"
+    },
+    "goals": {
+      "status": "APP-IMPLEMENTED",
+      "evidence": "goals.updated=2; last=[\"set_goals:done\",\"load_skill:done\",\"search_and_load_tool:done\",\"count_words:done\",\"report_results:done\"]"
+    },
+    "permissions": {
+      "status": "UNTESTED",
+      "evidence": "no native side-effecting tool is exposed (only list_skills/load_skill/load_skill_resource/run_helpers + Node tools), so no permission.decision could occur in a real run"
+    },
+    "usage": {
+      "status": "NATIVE",
+      "evidence": "main run usage in=14404 out=1429 cacheRead=0 modelTurns=13; usage events=14"
+    },
+    "costUsd": {
+      "status": "APP-IMPLEMENTED",
+      "evidence": "price-table only (ADK reports no USD). main run costUsd=null source=unknown; null because pricing.ts has no verified price for gemini-3.5-flash"
+    }
+  },
+  "notes": [
+    "Compaction knob: RunSpec.context.autoCompactTokens=1800 -> TokenBasedContextCompactor.tokenThreshold (eventRetentionSize 6, LlmSummarizer on gemini-3.5-flash-lite).",
+    "Concurrency: ADK JS 2.4.0 agents/functions.js awaits each function call in a for-loop and AgentTool swallows child events, so helpers run as native ADK child Runners started together by the adapter's run_helpers tool.",
+    "Spend bound uses gemini-3.1-pro-preview prices for every token (gemini-3.5-flash is unpriced in pricing.ts); it is an upper bound, not a cost.",
+    "Sessions: InMemorySessionService + JSON snapshot under stateDir/adk-sessions (DatabaseSessionService needs @mikro-orm/sqlite, not installed).",
+    "Earlier attempt (2026-10-29T12:38Z, same script with threshold 3000) spent an upper bound of $0.1151; compaction did not fire because prompts stayed under 3000 tokens.",
+    "Workspace: C:\\Users\\hshum\\AppData\\Local\\Temp\\nodeagent-qual\\google-adk-1793277669234"
+  ]
+}

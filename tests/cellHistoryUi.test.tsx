@@ -108,12 +108,11 @@ afterEach(() => cleanup());
 /* ── live-only gating: honest absence in memory mode ─────────────────────── */
 
 describe("cellHistoryEnabled — the affordance exists only where the version log does", () => {
-  it("is on in live (convex) mode with a proof, off in memory mode and without proof", () => {
-    expect(cellHistoryEnabled("convex", PROOF)).toBe(true);
-    // Memory engine keeps no elementVersions log → hide, never fake rows.
-    expect(cellHistoryEnabled("memory", PROOF)).toBe(false);
-    expect(cellHistoryEnabled("convex", undefined)).toBe(false);
-    expect(cellHistoryEnabled("memory", undefined)).toBe(false);
+  it("is on with a live requester proof, off without one", () => {
+    expect(cellHistoryEnabled(PROOF)).toBe(true);
+    // No proof → hide, never fake rows. The old ("memory", PROOF) → false case is gone with the
+    // mode argument: the keyless memory engine never hands RoomShell a proof, so it lands here.
+    expect(cellHistoryEnabled(undefined)).toBe(false);
   });
 });
 

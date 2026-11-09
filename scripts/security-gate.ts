@@ -124,6 +124,8 @@ const frontendEnvAllowlist = new Set([
   "VITE_CONVEX_URL",
   "VITE_CONVEX_SITE_URL",
   "VITE_NOTEBOOK_SYNC",
+  // Non-secret build flag ("1"), set only by the Playwright harness configs; it lets `?mode=memory` reach the keyless room.
+  "VITE_NODEROOM_HARNESS",
 ]);
 
 const frontendProviderPatterns = [

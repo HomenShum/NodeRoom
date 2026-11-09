@@ -1,5 +1,7 @@
 # Visual Plan: Accessibility WCAG 2.2
 
+> **HISTORICAL — June 2026 plan snapshot (last edited 2026-06-18).** Rationale only: statuses, "not yet present" modules and file paths may be stale, and this is not a work queue. The one agent path today is `#workspace` + `packages/nodeagent-engines` (see `AGENTS.md`).
+
 ## Decision
 
 NodeRoom should target WCAG 2.2 AA across the real work surfaces: notebook,
@@ -38,9 +40,10 @@ flowchart TD
 | Need | File |
 |---|---|
 | Status announcements without token spam | `src/accessibility/liveRegion.tsx` |
-| Spreadsheet-style arrow navigation | `src/accessibility/keyboardGrid.ts` |
-| Modal/review focus containment | `src/accessibility/focusManagement.ts` |
-| Respect `prefers-reduced-motion` | `src/accessibility/reducedMotion.ts` |
+
+The keyboard-grid, focus-containment and reduced-motion helpers were removed on
+2026-10-29 because no UI surface used them; build them inside the surface that
+needs them.
 
 ## Product Rules
 

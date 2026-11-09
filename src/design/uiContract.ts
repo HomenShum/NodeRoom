@@ -18,13 +18,14 @@
  * Rules for editing:
  *  - Add an element only with a stable data-testid that already ships (the drift spec
  *    will fail otherwise — that is the point).
- *  - `availableIn` names the contexts the drift verifier can reach headlessly in
- *    memory mode. Live-auth-only elements belong in `elementsLiveOnly` (documented,
- *    not machine-verified locally — verified by the deployed-auth e2e lane).
+ *  - `availableIn` names the contexts the drift verifier can reach headlessly (it uses
+ *    the keyless e2e harness, which is test infrastructure and is NOT advertised here).
+ *    Live-auth-only elements belong in `elementsLiveOnly` (documented, not
+ *    machine-verified locally — verified by the deployed-auth e2e lane).
  *  - Never describe a capability the runtime lacks (capability-honest labeling).
  */
 
-export const UI_CONTRACT_VERSION = "1.0.0";
+export const UI_CONTRACT_VERSION = "2.0.0"; // 2.0.0: dropped the keyless memory-mode entry (memoryMode, start-demo-room, enter-demo-room)
 export const UI_CONTRACT_SCHEMA = "noderoom/agent-ui-contract@1";
 
 export type UiContext = "landing" | "room" | "room.paletteOpen" | "mobile";
@@ -67,10 +68,8 @@ export const uiContract = {
   app: {
     name: "NodeRoom",
     prodUrl: "https://noderoom.live",
-    memoryMode: "/?mode=memory&surface=desktop",
-    mobileSurface: "/#mobile?mode=memory",
     notes: [
-      "Without VITE_CONVEX_URL the app runs a keyless deterministic memory engine; the landing shows start-demo-room instead of create-room.",
+      "Rooms are live and sign-in gated: create-room starts one, join-room-code joins one by its six-character code.",
       "Viewports <=760px auto-rewrite to #mobile (a distinct surface); pass ?surface=desktop to opt out.",
       "Desktop shell is dark-first via data-theme on <html>; mobile themes itself.",
     ],
@@ -92,8 +91,7 @@ export const uiContract = {
     },
   ] satisfies UiContractState[],
   elements: [
-    // landing (memory mode)
-    { id: "start-demo-room", selector: '[data-testid="start-demo-room"]', surface: "landing", availableIn: ["landing"], actions: ["click"], assertions: ["visible"], description: "Enter the deterministic demo room (memory mode primary CTA)." },
+    // landing
     { id: "join-room-code", selector: '[data-testid="join-room-code"]', surface: "landing", availableIn: ["landing"], actions: ["fillText"], assertions: ["visible"], description: "Room code entry field." },
     // room shell
     { id: "artifact-tabs", selector: '[data-testid="artifact-tabs"]', surface: "shell.topbar", availableIn: ["room"], actions: ["observe"], assertions: ["visible"], description: "Work-surface tab strip (Home, sheets, notes, Trace, Graph)." },
@@ -124,18 +122,6 @@ export const uiContract = {
     { id: "stable-testids", description: "Every element in this contract resolves in its declared context on the built app.", verifiedBy: "e2e/ui-contract-drift.spec.ts" },
   ] satisfies UiContractInvariant[],
   journeys: [
-    {
-      id: "enter-demo-room",
-      description: "Cold visitor reaches a working room in memory mode.",
-      startContext: "landing",
-      endContext: "room",
-      steps: [
-        { do: "goto", target: "/?mode=memory&surface=desktop" },
-        { do: "click", target: '[data-testid="start-demo-room"]' },
-        { do: "expectVisible", target: '[data-testid="artifact-tabs"]' },
-        { do: "expectVisible", target: '[data-testid="status-strip"]' },
-      ],
-    },
     {
       id: "open-command-palette",
       description: "From the room, open and dismiss the command palette.",

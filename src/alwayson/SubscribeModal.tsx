@@ -6,18 +6,17 @@
  * the X all close it — the design audit forbids undismissable chrome.
  *
  * Data honesty (HONEST_STATUS):
- *   - Live (HAS_CONVEX): calls convex alwaysOn.subscribeToRoom via the
- *     typed-cast api seam in ./usePublicRoomData. `{ ok:false, reason }` maps
- *     to an inline error — never a success state. A transport/missing-function
- *     throw falls back to the demo success, which is honest because nothing
- *     WAS stored, and it says so. The hosted confirmation-email sender is not
- *     wired here yet; live success means "pending row stored", not "email sent".
- *   - Memory mode: never fakes a subscription — the success state is locked
- *     to a "demo — nothing was stored" hint.
+ *   - Calls convex alwaysOn.subscribeToRoom via the typed-cast api seam in
+ *     ./usePublicRoomData. `{ ok:false, reason }` and transport/missing-function
+ *     throws both map to an inline error — never a success state. The hosted
+ *     confirmation-email sender is not wired here yet; success means "pending
+ *     row stored", not "email sent".
+ *   - Only mounted from live surfaces (PublicRoomPage and the landing gallery
+ *     render nothing Convex-backed without HAS_CONVEX), so useMutation always
+ *     has its provider.
  */
 import { useEffect, useRef, useState, type FormEvent, type ReactElement } from "react";
 import { useMutation } from "convex/react";
-import { HAS_CONVEX } from "../app/store";
 import { FocusTrapDialog } from "../ui/primitives/FocusTrapDialog";
 import { AoIcon as Ic } from "./AoIcon";
 import { alwaysOnApi } from "./usePublicRoomData";
@@ -40,7 +39,6 @@ const CADENCES: Array<{ key: Cadence; label: string; sub: string }> = [
 
 type SubmitOutcome =
   | { kind: "live" }
-  | { kind: "demo" }
   | { kind: "error"; message: string };
 
 /**
@@ -78,7 +76,7 @@ function SubscribeForm({
   const [cadence, setCadence] = useState<Cadence>("daily");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [done, setDone] = useState<null | "live" | "demo">(null);
+  const [done, setDone] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const radioRefs = useRef<Record<Cadence, HTMLDivElement | null>>({
     daily: null,
@@ -103,7 +101,7 @@ function SubscribeForm({
     try {
       const outcome = await onSubmit(trimmed, cadence);
       if (outcome.kind === "error") setError(outcome.message);
-      else setDone(outcome.kind);
+      else setDone(true);
     } finally {
       setBusy(false);
     }
@@ -115,24 +113,6 @@ function SubscribeForm({
   };
 
   if (done) {
-    if (done === "demo") {
-      return (
-        <>
-          <div className="h">Demo subscription not stored</div>
-          <div className="s" data-testid="ao-subscribe-success">
-            This preview accepted the form, but no email was sent and no subscription was stored for {roomTitle}.
-          </div>
-          <div className="ao-optin" data-testid="ao-subscribe-demo-hint">
-            <Ic name="alert" size={13} style={{ flex: "none" }} />
-            demo - nothing was stored. Subscriptions go live with the hosted room.
-          </div>
-          <div className="ao-optin">
-            <Ic name="shield" size={13} style={{ flex: "none" }} />
-            One-click unsubscribe in every digest.
-          </div>
-        </>
-      );
-    }
     return (
       <>
         <div className="h">Subscription request received</div>
@@ -225,7 +205,7 @@ function SubscribeForm({
   );
 }
 
-/** Live lane — MUST only mount when HAS_CONVEX (useMutation needs the provider). */
+/** Live lane — useMutation needs the ConvexProvider (see the mount contract above). */
 function LiveSubscribeForm({ roomSlug, roomTitle }: { roomSlug: string; roomTitle: string }) {
   const subscribe = useMutation(alwaysOnApi.subscribeToRoom);
   return (
@@ -245,18 +225,13 @@ function LiveSubscribeForm({ roomSlug, roomTitle }: { roomSlug: string; roomTitl
             message: reasonMessage(result && result.ok === false ? result.reason ?? "" : ""),
           };
         } catch (error) {
-          // Function missing / transport down: nothing was stored — say so.
-          console.warn("[alwayson] subscribeToRoom unavailable — demo acknowledgement", error);
-          return { kind: "demo" };
+          // Function missing / transport down: nothing was stored — say so, never a success state.
+          console.warn("[alwayson] subscribeToRoom unavailable", error);
+          return { kind: "error", message: "Subscriptions are unavailable right now. Nothing was stored." };
         }
       }}
     />
   );
-}
-
-/** Memory-mode lane — never pretends a subscription was stored. */
-function DemoSubscribeForm({ roomTitle }: { roomTitle: string }) {
-  return <SubscribeForm roomTitle={roomTitle} onSubmit={() => Promise.resolve({ kind: "demo" })} />;
 }
 
 export function SubscribeModal({ roomSlug, roomTitle, onClose }: SubscribeModalProps): ReactElement | null {
@@ -271,11 +246,7 @@ export function SubscribeModal({ roomSlug, roomTitle, onClose }: SubscribeModalP
       <button className="ao-btn ghost ao-modal-x" type="button" aria-label="Close" onClick={onClose}>
         <Ic name="x" size={14} />
       </button>
-      {HAS_CONVEX ? (
-        <LiveSubscribeForm roomSlug={roomSlug} roomTitle={roomTitle} />
-      ) : (
-        <DemoSubscribeForm roomTitle={roomTitle} />
-      )}
+      <LiveSubscribeForm roomSlug={roomSlug} roomTitle={roomTitle} />
     </FocusTrapDialog>
   );
 }

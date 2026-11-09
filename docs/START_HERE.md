@@ -27,14 +27,21 @@ npm install
 npm run dev                     # http://localhost:5260  (port set in vite.config.ts)
 ```
 
-Open `/?mode=memory` and click **Try sample room** — the keyless landing CTA,
+**If you came for agent work, this is the wrong file.** The one agent product
+path is the agent workspace: run `npm run agent:worker` next to `npm run dev`
+and open `/#workspace` (`src/ui/workspace/AgentWorkspaceRoute.tsx`, backed by
+`packages/nodeagent-engines`). This file walks the **room** — the shared
+spreadsheet that people and the Room NodeAgent edit together.
+
+The room's product path is the live tier: a Convex deployment plus a model key
+(README → Quickstart → Live). With no `.env.local` the room only runs as the
+keyless **test harness** — an in-memory engine with a scripted assistant that
+Vitest and immutable CI drive. It is not a product mode and is never shown to
+users as one, but it is the quickest way to watch the steps below run locally:
+open `/?mode=memory` and click the harness CTA,
 `data-testid={live ? "create-room" : "start-demo-room"}` (`src/ui/Landing.tsx:146`; with a Convex URL set
-the same button reads "Create a room" instead). With no `.env.local` the app
-runs entirely in the browser against an in-memory engine with a scripted
-assistant: no keys, no database, no network. That is the tier a stranger can
-reach, and it is the tier every step below is written against. Where the live
-tier (a Convex deployment plus a model key) takes a different branch, the step
-says so.
+the same button reads "Create a room" instead). The steps below follow the live
+tier; where the harness takes a different branch, the step says so.
 
 ---
 
@@ -194,37 +201,38 @@ job exists.
 ## Step 5 — The request enters the agent runtime
 
 **File:** `src/app/store.tsx`
-**Symbol:** `askAgent` (two implementations, one interface)
+**Symbol:** `askAgent` (live implementation; one interface, plus a test-harness twin)
 **Called by:** `send` in Step 3
-**Calls next:** `runAgent` in `src/nodeagent/core/runtime.ts`
+**Calls next:** the `startPublicAsk` mutation, then `runAgent` in
+`src/nodeagent/core/runtime.ts` inside a durable server slice
 
 **Why this exists**
 `RoomStore` is the seam between the UI and its data source. Chat, the artifact
 panel and the rails call `useStore()` and never touch the engine or Convex
 directly. Two providers satisfy the same interface:
 
-- `EngineStoreProvider` — the in-memory `RoomEngine`; `askAgent` builds
-  `InMemoryRoomTools` and calls the agent loop **in the browser tab**, driven by
-  a scripted model so it is deterministic and needs no key.
-- `ConvexStoreProvider` — live; `askAgent` calls the `startPublicAsk` mutation
-  and hands off to a durable server-side job.
+- `ConvexStoreProvider` — the product path; `askAgent` calls the
+  `startPublicAsk` mutation and hands off to a durable server-side job
+  (`convex/agentJobRunner.ts`), then selects that job so the UI follows it.
+- `EngineStoreProvider` — the keyless test harness only; its `askAgent` builds
+  `InMemoryRoomTools` and runs the same agent loop in the browser tab with a
+  scripted model, so tests are deterministic and need no key.
 
-**Core code** (in-memory branch)
+**Core code** (live branch)
 ```ts
-const rt = new InMemoryRoomTools(engine, roomId, workbook.id, actor, pub.id);
-const result = await runHarness({
-  rt,
-  goal: withReferenceContext(instruction, references),
-  model: paced(scriptedModel(workbookAuditPlan({ /* ... */ })), 120),
-  tools: ROOM_TOOLS,
-  /* ... */
+const started = await startPublicAskJob({
+  roomId: rid,
+  requester: proof,
+  /* ...route, references, disposition... */
+  goal: withReferenceContext(input.goal, references),
 });
+selectLongJob(String(started.jobId));
 ```
 
 **Input** — `{ goal, references, modelSelection, contextArtifactId, disposition }`.
-**Output** — in memory: the agent has run and the room has changed by the time
-the promise settles. Live: a `jobId`, and the room changes arrive later through
-the reactive subscription.
+**Output** — live: a `jobId`, and the room changes arrive later through the
+reactive subscription. In the test harness the agent has already run by the
+time the promise settles.
 **Failure behavior** — the caller in Step 3 catches and renders
 `buildAgentFailureNotice(...)`, which turns a provider error into a sentence a
 non-engineer can act on rather than a stack trace.
@@ -242,8 +250,8 @@ non-engineer can act on rather than a stack trace.
 **Why this exists**
 One agent loop, two hosts. The loop never touches a database or a React state
 setter — it talks to `RoomTools` (`src/nodeagent/core/types.ts`), and the host
-supplies the implementation: `InMemoryRoomTools` in the browser,
-`ConvexRoomTools` on the server. That is why the same run can be exercised by a
+supplies the implementation: `InMemoryRoomTools` in the browser (test harness),
+`ConvexRoomTools` on the server (product). That is why the same run can be exercised by a
 fast unit test and by production.
 
 Tools are registered as plain data in one array, `ROOM_TOOLS` — and that array is
@@ -336,7 +344,7 @@ reasoning, a tool call, and the answer in the order they happened.
 The two tiers differ here, and the difference is the reason the code looks the
 way it does:
 
-- **In memory**, the run happens in the tab; the engine emits and React re-renders.
+- **Test harness**, the run happens in the tab; the engine emits and React re-renders.
 - **Live**, `runAgent` is given `onTextDelta` and `onStreamEvent` hooks
   (`convex/agentJobRunner.ts`). Tokens stream over HTTP to the tab that asked,
   while `@convex-dev/persistent-text-streaming` persists sentence-flushed chunks
@@ -442,7 +450,7 @@ names them and explains why one of them is a gate doing its job.
 entry to `ROOM_TOOLS` in `src/nodeagent/skills/spreadsheet/cellMutator.ts`, add
 the matching method to the `RoomTools` interface in
 `src/nodeagent/core/types.ts`, then implement it twice — once in
-`src/nodeagent/skills/integration/noderoomAdapter.ts` (memory) and once in
+`src/nodeagent/skills/integration/noderoomAdapter.ts` (test harness) and once in
 `convex/convexRoomTools.ts` (live). The loop in `runtime.ts` does not change.
 Prove it with a test next to `tests/agentRuntime.test.ts`.
 
@@ -453,7 +461,7 @@ primitives.
 
 ## Then read
 
-- `docs/codebase/ARCHITECTURE.md` — the two tiers and why they exist
+- `docs/codebase/ARCHITECTURE.md` — the live room, its test harness, and why the harness exists
 - `docs/codebase/CONCERNS.md` — what is known to be wrong right now
 - `docs/SIMPLIFICATION_REPORT.md` — what this pass deleted and what it measured
 - `.tours/` — the same walk, clickable, in VS Code with the CodeTour extension

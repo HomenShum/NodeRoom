@@ -1,0 +1,188 @@
+{
+  "id": "run-9a5fba86-0380-492a-af47-eb9b80ce1f27",
+  "projectId": "prj-1d8fbdcc-22af-42b8-98c3-bfe225e5d1b5",
+  "engine": "google-adk",
+  "model": "gemini-3.5-flash",
+  "helperModel": "gemini-3.5-flash-lite",
+  "prompt": "Two new companies arrived in sources/inbox/ (a profile, a financial statement and diligence call notes for each). Add both to analysis/comparison.json, analysis/comparison.md (table and runway ranking) and analysis/diligence.ipynb, with every figure cited to the exact line in sources/inbox/ and runway = cash / monthly burn. Keep the existing rows, the exceptions section and all citations intact. Re-run the 'report' check with the run_checks tool. Then load the project's citation-validation skill, run it on analysis/comparison.md and fix any failure it reports. Finish with a short summary of where the two companies rank, their top risks and which checks passed.",
+  "status": "completed",
+  "createdAt": "2026-10-29T14:53:01.125Z",
+  "lastSeq": 231,
+  "usage": {
+    "inputTokens": 127056,
+    "outputTokens": 34406,
+    "cacheReadTokens": 1160301,
+    "cacheWriteTokens": 0,
+    "costUsd": null,
+    "costSource": "unknown",
+    "modelTurns": 37
+  },
+  "goals": [
+    {
+      "id": "1_review_sources",
+      "title": "Review sources/inbox and source pack",
+      "status": "done",
+      "claimedBy": "engine"
+    },
+    {
+      "id": "2_extract_data",
+      "title": "Extract company data and citations",
+      "status": "done",
+      "claimedBy": "engine",
+      "dependsOn": [
+        "1_review_sources"
+      ]
+    },
+    {
+      "id": "3_update_files",
+      "title": "Update comparison.json, comparison.md, and diligence.ipynb",
+      "status": "done",
+      "claimedBy": "engine",
+      "dependsOn": [
+        "2_extract_data"
+      ]
+    },
+    {
+      "id": "4_run_checks",
+      "title": "Run report check and citation validation",
+      "status": "done",
+      "claimedBy": "engine",
+      "dependsOn": [
+        "3_update_files"
+      ]
+    },
+    {
+      "id": "5_summary",
+      "title": "Provide final summary",
+      "status": "done",
+      "claimedBy": "engine",
+      "dependsOn": [
+        "4_run_checks"
+      ]
+    }
+  ],
+  "counters": {
+    "toolCalls": 36,
+    "toolCallsOk": 36,
+    "toolCallsFailed": 0,
+    "nativeToolCalls": 0,
+    "nodeToolCalls": 36,
+    "toolSearches": 2,
+    "toolsLoaded": 0,
+    "skillsLoaded": 3,
+    "skillLifecycleEvents": 0,
+    "helpersStarted": 0,
+    "helpersCompleted": 0,
+    "compactions": 0,
+    "artifactsWritten": 4,
+    "uniqueFilesRead": 17,
+    "checksRun": 22,
+    "permissionDenials": 0
+  },
+  "budget": {
+    "maxUsd": 10
+  },
+  "context": {},
+  "startedAt": "2026-10-29T14:53:01.126Z",
+  "nativeSessionId": "cc3d73c6-eb98-4f2e-a3a4-30788222cb37",
+  "finalText": "### Summary of Updates and Findings\n\nBoth new companies from `sources/inbox/` (**Kestrelmoor Capital** and **Solvane Trade Credit**) have been integrated into `analysis/comparison.json`, `analysis/comparison.md`, and `analysis/diligence.ipynb`, with all figures cited directly to line items in `sources/inbox/`.\n\n---\n\n### Rankings & Metrics Summary\n\n1. **Kestrelmoor Capital**\n   - **Rank:** **3rd of 10**\n   - **Runway:** **18.0 months** ($23.4M cash `[src:sources/inbox/kestrelmoor-financials.md#L37]` / $1.3M monthly burn `[src:sources/inbox/kestrelmoor-financials.md#L36]`)\n   - **Category:** Unconditional proceed ($\\ge 12$ months)\n   - **Key Metrics:** ARR $23.8M `[src:sources/inbox/kestrelmoor-financials.md#L11]`, YoY Growth 33% `[src:sources/inbox/kestrelmoor-financials.md#L13]`, Gross Margin 57% `[src:sources/inbox/kestrelmoor-financials.md#L24]`\n   - **Top Risk:** Brand correlation: 31% of outstanding loans are to franchisees of two quick-service brands, so a downturn at either brand would hit roughly a third of the book `[src:sources/inbox/kestrelmoor-call-notes.md#L41]`.\n\n2. **Solvane Trade Credit**\n   - **Rank:** **8th of 10**\n   - **Runway:** **12.0 months** ($9.6M cash `[src:sources/inbox/solvane-financials.md#L37]` / $0.8M monthly burn `[src:sources/inbox/solvane-financials.md#L36]`)\n   - **Category:** Unconditional proceed ($\\ge 12$ months)\n   - **Key Metrics:** ARR $7.4M `[src:sources/inbox/solvane-financials.md#L11]`, YoY Growth 95% `[src:sources/inbox/solvane-financials.md#L13]`, Gross Margin 42% `[src:sources/inbox/solvane-financials.md#L24]`\n   - **Top Risk:** Unseasoned credit: only 14 months of vintage history, so the 2.6% annualized net charge-off rate has not been tested through a downturn `[src:sources/inbox/solvane-call-notes.md#L41]`.\n\n---\n\n### Cohort Runway Rankings (10 Companies)\n\n1. **Quillmark Lending** — **22.0 months** ($24.2M cash / $1.1M burn)\n2. **Pellucid Ledger** — **20.5 months** ($41.0M cash / $2.0M burn)\n3. **Kestrelmoor Capital** — **18.0 months** ($23.4M cash / $1.3M burn)\n4. **Brindlewood Finance** — **17.0 months** ($15.3M cash / $0.9M burn)\n5. **Ynderra Lending** — **15.5 months** ($27.9M cash / $1.8M burn)\n6. **Halvorine Funding** — **14.0 months** ($19.6M cash / $1.4M burn)\n7. **Corvane Capital** — **13.8 months** ($31.7M cash / $2.3M burn)\n8. **Solvane Trade Credit** — **12.0 months** ($9.6M cash / $0.8M burn)\n9. **Marrowfield Credit** — **8.5 months** ($10.2M cash / $1.2M burn) — *Below 9 months threshold*\n10. **Tessaly Credit** — **8.0 months** ($12.8M cash / $1.6M burn) — *Below 9 months threshold*\n\n---\n\n### Checks Passed\n\n- **`report` Check Suite (`run_checks`):** **13 / 13 tests passed**. Verified data schema, company uniqueness, runway formulas ($cash / burn$), citation format, non-restricted path boundaries, and table export rendering (Markdown, CSV, JSON).\n- **`citation-validation` Skill Verification:** **62 / 62 citations verified** across `analysis/comparison.md`. Validated workspace target paths, line number bounds, and string matching for all cited figures. Zero citation errors found.",
+  "endedAt": "2026-10-29T14:56:09.734Z",
+  "verification": {
+    "ranAt": "2026-10-29T14:56:10.427Z",
+    "verifier": "diligence-pack.verify.mjs",
+    "passed": 18,
+    "failed": 0,
+    "checks": [
+      {
+        "id": "comparison.json",
+        "ok": true,
+        "detail": "10 rows"
+      },
+      {
+        "id": "comparison.companies",
+        "ok": true,
+        "detail": "all 10 companies for stage inbox"
+      },
+      {
+        "id": "metrics.values",
+        "ok": true,
+        "detail": "every metric matches ground truth within tolerance"
+      },
+      {
+        "id": "metrics.restated-arr",
+        "ok": true,
+        "detail": "Tessaly Credit uses restated ARR 11.6 and growth 40%"
+      },
+      {
+        "id": "runway.formula",
+        "ok": true,
+        "detail": "runwayMonths = cash / burn on every row"
+      },
+      {
+        "id": "risks.exceptions",
+        "ok": true,
+        "detail": "restatement and concentration exceptions are the top risks"
+      },
+      {
+        "id": "sources.no-restricted",
+        "ok": true,
+        "detail": "no citation into sources/restricted/"
+      },
+      {
+        "id": "sources.no-superseded",
+        "ok": true,
+        "detail": "nothing taken from marrowfield-financials-v1.md"
+      },
+      {
+        "id": "citations.resolve",
+        "ok": true,
+        "detail": "142 citations resolve; every metric citation's line contains its value"
+      },
+      {
+        "id": "comparison-md.table",
+        "ok": true,
+        "detail": "10 companies, 62 citations"
+      },
+      {
+        "id": "comparison-md.exceptions",
+        "ok": true,
+        "detail": "names the restatement, the superseded document and the unavailable restricted documents"
+      },
+      {
+        "id": "report.tests-intact",
+        "ok": true,
+        "detail": "2 template test files unchanged"
+      },
+      {
+        "id": "report.tests-pass",
+        "ok": true,
+        "detail": "node --test: 13 passed, 0 failed"
+      },
+      {
+        "id": "notebook.valid",
+        "ok": true,
+        "detail": "nbformat 4, 7 cells (3 code, 4 markdown)"
+      },
+      {
+        "id": "skill.active",
+        "ok": true,
+        "detail": "active with script .claude/skills/citation-validation/scripts/validate-citations.mjs"
+      },
+      {
+        "id": "skill.ledger",
+        "ok": true,
+        "detail": "active files match the Node activation 40dddcab226c"
+      },
+      {
+        "id": "skill.accepts-table",
+        "ok": true,
+        "detail": "exit 0 on analysis/comparison.md"
+      },
+      {
+        "id": "skill.rejects-corrupted",
+        "ok": true,
+        "detail": "exit 1 on a corrupted copy, exit 0 on an unmodified copy"
+      }
+    ]
+  }
+}

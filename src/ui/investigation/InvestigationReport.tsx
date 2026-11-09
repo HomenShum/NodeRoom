@@ -24,7 +24,6 @@ import "./investigation.css";
 
 type InvestigationReportProps = {
   workspace: InvestigationWorkspaceV1;
-  mode: "memory" | "convex";
   running?: boolean;
   runtimeError?: string | null;
   externalApproved?: boolean;
@@ -422,7 +421,6 @@ function TeachingCasePanel({ workspace }: { workspace: InvestigationWorkspaceV1 
 
 export function InvestigationReport({
   workspace,
-  mode,
   running = false,
   runtimeError,
   externalApproved = false,
@@ -434,7 +432,7 @@ export function InvestigationReport({
   const runtimeState = runtimeMachineState(workspace);
   const evidenceState = evidenceMachineState(trust);
   const displayStatus = workspaceDisplayStatus(workspace, trust, runtimeState);
-  const blockedByConsent = mode === "convex" && !externalApproved;
+  const blockedByConsent = !externalApproved;
   const blockedByRuntime = runtimeState === "active"
     || runtimeState === "intervention"
     || runtimeState === "unknown";
@@ -481,7 +479,7 @@ export function InvestigationReport({
       data-plan-state={workspace.validation.valid ? "valid" : "blocked"}
       data-runtime-state={runtimeState}
       data-evidence-state={evidenceState}
-      data-consent-state={mode === "convex" ? (externalApproved ? "approved" : "required") : "not_required"}
+      data-consent-state={externalApproved ? "approved" : "required"}
     >
       <header className="nr-investigation-hero">
         <div className="nr-investigation-hero-copy">
@@ -547,17 +545,15 @@ export function InvestigationReport({
 
       {runtimeError && <div className="nr-investigation-error" role="alert" data-testid="investigation-runtime-error"><AlertTriangle size={14} />{runtimeError}</div>}
 
-      {mode === "convex" && (
-        <label className="nr-investigation-egress">
-          <input
-            type="checkbox"
-            checked={externalApproved}
-            onChange={(event) => onExternalApprovedChange?.(event.currentTarget.checked)}
-            data-testid="investigation-egress-consent"
-          />
-          <span><strong>Allow source retrieval for this run</strong><small>The server job may fetch public websites. Writes remain inside RoomTools and carry receipts.</small></span>
-        </label>
-      )}
+      <label className="nr-investigation-egress">
+        <input
+          type="checkbox"
+          checked={externalApproved}
+          onChange={(event) => onExternalApprovedChange?.(event.currentTarget.checked)}
+          data-testid="investigation-egress-consent"
+        />
+        <span><strong>Allow source retrieval for this run</strong><small>The server job may fetch public websites. Writes remain inside RoomTools and carry receipts.</small></span>
+      </label>
 
       <div className="nr-investigation-runbar">
         <div>
@@ -697,14 +693,13 @@ export function InvestigationSurface({ roomId }: { roomId: string }): ReactEleme
       setRuntimeError(error instanceof Error ? error.message : "The research run could not be started.");
     } finally {
       setLaunchStartedAt(null);
-      if (store.mode === "convex") setExternalApproved(false);
+      setExternalApproved(false);
     }
   };
 
   return (
     <InvestigationReport
       workspace={workspace}
-      mode={store.mode}
       running={running}
       runtimeError={runtimeError}
       externalApproved={externalApproved}

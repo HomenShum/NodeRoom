@@ -1,0 +1,281 @@
+{
+  "id": "run-b03ac263-ea6a-45a6-b930-a4c8864f88eb",
+  "projectId": "prj-42eaf584-69a6-4736-8c15-23569f29453d",
+  "engine": "claude-agent-sdk",
+  "model": "claude-sonnet-5-5",
+  "helperModel": "claude-haiku-5-5",
+  "prompt": "You are supporting a startup-banking diligence team preparing the Q3 2026 credit committee (meeting September 17, 2026). Nothing has been done in this workspace yet. The data room under sources/ covers ten SMB-lending fintech startups: the eight in sources/companies, sources/financials and sources/diligence-calls, and the two late arrivals in sources/inbox/ (a profile, a financial statement and call notes each). Follow CLAUDE.md / AGENTS.md and use the skills in .claude/skills/. sources/restricted/ is unavailable: do not try to read it, never cite it, and name its documents as unavailable wherever they matter.\n\nThe committee wants a pack it can decide on, not just a ranking. This is a long job, so plan it first: keep a goal list with update_goals (or TodoWrite) that mirrors the deliverables below, with dependencies, and update it as each item is verified. Delegate independent work to parallel helpers and keep your own context for integration and review:\n- the source review: one helper per source folder (sources/companies, sources/financials, sources/diligence-calls, sources/market, sources/inbox), each returning figures with [src:<path>#L<line>] citations, superseded documents, diligence-call exceptions and references to restricted documents;\n- the memos: one writer per two or three companies;\n- the market and regulatory notes: one helper that maps each note to the companies it affects;\n- the HTML export: one helper for the feature and its tests.\nCheck every helper's output against the sources before you integrate it.\n\nDeliverables\n\n1. Comparison pack for all ten companies: analysis/comparison.json and analysis/comparison.md as specified in analysis/README.md (restated ARR and growth where a diligence call restates them, nothing from a superseded document, runway = cash / monthly burn to one decimal, the top risk from each company's call notes, the 'Exceptions and data availability' section and the ranking by runway).\n\n2. One credit memo per company at analysis/memos/<company-slug>.md (for example analysis/memos/tessaly-credit.md). Each memo names the company, has the sections Overview, Financials, Risks, Exceptions and Sources as markdown headings, carries at least six [src:...] citations, and states the company's ARR, average monthly net burn and cash in Financials. Memo standard: every figure is followed directly by its own citation to the one line of a source document under sources/ that contains that figure (never cite your own analysis files); derived figures (runway, stressed runway) show their cited inputs instead of a citation of their own; nothing is cited from sources/restricted/ or from a superseded document. The memo for the company whose ARR was restated on its diligence call explains the restatement (reported versus restated ARR and why) citing the call notes. The memo for the company with the customer-concentration exception states the concentration with its figure, cited to the call notes, against the committee's guideline.\n\n3. analysis/risk-matrix.md: a markdown table with one row per company and the columns Company, Credit, Concentration, Regulatory, Liquidity, Data quality and Rationale. Rate each risk low, medium or high. Rate liquidity against the committee's runway thresholds and concentration against its single-customer guideline (sources/market/credit-committee-criteria-q3-2026.md); restatements, superseded statements and unavailable documents are data-quality findings. The Rationale cell justifies the row's ratings with citations, following the memo standard.\n\n4. Burn stress test: analysis/sensitivity.json, shaped as {\"schema\": \"diligence.sensitivity/v1\", \"asOf\": \"2026-06-30\", \"rows\": [{\"company\", \"cashUsdM\", \"monthlyBurnUsdM\", \"runwayMonths\": {\"base\", \"burnUp20\", \"burnDown20\"}, \"citations\": [<cash citation>, <burn citation>]}]}, with base = cash / burn, burnUp20 = cash / (burn x 1.2) and burnDown20 = cash / (burn x 0.8), one decimal; the two citations follow the memo standard. Add the stress test to analysis/diligence.ipynb on top of its analysis/README.md requirements: code that recomputes the three cases from comparison.json and checks them against sensitivity.json, and markdown that says which companies cross a committee runway threshold when burn rises 20%.\n\n5. Report export: implement report/src/export.mjs (csv, markdown and json, per its doc comment) and add the format \"html\" for the board pack: a <table> whose header row holds the same column labels plus Sources in <th> cells, and one <tr> of <td> cells per company in the same order and with the same Sources cell as the other formats. Every cell's text is HTML-escaped (&, <, >, \" and ') so table data can never inject markup, and the same citation rules apply. Write your own node:test tests for the html format inside report/ but outside report/test/ (for example report/html-export.test.mjs) so the 'report' check runs them; include a row whose text contains <script> and &. Do not edit report/test/. Run the 'report' check with the run_checks tool.\n\n6. Two reusable skills, each created with draft_skill and then validate_skill, test_skill and activate_skill:\n   a. citation-validation: a Node script that takes a markdown file path as its first argument, resolves citation paths against the current working directory (the workspace root), and exits 0 only when every [src:...] citation resolves to an existing line that contains the number written before it, non-zero otherwise.\n   b. memo-lint: a Node script that takes a memo file or a directory of memos as its first argument, resolves citation paths against the current working directory, and exits non-zero when any memo is missing one of the five sections, has fewer than six citations, cites a missing file or line, cites a line that does not contain the figure written before the citation, or cites anything under sources/restricted/; exit 0 when every memo passes.\n   Give each skill at least one passing example and failing counterexamples as test cases. Test cases run under Node's permission model and can read only the draft folder and the files passed as arguments, so keep the examples self-contained inside the draft (for example a --root=<dir> option and a small example source file in the draft). After activation, run citation-validation on analysis/comparison.md and memo-lint on analysis/memos/, and fix everything they report.\n\n7. Finish with a committee summary: the ranking by runway, which companies fall below a committee runway threshold in the +20% burn case, the restated company, the concentration exception, the superseded document, the unavailable restricted documents, and which checks passed.",
+  "status": "interrupted",
+  "createdAt": "2026-10-29T17:25:35.500Z",
+  "lastSeq": 700,
+  "usage": {
+    "inputTokens": 16958,
+    "outputTokens": 133764,
+    "cacheReadTokens": 2054488,
+    "cacheWriteTokens": 252365,
+    "costUsd": 0.8553664699999999,
+    "costSource": "engine",
+    "modelTurns": 66
+  },
+  "goals": [
+    {
+      "id": "todo-1",
+      "title": "memo-lint skill activated",
+      "status": "done",
+      "claimedBy": "engine"
+    },
+    {
+      "id": "todo-2",
+      "title": "Generate comparison.json/md and sensitivity.json",
+      "status": "active",
+      "claimedBy": "engine"
+    },
+    {
+      "id": "todo-3",
+      "title": "Memos (parallel helpers)",
+      "status": "pending",
+      "claimedBy": "engine"
+    },
+    {
+      "id": "todo-4",
+      "title": "Risk matrix and notebook",
+      "status": "pending",
+      "claimedBy": "engine"
+    },
+    {
+      "id": "todo-5",
+      "title": "Run report checks, citation-validation, memo-lint",
+      "status": "pending",
+      "claimedBy": "engine"
+    },
+    {
+      "id": "todo-6",
+      "title": "Final summary",
+      "status": "pending",
+      "claimedBy": "engine"
+    }
+  ],
+  "counters": {
+    "toolCalls": 152,
+    "toolCallsOk": 139,
+    "toolCallsFailed": 13,
+    "nativeToolCalls": 48,
+    "nodeToolCalls": 104,
+    "toolSearches": 3,
+    "toolsLoaded": 14,
+    "skillsLoaded": 0,
+    "skillLifecycleEvents": 16,
+    "helpersStarted": 5,
+    "helpersCompleted": 5,
+    "compactions": 1,
+    "artifactsWritten": 63,
+    "uniqueFilesRead": 11,
+    "checksRun": 40,
+    "permissionDenials": 5
+  },
+  "budget": {
+    "maxUsd": 40,
+    "maxWallMs": 9000000
+  },
+  "context": {
+    "autoCompactTokens": 100000
+  },
+  "startedAt": "2026-10-29T17:25:35.502Z",
+  "nativeSessionId": "2c8070ea-e3d0-474e-bfe1-f57866b20fc0",
+  "finalText": "Growth and margin should print as integers.",
+  "error": "user_interrupt",
+  "endedAt": "2026-10-29T17:29:36.236Z",
+  "verification": {
+    "ranAt": "2026-10-29T17:29:37.279Z",
+    "verifier": "diligence-pack.verify.mjs",
+    "passed": 23,
+    "failed": 14,
+    "checks": [
+      {
+        "id": "comparison.json",
+        "ok": true,
+        "detail": "10 rows"
+      },
+      {
+        "id": "comparison.companies",
+        "ok": true,
+        "detail": "all 10 companies for stage deep"
+      },
+      {
+        "id": "metrics.values",
+        "ok": true,
+        "detail": "every metric matches ground truth within tolerance"
+      },
+      {
+        "id": "metrics.restated-arr",
+        "ok": true,
+        "detail": "Tessaly Credit uses restated ARR 11.6 and growth 40%"
+      },
+      {
+        "id": "runway.formula",
+        "ok": true,
+        "detail": "runwayMonths = cash / burn on every row"
+      },
+      {
+        "id": "risks.exceptions",
+        "ok": true,
+        "detail": "restatement and concentration exceptions are the top risks"
+      },
+      {
+        "id": "sources.no-restricted",
+        "ok": true,
+        "detail": "no citation into sources/restricted/"
+      },
+      {
+        "id": "sources.no-superseded",
+        "ok": true,
+        "detail": "nothing taken from marrowfield-financials-v1.md"
+      },
+      {
+        "id": "citations.resolve",
+        "ok": true,
+        "detail": "146 citations resolve; every metric citation's line contains its value"
+      },
+      {
+        "id": "comparison-md.table",
+        "ok": false,
+        "detail": "missing Quillmark Lending; Corvane Capital; Tessaly Credit; Brindlewood Finance; Halvorine Funding; ... (10 total)"
+      },
+      {
+        "id": "comparison-md.exceptions",
+        "ok": true,
+        "detail": "names the restatement, the superseded document and the unavailable restricted documents"
+      },
+      {
+        "id": "report.tests-intact",
+        "ok": true,
+        "detail": "2 template test files unchanged"
+      },
+      {
+        "id": "report.tests-pass",
+        "ok": true,
+        "detail": "node --test: 23 passed, 0 failed"
+      },
+      {
+        "id": "notebook.valid",
+        "ok": false,
+        "detail": "analysis/diligence.ipynb does not exist"
+      },
+      {
+        "id": "skill.active",
+        "ok": true,
+        "detail": "active with script .claude/skills/citation-validation/scripts/validate.mjs"
+      },
+      {
+        "id": "skill.ledger",
+        "ok": true,
+        "detail": "active files match the Node activation 7511d3bb947f"
+      },
+      {
+        "id": "skill.accepts-table",
+        "ok": true,
+        "detail": "exit 0 on analysis/comparison.md"
+      },
+      {
+        "id": "skill.rejects-corrupted",
+        "ok": true,
+        "detail": "exit 1 on a corrupted copy, exit 0 on an unmodified copy"
+      },
+      {
+        "id": "memos.present",
+        "ok": false,
+        "detail": "analysis/memos/ does not exist"
+      },
+      {
+        "id": "memos.sections",
+        "ok": false,
+        "detail": "skipped: analysis/memos/ does not exist"
+      },
+      {
+        "id": "memos.citations",
+        "ok": false,
+        "detail": "skipped: analysis/memos/ does not exist"
+      },
+      {
+        "id": "memos.no-restricted",
+        "ok": false,
+        "detail": "skipped: analysis/memos/ does not exist"
+      },
+      {
+        "id": "memos.restatement",
+        "ok": false,
+        "detail": "skipped: analysis/memos/ does not exist"
+      },
+      {
+        "id": "memos.concentration",
+        "ok": false,
+        "detail": "skipped: analysis/memos/ does not exist"
+      },
+      {
+        "id": "risk-matrix.table",
+        "ok": false,
+        "detail": "analysis/risk-matrix.md does not exist"
+      },
+      {
+        "id": "risk-matrix.citations",
+        "ok": false,
+        "detail": "skipped: analysis/risk-matrix.md does not exist"
+      },
+      {
+        "id": "risk-matrix.ratings",
+        "ok": false,
+        "detail": "skipped: analysis/risk-matrix.md does not exist"
+      },
+      {
+        "id": "sensitivity.json",
+        "ok": true,
+        "detail": "10 companies"
+      },
+      {
+        "id": "sensitivity.values",
+        "ok": true,
+        "detail": "base, +20% and -20% burn runway match cash / (burn x factor) for every company"
+      },
+      {
+        "id": "sensitivity.citations",
+        "ok": true,
+        "detail": "every row cites its cash and burn lines"
+      },
+      {
+        "id": "notebook.sensitivity",
+        "ok": false,
+        "detail": "analysis/diligence.ipynb does not exist"
+      },
+      {
+        "id": "report.html-escape",
+        "ok": true,
+        "detail": "html export: <table> with the column labels and Sources in <th>, <script>, &, \" and ' escaped, runway order, uncited rows refused"
+      },
+      {
+        "id": "report.html-tests",
+        "ok": true,
+        "detail": "html-export.test.mjs: node --test exit 0, 10 passed, 0 failed"
+      },
+      {
+        "id": "memo-lint.active",
+        "ok": true,
+        "detail": "active with script .claude/skills/memo-lint/scripts/lint.mjs"
+      },
+      {
+        "id": "memo-lint.ledger",
+        "ok": true,
+        "detail": "active files match the Node activation b9c7141f061e"
+      },
+      {
+        "id": "memo-lint.accepts-memos",
+        "ok": false,
+        "detail": "skipped: no company memos in analysis/memos/"
+      },
+      {
+        "id": "memo-lint.rejects-corrupted",
+        "ok": false,
+        "detail": "skipped: no company memos in analysis/memos/"
+      }
+    ]
+  }
+}

@@ -44,7 +44,7 @@ describe("long-running agent job source invariants", () => {
     const workflows = readFileSync("convex/agentWorkflows.ts", "utf8");
 
     expect(config).toContain("@convex-dev/workflow");
-    expect(config).toContain("@convex-dev/workpool");
+    expect(workflows).toContain("@convex-dev/workpool");
     expect(jobs).toContain('runtime: "workflow"');
     expect(jobs).toContain("startWorkflow(ctx, internal.agentWorkflows.freeAutoWorkflow");
     expect(jobs).toContain("workflow_start_failed");

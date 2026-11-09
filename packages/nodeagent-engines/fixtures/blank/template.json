@@ -1,0 +1,14 @@
+{
+  "id": "blank",
+  "title": "Blank workspace",
+  "description": "An empty workspace with no sources, checks or verifier, for quick experiments with any engine.",
+  "restrictedGlobs": [],
+  "checks": {},
+  "suggestedTasks": [
+    {
+      "id": "hello",
+      "title": "Write and check a small script",
+      "prompt": "Create hello.mjs that prints the current UTC date in ISO format, run it with node, and summarize what you did."
+    }
+  ]
+}

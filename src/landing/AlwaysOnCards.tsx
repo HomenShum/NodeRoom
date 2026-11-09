@@ -10,18 +10,16 @@
  * alwaysOn.listPublicRooms (same typed-cast seam as usePublicRoomData) and
  * renders the REAL rooms — name, description, lastMetric, lastRunAt freshness,
  * and lastRunStatus health (a failed/capped room shows exactly that state,
- * never a live pulse). Memory mode, a missing backend module, an erroring
- * query, or an empty room table all fall back to the AO_CARDS specimen set —
- * stamped data-ao-source="demo" with a neutral "demo" pulse badge (green is
- * success semantics only; specimen numbers are never presented as live).
+ * never a live pulse). Loading, an empty room table and an erroring query each
+ * render an explicit status line — never specimen cards. Without Convex the
+ * section is not rendered at all.
  *
- * Card actions (both modes):
+ * Card actions:
  *   - "Open room"  → #rooms/<slug> (public read-only room page)
  *   - "Subscribe"  → SubscribeModal (double opt-in email digest)
  */
 import { Component, useState, type ReactNode } from "react";
 import { Mail } from "lucide-react";
-import { AO_CARDS } from "../alwayson/demoData";
 import { SubscribeModal } from "../alwayson/SubscribeModal";
 import {
   useLivePublicRoomCards,
@@ -35,35 +33,14 @@ const openRoom = (slug: string) => {
   window.location.hash = `#rooms/${slug}`;
 };
 
-type CardRow = {
-  slug: string;
-  name: string;
-  desc: string;
-  updated: string;
-  metric: string;
-  health: AoLiveCardHealth | "demo";
-};
-
 type SubscribeTarget = { slug: string; name: string };
-
-/** Specimen cards, stamped demo — badge + section attribute say so on the DOM. */
-const DEMO_ROWS: CardRow[] = AO_CARDS.map((c) => ({
-  slug: c.slug,
-  name: c.name,
-  desc: c.desc,
-  updated: c.updated,
-  metric: c.metric,
-  health: "demo",
-}));
 
 /**
  * Health → badge. Green pulse ONLY for a genuinely healthy live room
- * (last run ok, or skipped = scanned + hash unchanged). Demo keeps the pulse
- * dot but neutral styling and the text "demo". failed = danger, capped =
- * needs-review amber, none = neutral "no runs yet".
+ * (last run ok, or skipped = scanned + hash unchanged). failed = danger,
+ * capped = needs-review amber, none = neutral "no runs yet".
  */
-function HealthBadge({ health }: { health: CardRow["health"] }) {
-  if (health === "demo") return <span className="live demo"><span className="d" />demo</span>;
+function HealthBadge({ health }: { health: AoLiveCardHealth }) {
   if (health === "ok" || health === "skipped") return <span className="live"><span className="d" />live</span>;
   if (health === "failed") return <span className="ao-chip bad">failed</span>;
   if (health === "capped") return <span className="ao-chip warn">capped</span>;
@@ -72,18 +49,19 @@ function HealthBadge({ health }: { health: CardRow["health"] }) {
 
 function CardsSection({
   rows,
-  source,
+  status,
   onSubscribe,
 }: {
-  rows: CardRow[];
-  source: "live" | "demo";
+  rows: AoLiveCard[];
+  /** Loading / empty / unavailable line shown instead of cards. */
+  status?: string;
   onSubscribe: (target: SubscribeTarget) => void;
 }) {
   return (
     <section
       className="rs-proof-section rs-live-rooms"
       data-testid="ao-landing-cards"
-      data-ao-source={source}
+      data-ao-source="live"
     >
       <h2 className="rs-section-h">The product demonstrates itself: live public rooms.</h2>
       <p className="rs-section-sub">
@@ -95,8 +73,9 @@ function CardsSection({
       {/* Card internals are the .ao-* specimen markup — do not restyle here. */}
       <div style={{ textAlign: "left" }}>
         <div className="ao-kicker" style={{ marginBottom: 12 }}>
-          {source === "demo" ? "Explore public rooms · demo preview" : "Explore public rooms"}
+          Explore public rooms
         </div>
+        {status && <div className="ao-empty" data-testid="ao-landing-cards-status"><div className="b">{status}</div></div>}
         <div className="ao-cards">
           {rows.map((c) => (
             <div className="ao-card" key={c.slug} data-testid={`ao-card-${c.slug}`}>
@@ -138,20 +117,20 @@ function CardsSection({
 /** Live gallery — ONLY mounted under ConvexProvider (gated by HAS_CONVEX below). */
 function LiveCardsSection({ onSubscribe }: { onSubscribe: (target: SubscribeTarget) => void }) {
   const cards = useLivePublicRoomCards();
-  // Loading / empty / malformed → demo, honestly stamped as demo.
-  if (!cards) return <CardsSection rows={DEMO_ROWS} source="demo" onSubscribe={onSubscribe} />;
-  return <CardsSection rows={cards.map((c: AoLiveCard) => ({ ...c }))} source="live" onSubscribe={onSubscribe} />;
+  if (cards === undefined) return <CardsSection rows={[]} status="Loading public rooms…" onSubscribe={onSubscribe} />;
+  if (!cards) return <CardsSection rows={[]} status="No public rooms are published yet." onSubscribe={onSubscribe} />;
+  return <CardsSection rows={cards} onSubscribe={onSubscribe} />;
 }
 
-/* Silent fallback boundary: a throwing live query (e.g. alwaysOn module not
-   deployed) renders the demo gallery — same contract as PublicRoomPage. */
+/* Error boundary: a throwing live query (e.g. alwaysOn module not deployed)
+   renders an explicit unavailable line — never specimen cards. */
 class AoCardsBoundary extends Component<{ fallback: ReactNode; children: ReactNode }, { failed: boolean }> {
   override state = { failed: false };
   static getDerivedStateFromError() {
     return { failed: true };
   }
   override componentDidCatch(error: unknown) {
-    console.warn("[alwayson] live room cards unavailable — using demo data", error);
+    console.warn("[alwayson] live room cards unavailable", error);
   }
   override render() {
     return this.state.failed ? this.props.fallback : this.props.children;
@@ -162,17 +141,13 @@ export function AlwaysOnCards() {
   // The card whose email-digest subscribe flow is open (null = closed).
   const [subscribeCard, setSubscribeCard] = useState<SubscribeTarget | null>(null);
 
-  const demoSection = <CardsSection rows={DEMO_ROWS} source="demo" onSubscribe={setSubscribeCard} />;
+  if (!HAS_CONVEX) return null;
 
   return (
     <>
-      {HAS_CONVEX ? (
-        <AoCardsBoundary fallback={demoSection}>
-          <LiveCardsSection onSubscribe={setSubscribeCard} />
-        </AoCardsBoundary>
-      ) : (
-        demoSection
-      )}
+      <AoCardsBoundary fallback={<CardsSection rows={[]} status="Public rooms are unavailable right now." onSubscribe={setSubscribeCard} />}>
+        <LiveCardsSection onSubscribe={setSubscribeCard} />
+      </AoCardsBoundary>
       {subscribeCard && (
         <SubscribeModal
           roomSlug={subscribeCard.slug}

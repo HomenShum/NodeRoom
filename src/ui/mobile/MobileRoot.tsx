@@ -8,7 +8,7 @@ import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import { useAuthActions } from "@convex-dev/auth/react";
 import { api } from "../../../convex/_generated/api";
 import type { Actor } from "../../engine/types";
-import { ConvexStoreProvider, HAS_CONVEX } from "../../app/store";
+import { ConvexStoreProvider, HAS_CONVEX, memoryModeRequested } from "../../app/store";
 import { RoomJoinConsent, type ConsentChoice } from "./RoomJoinConsent";
 import { ErrorBoundary } from "../../app/ErrorBoundary";
 import { MobileApp } from "./MobileApp";
@@ -50,13 +50,9 @@ const liveKey = (code: string) => `noderoom:live:${code.toUpperCase()}`;
 const pendingKey = (code: string) => `noderoom:mobilePending:${code.toUpperCase()}`;
 
 export function MobileRoot() {
-  if (!HAS_CONVEX || wantsMemory()) return <MobileApp />;
+  if (!HAS_CONVEX || memoryModeRequested(mobileParams())) return <MobileApp />;
   if (launchAuthRequired()) return <AuthenticatedMobileLiveRoot />;
   return <MobileLiveRoot />;
-}
-
-function wantsMemory(): boolean {
-  return mobileParams().get("mode") === "memory";
 }
 
 type MobileAuthState = { isLoading: boolean; isAuthenticated: boolean };

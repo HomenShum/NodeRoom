@@ -10,7 +10,6 @@
         "reasoning.ts",
         "guards.ts",
         "pdfBox.ts",
-        "index.ts",
         "secFacts.ts",
         "substrate/index.ts",
         "substrate/firecrawl.ts",

@@ -13,6 +13,9 @@ const specs = [
   "e2e/full-modern-ux-bar.spec.ts",
 ];
 
+// Harness build: only with this flag does ?mode=memory beat a configured VITE_CONVEX_URL (.env.local).
+// The build, the server and Playwright all inherit it. prod:gate rebuilds dist/ without it afterwards.
+process.env.VITE_NODEROOM_HARNESS = "1";
 const explicitPort = process.env.PLAYWRIGHT_PORT;
 const preferredPort = Number.parseInt(explicitPort ?? "5197", 10);
 const reuseExternalServer = process.env.PLAYWRIGHT_REUSE_SERVER === "1";

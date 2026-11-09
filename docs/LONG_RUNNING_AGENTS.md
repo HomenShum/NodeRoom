@@ -119,8 +119,8 @@ Runtime knobs:
 
 ```text
 FREE_AUTO_JOB_MODEL=openrouter/free-auto
-FREE_AUTO_JOB_SLICE_BUDGET_MS=540000
-FREE_AUTO_JOB_RESERVE_MS=30000
+FREE_AUTO_JOB_SLICE_BUDGET_MS=420000   # code default (7 min); env may override
+FREE_AUTO_JOB_RESERVE_MS=60000         # code default (60 s)
 FREE_AUTO_JOB_MAX_STEPS_PER_SLICE=3
 FREE_AUTO_JOB_CONTEXT_MAX_CHARS=24000
 FREE_AUTO_JOB_CONTEXT_KEEP_RECENT=10
@@ -137,17 +137,20 @@ Default cap math:
 
 ```text
 Convex hard action cap       = 10 minutes
-default slice budget         = 9 minutes
-default reserve              = 30 seconds
-default lease extra          = 60 seconds
-default model-call handoff   = before usable time reaches zero
+default slice budget         = 7 minutes   (DEFAULT_SLICE_BUDGET_MS)
+default reserve              = 60 seconds  (DEFAULT_RESERVE_MS)
+default lease extra          = 60 seconds  (lease = slice + reserve + extra)
+default model-call handoff   = before usable time (deadline - now - reserve) reaches zero
 ```
 
-At the defaults, a slice voluntarily hands off around 8.5 minutes and has a
-full persistence margin before Convex's hard cap. That is the correct product
-claim: NodeRoom does not beat the 10-minute limit; it leaves margin, writes a
-checkpoint, and lets Workflow sleep/resume the next slice. The remaining
-hardening is to clamp misconfigured budgets so they cannot erase that margin.
+These are the code defaults in `convex/agentJobRunner.ts`; a deployment's env
+may override them. At the defaults, a slice has about 6 minutes of usable model
+time and voluntarily hands off before that runs out, leaving a full persistence
+margin before Convex's hard cap. That is the correct product claim: NodeRoom
+does not beat the 10-minute limit; it leaves margin, writes a checkpoint, and
+lets Workflow sleep/resume the next slice. `boundedActionBudgetMs` clamps a
+misconfigured budget to the 10-minute cap minus the reserve and a 15-second
+safety margin, so env overrides cannot erase that margin.
 
 Lease behavior:
 
