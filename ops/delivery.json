@@ -1,0 +1,10 @@
+{
+  "repo": "HomenShum/NodeRoom",
+  "internal": ["docs/**/*.md"],
+  "check": { "workflow": "ci.yml", "job": "verify" },
+  "review": {
+    "points": "AGENTS.md",
+    "status": "agent-review",
+    "xhigh": ["convex/**/*", "src/agent/**/*", "src/nodeagent/**/*", "package.json", "package-lock.json"]
+  }
+}
