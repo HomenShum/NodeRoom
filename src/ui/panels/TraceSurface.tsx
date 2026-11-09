@@ -721,7 +721,7 @@ function runTimeLabel(createdAt: number): string {
 
 /** The span tree panel — indent guides, kind chips, wall-clock-proportional bars,
  *  status chips, expandable attr rows (click a row → its attrs unfold beneath it). */
-function RunSpanTree({ spans, truncated }: { spans: RunSpan[]; truncated: boolean }) {
+function RunSpanTree({ spans, truncated, runLabel }: { spans: RunSpan[]; truncated: boolean; runLabel: string }) {
   const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
   const [openId, setOpenId] = useState<string | null>(() => spans.some((s) => s.id === "syn") ? "syn" : null);
   const [issuesOnly, setIssuesOnly] = useState(false);
@@ -729,7 +729,7 @@ function RunSpanTree({ spans, truncated }: { spans: RunSpan[]; truncated: boolea
   const total = useMemo(() => runTreeTotalMs(spans), [spans]);
   const root = spans.find((s) => s.parentId === null);
   const spanCount = spans.length;
-  const runLabel = /room nodeagent|session started|agent run/i.test(root?.name ?? "") ? "Enrich rows 81-120" : (root?.name ?? "agent run");
+  const version = spans.flatMap((span) => span.attrs).find(([key]) => key === "version")?.[1];
   const toggleCollapse = (id: string) => setCollapsed((prev) => {
     const next = new Set(prev);
     if (next.has(id)) next.delete(id); else next.add(id);
@@ -738,8 +738,8 @@ function RunSpanTree({ spans, truncated }: { spans: RunSpan[]; truncated: boolea
   return (
     <div className="trc-panel" data-testid="trace-run-tree">
       <div className="trc-toolbar">
-        <span className="trc-run"><b>{runLabel}</b></span>
-        <span className="trc-version-pill">v246 → v247</span>
+        <span className="trc-run"><b title={runLabel}>{runLabel}</b></span>
+        {version && <span className="trc-version-pill">Version {version}</span>}
         <span className="grow" />
         <div className="trc-filter" role="group" aria-label="Span filters">
           <button type="button" className={issuesOnly ? "" : "on"} onClick={() => setIssuesOnly(false)} data-testid="trace-run-filter-all">all</button>
@@ -751,7 +751,7 @@ function RunSpanTree({ spans, truncated }: { spans: RunSpan[]; truncated: boolea
           {rows.map(({ span, depth, hasKids, isCollapsed }) => {
             const geo = spanBarGeometry(span, total);
             const open = openId === span.id;
-            const spanLabel = span.parentId === null && /room nodeagent|session started|agent run/i.test(span.name) ? runLabel : span.name;
+            const spanLabel = span.parentId === null ? runLabel : span.name;
             return (
               <div key={span.id}>
                 <div role="treeitem" aria-level={depth + 1} aria-expanded={hasKids ? !isCollapsed : undefined}
@@ -767,8 +767,7 @@ function RunSpanTree({ spans, truncated }: { spans: RunSpan[]; truncated: boolea
                       </button>
                     ) : <span className="trc-chev ghost" />}
                     <span className="trc-kind" data-kind={span.kind}>{RUN_SPAN_KIND_LABEL[span.kind]}</span>
-                    {spanLabel !== span.name && <span className="trc-lbl trc-lbl-cloud">{spanLabel}</span>}
-                    <span className="trc-lbl">{span.name}{span.rollup ? <span className="trc-roll">×{span.rollup}</span> : null}</span>
+                    <span className="trc-lbl">{spanLabel}{span.rollup ? <span className="trc-roll">×{span.rollup}</span> : null}</span>
                     <RunStatusChip st={span.status} />
                   </div>
                   <div className="trc-track">
@@ -818,30 +817,29 @@ function RunsPane({ toggle, runs, selectedId, onPick, spans, truncated, loading,
   loading?: boolean;
   emptyHint: string;
 }) {
+  const selectedRun = runs.find((run) => run.id === selectedId);
+  const runLabel = selectedRun?.goal || spans.find((span) => span.parentId === null)?.name || "agent run";
   return (
     <>
       <header className="trc-cloud-head">
         <div>
           <strong>Room trace</strong>
-          <span>AgentPrism-style run spans · 42 events</span>
+          <span>{loading ? "Loading run spans…" : `${spans.length} spans`}</span>
         </div>
-        <button type="button" className="trc-back" aria-label="Back to sheet">← Back to sheet</button>
       </header>
       <aside className="r-tracevu-list" aria-label="Agent runs" data-testid="trace-runs">
         {toggle}
-        <span className="trc-run-focus">Enrich rows 81-120</span>
-        <span className="trc-version-pill">v246 → v247</span>
         {runs.map((r) => (
           <button key={r.id} type="button" className="r-tracevu-rec" data-on={String(r.id === selectedId)}
-            data-testid="trace-run-item" onClick={() => onPick(r.id)}>
+            data-testid="trace-run-item" aria-pressed={r.id === selectedId} onClick={() => onPick(r.id)}>
             <span className="r-tracevu-rec-head">
               <Activity size={13} />
-              <span className="r-tracevu-rec-title">{r.goal || "agent run"}</span>
+              <span className="r-tracevu-rec-title" title={r.goal}>{r.goal || "agent run"}</span>
               {r.exhausted && <span className="r-tracevu-pill" data-tone="risk">exhausted</span>}
             </span>
             <span className="r-tracevu-rec-sub">{r.model}</span>
             <span className="r-tracevu-rec-meta">
-              {r.steps} step{r.steps === 1 ? "" : "s"} · {r.ms > 0 ? fmtSpanMs(r.ms) : "—"}
+              {r.id === selectedId ? `${spans.length} spans` : `${r.steps} step${r.steps === 1 ? "" : "s"}`} · {r.ms > 0 ? fmtSpanMs(r.ms) : "—"}
               {r.costUsd > 0 ? ` · $${r.costUsd.toFixed(r.costUsd >= 0.01 ? 2 : 4)}` : ""}
               {runTimeLabel(r.createdAt) ? ` · ${runTimeLabel(r.createdAt)}` : ""}
             </span>
@@ -853,7 +851,7 @@ function RunsPane({ toggle, runs, selectedId, onPick, spans, truncated, loading,
       </aside>
       <div className="r-tracevu-detail">
         {loading && <div className="trc-empty">loading runs…</div>}
-        {!loading && spans.length > 0 && <RunSpanTree spans={spans} truncated={truncated} />}
+        {!loading && spans.length > 0 && <RunSpanTree key={selectedId} spans={spans} truncated={truncated} runLabel={runLabel} />}
         {!loading && spans.length === 0 && runs.length > 0 && (
           <div className="trc-empty">This run recorded no tool steps.</div>
         )}
@@ -889,11 +887,7 @@ function MemoryRunsView({ roomId, toggle }: { roomId: string; toggle: ReactNode 
   const traces = store.listTraces(roomId);
   const runs = useMemo(() => buildMemoryRunsFromTraces(traces), [traces]);
   const [picked, setPicked] = useState<string | null>(null);
-  const defaultRun =
-    runs.find((r) => /room nodeagent|reconciled/i.test(r.summary.goal) || /agent_room/i.test(r.summary.agentId)) ??
-    [...runs].sort((a, b) => b.summary.steps - a.summary.steps)[0] ??
-    null;
-  const selected = runs.find((r) => r.summary.id === picked) ?? defaultRun;
+  const selected = runs.find((r) => r.summary.id === picked) ?? runs[0];
   return (
     <RunsPane
       toggle={toggle}
