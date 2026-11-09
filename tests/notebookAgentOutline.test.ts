@@ -45,7 +45,7 @@ type EnrichmentPlanResult =
 const notebookAgentInternal = (internal as unknown as {
   notebookAgent: {
     applyOutlineByAgent: import("convex/server").FunctionReference<"mutation", "internal", Record<string, unknown>, ApplyOutlineResult>;
-    ensureNotebookDocForAgent: import("convex/server").FunctionReference<"mutation", "internal", Record<string, unknown>, { prosemirrorDocId: string; created: boolean }>;
+    ensureNotebookDocForAgent: import("convex/server").FunctionReference<"mutation", "internal", Record<string, unknown>, { ok: true; prosemirrorDocId: string; created: boolean } | { ok: false; reason: "not_a_note"; artifactKind: string }>;
     readNotebookForAgent: import("convex/server").FunctionReference<"query", "internal", Record<string, unknown>, ReadNotebookResult>;
     applyBlockEditByAgent: import("convex/server").FunctionReference<"mutation", "internal", Record<string, unknown>, BlockEditResult>;
     planNotebookEnrichmentForAgent: import("convex/server").FunctionReference<"query", "internal", Record<string, unknown>, EnrichmentPlanResult>;
