@@ -11,7 +11,7 @@ const args = process.argv.slice(2);
 const mediaPath = args.find((a) => a.startsWith("--media="))?.slice("--media=".length);
 const outPath = args.find((a) => a.startsWith("--out="))?.slice("--out=".length)
   ?? join(process.cwd(), ".tmp-qa", "gemini-visual-polish.json");
-const model = process.env.GEMINI_UI_REVIEW_MODEL ?? "gemini-3.5-flash";
+const model = process.env.GEMINI_UI_REVIEW_MODEL ?? "gemini-3.6-flash";
 if (!mediaPath) throw new Error("--media=<png> required");
 if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) throw new Error("GOOGLE_GENERATIVE_AI_API_KEY required");
 
@@ -52,7 +52,7 @@ const prompt = [
 ].join("\n");
 
 const messages: ModelMessage[] = [{ role: "user", content: [{ type: "text", text: prompt }, { type: "file", data: bytes, filename: "room.png", mediaType }] }];
-const result = await generateObject({ model: google(model), schema, messages, temperature: 0.2 });
+const result = await generateObject({ model: google(model), schema, messages });
 mkdirSync(dirname(outPath), { recursive: true });
 writeFileSync(outPath, JSON.stringify({ generatedAt: new Date().toISOString(), model, mediaPath, review: result.object }, null, 2));
 console.log(`overall=${result.object.overall} :: ${result.object.oneLineVerdict}`);

@@ -533,7 +533,7 @@ if (isCli) {
   const route = optionValue("--real");
   const lockMode: ChatIntakeLockMode = process.argv.includes("--managed-locks") ? "runtime_managed_lock" : "explicit_agent_lock";
   const agent = route
-    ? (await import("../src/nodeagent/models/adapter")).model(route)
+    ? (await import("../src/nodeagent/models/adapter")).model(route, { operatorSelected: true })
     : scriptedModel(
       lockMode === "runtime_managed_lock" ? chatIntakeManagedCapturePlan() : chatIntakeCapturePlan(),
       lockMode === "runtime_managed_lock" ? "scripted-chat-intake-managed" : "scripted-chat-intake",

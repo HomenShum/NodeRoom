@@ -18,7 +18,7 @@ import { z } from "zod";
 const ROOT = process.cwd();
 const args = process.argv.slice(2);
 const invokedCommand = ["npm", "run", "media:gemini-judge", "--", ...args].map(quoteCommandArg).join(" ");
-const model = optionValue("--model") ?? process.env.GEMINI_MEDIA_JUDGE_MODEL ?? "gemini-3.5-flash";
+const model = optionValue("--model") ?? process.env.GEMINI_MEDIA_JUDGE_MODEL ?? "gemini-3.6-flash";
 const runId = optionValue("--run-id") ?? timestampId(new Date());
 const only = optionValue("--only")?.toLowerCase();
 const inputPaths = optionValues("--input");
@@ -238,7 +238,6 @@ async function judgeAsset(asset: Asset): Promise<AssetResult> {
       model: google(model),
       schema: judgeSchema,
       messages,
-      temperature: 0.2,
     });
     const judge = normalizeJudge(result.object);
     return {

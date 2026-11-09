@@ -1,0 +1,177 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-11-06T10:44:01.958Z",
+  "commitSha": "c30dbeac06b9b7a95f0075baa61ee97c7c4e58a0",
+  "worktreeHash": "d010ecc3575786dc",
+  "gitDirty": true,
+  "suite": "ladder",
+  "caseId": "ladder:L4_blocked:gemini-3.8-flash",
+  "score": 1,
+  "checks": {
+    "draftWhenLocked": true,
+    "noDirectWriteWhileLocked": true,
+    "notExhausted": true
+  },
+  "checkDetails": {},
+  "result": {
+    "pass": true,
+    "checkDetails": {},
+    "requestedModel": "gemini-3.8-flash",
+    "resolvedModel": "gemini-3.8-flash",
+    "resolvedModels": [
+      "gemini-3.8-flash"
+    ],
+    "rung": "L4_blocked",
+    "level": 4,
+    "ms": 17782,
+    "tools": 5,
+    "cost": 0.029239500000000057,
+    "stopReason": "done",
+    "reason": "",
+    "checks": {
+      "draftWhenLocked": true,
+      "noDirectWriteWhileLocked": true,
+      "notExhausted": true
+    },
+    "dispatches": [
+      {
+        "requestedModel": "gemini-3.8-flash",
+        "resolvedModel": "gemini-3.8-flash",
+        "echoedModel": "gemini-3.8-flash",
+        "usage": {
+          "inputTokens": 6317,
+          "outputTokens": 312
+        },
+        "costUsd": 0.00590775,
+        "fallbackUsed": false
+      },
+      {
+        "requestedModel": "gemini-3.8-flash",
+        "resolvedModel": "gemini-3.8-flash",
+        "echoedModel": "gemini-3.8-flash",
+        "usage": {
+          "inputTokens": 6714,
+          "outputTokens": 142
+        },
+        "costUsd": 0.005568,
+        "fallbackUsed": false
+      },
+      {
+        "requestedModel": "gemini-3.8-flash",
+        "resolvedModel": "gemini-3.8-flash",
+        "echoedModel": "gemini-3.8-flash",
+        "usage": {
+          "inputTokens": 6908,
+          "outputTokens": 263
+        },
+        "costUsd": 0.00616725,
+        "fallbackUsed": false
+      },
+      {
+        "requestedModel": "gemini-3.8-flash",
+        "resolvedModel": "gemini-3.8-flash",
+        "echoedModel": "gemini-3.8-flash",
+        "usage": {
+          "inputTokens": 7261,
+          "outputTokens": 93
+        },
+        "costUsd": 0.0057945,
+        "fallbackUsed": false
+      },
+      {
+        "requestedModel": "gemini-3.8-flash",
+        "resolvedModel": "gemini-3.8-flash",
+        "echoedModel": "gemini-3.8-flash",
+        "usage": {
+          "inputTokens": 7376,
+          "outputTokens": 72
+        },
+        "costUsd": 0.005802,
+        "fallbackUsed": false
+      }
+    ]
+  },
+  "trace": [
+    {
+      "step": 0,
+      "tool": "say",
+      "args": {
+        "text": "Updating Net income variance to +22.4%"
+      },
+      "result": {
+        "ok": true
+      },
+      "ms": 1
+    },
+    {
+      "step": 0,
+      "tool": "propose_lock",
+      "args": {
+        "elementIds": [
+          "r_ni__variance"
+        ],
+        "reason": "Setting Net income variance to +22.4%",
+        "artifactId": "art_11"
+      },
+      "result": {
+        "ok": false,
+        "reason": "range already locked by Your NodeAgent",
+        "lockId": "lock_52"
+      },
+      "ms": 0
+    },
+    {
+      "step": 1,
+      "tool": "read_range",
+      "args": {
+        "elementIds": [
+          "r_ni__variance"
+        ],
+        "artifactId": "art_11"
+      },
+      "result": [
+        {
+          "id": "r_ni__variance",
+          "value": "",
+          "version": 1,
+          "locked": {
+            "by": "Your NodeAgent",
+            "reason": "private agent editing"
+          }
+        }
+      ],
+      "ms": 1
+    },
+    {
+      "step": 2,
+      "tool": "create_draft",
+      "args": {
+        "ops": [
+          {
+            "elementId": "r_ni__variance",
+            "value": "+22.4%",
+            "baseVersion": 1
+          }
+        ],
+        "blockedByLockId": "lock_52",
+        "note": "Set Net income variance to +22.4%",
+        "artifactId": "art_11"
+      },
+      "result": {
+        "draftId": "draft_56"
+      },
+      "ms": 0
+    },
+    {
+      "step": 3,
+      "tool": "say",
+      "args": {
+        "text": "Created draft draft_56 to set Net income variance to +22.4% once lock_52 releases."
+      },
+      "result": {
+        "ok": true
+      },
+      "ms": 0
+    }
+  ]
+}

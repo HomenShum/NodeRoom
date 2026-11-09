@@ -1,0 +1,300 @@
+{
+  "schema": 1,
+  "generatedAt": "2026-11-06T10:44:01.958Z",
+  "commitSha": "c30dbeac06b9b7a95f0075baa61ee97c7c4e58a0",
+  "worktreeHash": "d010ecc3575786dc",
+  "gitDirty": true,
+  "suite": "ladder",
+  "caseId": "ladder:L1_read:gemini-3.6-flash",
+  "score": 1,
+  "checks": {
+    "readTarget": true,
+    "noMutation": true,
+    "notExhausted": true
+  },
+  "checkDetails": {},
+  "result": {
+    "pass": true,
+    "checkDetails": {},
+    "requestedModel": "gemini-3.6-flash",
+    "resolvedModel": "gemini-3.6-flash",
+    "resolvedModels": [
+      "gemini-3.6-flash"
+    ],
+    "rung": "L1_read",
+    "level": 1,
+    "ms": 8046,
+    "tools": 3,
+    "cost": 0.019482749999999993,
+    "stopReason": "done",
+    "reason": "",
+    "checks": {
+      "readTarget": true,
+      "noMutation": true,
+      "notExhausted": true
+    },
+    "dispatches": [
+      {
+        "requestedModel": "gemini-3.6-flash",
+        "resolvedModel": "gemini-3.6-flash",
+        "echoedModel": "gemini-3.6-flash",
+        "usage": {
+          "inputTokens": 6248,
+          "outputTokens": 191
+        },
+        "costUsd": 0.00540225,
+        "fallbackUsed": false
+      },
+      {
+        "requestedModel": "gemini-3.6-flash",
+        "resolvedModel": "gemini-3.6-flash",
+        "echoedModel": "gemini-3.6-flash",
+        "usage": {
+          "inputTokens": 6480,
+          "outputTokens": 541
+        },
+        "costUsd": 0.00688875,
+        "fallbackUsed": false
+      },
+      {
+        "requestedModel": "gemini-3.6-flash",
+        "resolvedModel": "gemini-3.6-flash",
+        "echoedModel": "gemini-3.6-flash",
+        "usage": {
+          "inputTokens": 7884,
+          "outputTokens": 341
+        },
+        "costUsd": 0.00719175,
+        "fallbackUsed": false
+      }
+    ]
+  },
+  "trace": [
+    {
+      "step": 0,
+      "tool": "read_range",
+      "args": {
+        "elementIds": [
+          "r_ni__variance"
+        ]
+      },
+      "result": [
+        {
+          "id": "r_ni__variance",
+          "value": "",
+          "version": 1,
+          "locked": null
+        }
+      ],
+      "ms": 0
+    },
+    {
+      "step": 1,
+      "tool": "inspect_workbook",
+      "args": {
+        "instruction": "Report the current Q3 variance value for Net income (r_ni__variance). Do not change anything.",
+        "maxCells": 80
+      },
+      "result": {
+        "ok": true,
+        "artifactId": "art_11",
+        "artifactVersion": 1,
+        "inspectedCellCount": 25,
+        "confirmedSearchCellCount": 0,
+        "cells": [
+          {
+            "elementId": "r_cogs__label",
+            "value": "COGS",
+            "version": 1
+          },
+          {
+            "elementId": "r_cogs__note",
+            "value": "",
+            "version": 1
+          },
+          {
+            "elementId": "r_cogs__q2",
+            "value": "$4,000",
+            "version": 1
+          },
+          {
+            "elementId": "r_cogs__q3",
+            "value": "$5,100",
+            "version": 1
+          },
+          {
+            "elementId": "r_cogs__variance",
+            "value": "",
+            "version": 1
+          },
+          {
+            "elementId": "r_gp__label",
+            "value": "Gross profit",
+            "version": 1
+          },
+          {
+            "elementId": "r_gp__note",
+            "value": "",
+            "version": 1
+          },
+          {
+            "elementId": "r_gp__q2",
+            "value": "$6,000",
+            "version": 1
+          },
+          {
+            "elementId": "r_gp__q3",
+            "value": "$7,300",
+            "version": 1
+          },
+          {
+            "elementId": "r_gp__variance",
+            "value": "",
+            "version": 1
+          },
+          {
+            "elementId": "r_ni__label",
+            "value": "Net income",
+            "version": 1
+          },
+          {
+            "elementId": "r_ni__note",
+            "value": "",
+            "version": 1
+          },
+          {
+            "elementId": "r_ni__q2",
+            "value": "$3,800",
+            "version": 1
+          },
+          {
+            "elementId": "r_ni__q3",
+            "value": "$4,650",
+            "version": 1
+          },
+          {
+            "elementId": "r_ni__variance",
+            "value": "",
+            "version": 1
+          },
+          {
+            "elementId": "r_opex__label",
+            "value": "OpEx",
+            "version": 1
+          },
+          {
+            "elementId": "r_opex__note",
+            "value": "",
+            "version": 1
+          },
+          {
+            "elementId": "r_opex__q2",
+            "value": "$2,200",
+            "version": 1
+          },
+          {
+            "elementId": "r_opex__q3",
+            "value": "$2,650",
+            "version": 1
+          },
+          {
+            "elementId": "r_opex__variance",
+            "value": "",
+            "version": 1
+          },
+          {
+            "elementId": "r_rev__label",
+            "value": "Revenue",
+            "version": 1
+          },
+          {
+            "elementId": "r_rev__note",
+            "value": "",
+            "version": 1
+          },
+          {
+            "elementId": "r_rev__q2",
+            "value": "$10,000",
+            "version": 1
+          },
+          {
+            "elementId": "r_rev__q3",
+            "value": "$12,400",
+            "version": 1
+          },
+          {
+            "elementId": "r_rev__variance",
+            "value": "",
+            "version": 1
+          }
+        ],
+        "inspection": {
+          "schema": 1,
+          "mutatingTask": true,
+          "allowEmptyPlan": false,
+          "referencedSheets": [],
+          "explicitReferences": [
+            {
+              "start": "r_ni__variance",
+              "end": "r_ni__variance",
+              "sourceText": "r_ni__variance",
+              "role": "target"
+            }
+          ],
+          "targetCandidates": [
+            {
+              "sheet": "art_11",
+              "address": "r_ni__variance",
+              "reason": "task names r_ni__variance as an output or edit target"
+            }
+          ],
+          "blockedTargets": [],
+          "targetBands": [],
+          "dependencyCandidates": [],
+          "findings": [],
+          "formulaFillSuggestions": [],
+          "formulaRepairSuggestions": [],
+          "valueSuggestions": [],
+          "styleSuggestions": [],
+          "rankedCellKeys": [
+            "art_11!R_NI__VARIANCE",
+            "art_11!R_NI__LABEL",
+            "art_11!R_REV__LABEL",
+            "art_11!R_NI__NOTE"
+          ],
+          "recommendedReads": [
+            {
+              "sheet": "art_11",
+              "addresses": [
+                "r_ni__variance",
+                "r_ni__label",
+                "r_rev__label",
+                "r_ni__note"
+              ],
+              "reason": "explicit_target, task_term_match, sheet_representative, sheet_extent"
+            }
+          ],
+          "completionChecks": [
+            "Every edited cell belongs to the requested workbook scope.",
+            "Existing formulas are not replaced by scalars unless the task explicitly requires it.",
+            "Changed formulas contain no broken references or obvious self-reference.",
+            "Every changed target is re-read and checked after the write or recorded as pending approval.",
+            "Unsupported macro, validation, or full-format work is reported as unresolved; chart requests require a real chart operation rather than a prose claim."
+          ]
+        }
+      },
+      "ms": 36
+    },
+    {
+      "step": 2,
+      "tool": "say",
+      "args": {
+        "text": "The cell r_ni__variance is currently empty (blank); the calculated Q3 vs Q2 variance for Net income ($4,650 vs $3,800) is +$850 (+22.37%)."
+      },
+      "result": {
+        "ok": true
+      },
+      "ms": 1
+    }
+  ]
+}

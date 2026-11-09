@@ -88,6 +88,7 @@ if (modelRepairAttempts < 0 || modelRepairAttempts > 3) {
 const agentModel = modelId
   ? (await import("../src/nodeagent/models/adapter")).model(modelId, {
       freeAutoMode: freeAutoMode ?? (mode === "nodeagent-workbook" ? "agent" : mode === "model-edit-plan" ? "structured" : undefined),
+      operatorSelected: true,
     })
   : undefined;
 

@@ -7,8 +7,9 @@
  * file implements the small AgentModel seam with direct provider HTTP calls.
  */
 
-import type { AgentMessage, AgentModel, AgentModelRouteState, AgentStep, AgentTool, AgentToolChoice, TokenUsage, ToolCall } from "../core/types";
-import { getModelPricing, getProviderForModel, modelFallbackChains, modelPricing, resolveModelAlias } from "./modelCatalog";
+import type { AgentMessage, AgentModel, AgentModelRouteState, AgentStep, AgentTool, AgentToolChoice, ThinkingBlock, TokenUsage, ToolCall } from "../core/types";
+import { forbidsForcedToolChoice, getModelPricing, getProviderForModel, fallbackChainFor, isFreeModelId, lookupModelAlias, modelPricing, priceAggregateTokens, priceTokens, ratesForPrompt, resolveModelAlias } from "./modelCatalog";
+import { modelMaxOutputTokens } from "./outputTokens";
 import {
   isOpenRouterFreeAutoModel,
   openRouterFreeCandidateTimeoutMs,
@@ -81,6 +82,8 @@ type AnthropicResponse = {
   content?: Array<
     | { type: "text"; text?: string }
     | { type: "tool_use"; id?: string; name?: string; input?: JsonObject }
+    | { type: "thinking"; thinking?: string; signature?: string }
+    | { type: "redacted_thinking"; data?: string }
   >;
   usage?: {
     input_tokens?: number;
@@ -109,7 +112,6 @@ type GeminiResponse = {
 
 const OPENROUTER_REFERER = "https://noderoom.local";
 const OPENROUTER_TITLE = "NodeRoom benchmark";
-const DEFAULT_MAX_OUTPUT_TOKENS = 8_192;
 const UNKNOWN_MODEL_RESERVE_INPUT_PER_1M = Object.values(modelPricing)
   .reduce((highest, pricing) => Math.max(highest, pricing.inputPer1M), 1);
 const UNKNOWN_MODEL_RESERVE_OUTPUT_PER_1M = Object.values(modelPricing)
@@ -121,8 +123,19 @@ export type ConvexModelOptions = {
   freeAutoMode?: OpenRouterFreeModelMode;
   /** Ordered, already-authorized fallback routes. Pass [] to keep an explicit model exact. */
   fallbackModelIds?: string[];
+  /**
+   * SPEC A.0.10: a free primary never falls back to a paid route unless the caller sets this AND `next()` is handed a
+   * finite `maxCostUsd` (the failover controller reserves each candidate's estimate against it before dispatch).
+   */
+  allowPaidFallback?: boolean;
   /** Checkpointed concrete-route preference/cooldowns from a prior durable slice. */
   routeState?: AgentModelRouteState;
+  /**
+   * Eval and smoke scripts only (SPEC-v9 D1: operator overrides stay pass-through; same contract as `ModelAdapterOptions`
+   * in adapter.ts). The id was typed by an operator: the alias table still applies, but an id the catalog does not know
+   * goes to the provider as written instead of throwing. Server code never sets this; it stays fail-closed (A.0.10).
+   */
+  operatorSelected?: boolean;
 };
 
 type ConcreteRouteState = {
@@ -188,13 +201,16 @@ function geminiUsage(usage?: GeminiResponse["usageMetadata"]): TokenUsage | unde
 }
 
 export function convexModel(modelId: string, options: ConvexModelOptions = {}): AgentModel {
-  const aliasModelId = resolveModelAlias(modelId);
+  const aliasModelId = options.operatorSelected ? lookupModelAlias(modelId) : resolveModelAlias(modelId);
   const entrypoint = options.entrypoint ?? "system";
   const freeAutoMode = options.freeAutoMode;
   // Fallbacks must be authorized by the caller that owns artifact-aware egress context.
   // Non-durable/direct call sites remain exact even when deployment fallback env vars exist.
   const fallbackModelIds = normalizeFallbackModelIds(aliasModelId, options.fallbackModelIds ?? []);
-  const concreteRouteState = hydrateConcreteRouteState(aliasModelId, fallbackModelIds, options.routeState);
+  // Cost class is preserved (A.0.10): without allowPaidFallback and a reservation budget, only same-class routes stay.
+  const sameClassFallbackIds = isFreeModelId(aliasModelId) ? fallbackModelIds.filter(isFreeModelId) : fallbackModelIds;
+  const authorizedFallbackIds = options.allowPaidFallback === true ? fallbackModelIds : sameClassFallbackIds;
+  const concreteRouteState = hydrateConcreteRouteState(aliasModelId, authorizedFallbackIds, options.routeState);
   let resolvedModelId = aliasModelId;
   return {
     get name() {
@@ -207,33 +223,41 @@ export function convexModel(modelId: string, options: ConvexModelOptions = {}): 
       // Gateway PII firewall — redact PII/secrets from the system + user content before the prompt leaves.
       const safeSystem = redactPII(system).text;
       const safeMessages = messages.map((m) => (m.role === "user" && m.content ? { ...m, content: redactPII(m.content).text } : m));
-      const { step, resolvedModel } = await generateConvexAgentStep(aliasModelId, safeSystem, safeMessages, tools, entrypoint, signal, onTextDelta, toolChoice, freeAutoMode, fallbackModelIds, concreteRouteState, maxCostUsd);
+      const { step, resolvedModel } = await generateConvexAgentStep(aliasModelId, safeSystem, safeMessages, tools, entrypoint, signal, onTextDelta, toolChoice, freeAutoMode, Number.isFinite(maxCostUsd) ? authorizedFallbackIds : sameClassFallbackIds, concreteRouteState, maxCostUsd);
       resolvedModelId = resolvedModel;
       return step;
     },
   };
 }
 
+/** Cost of usage SUMMED over several requests: base-tier rates (a tier belongs to one request's prompt). */
 export function convexPriceRun(modelId: string, inTok: number, outTok: number): number {
-  const pricing = getModelPricing(resolveModelAlias(modelId));
-  return (inTok * (pricing?.inputPer1M ?? 1) + outTok * (pricing?.outputPer1M ?? 5)) / 1_000_000;
+  const pricing = getModelPricing(lookupModelAlias(modelId));
+  return pricing ? priceAggregateTokens(pricing, inTok, outTok) : (inTok * 1 + outTok * 5) / 1_000_000;
+}
+
+/** Cost of ONE provider request (`inTok` is that request's prompt), tier-aware. This is the `priceStep` price. */
+export function convexPriceRequest(modelId: string, inTok: number, outTok: number): number {
+  const pricing = getModelPricing(lookupModelAlias(modelId));
+  return pricing ? priceTokens(pricing, inTok, outTok) : (inTok * 1 + outTok * 5) / 1_000_000;
 }
 
 function exactConvexUsageCost(
   modelId: string,
   usage: Pick<TokenUsage, "inputTokens" | "outputTokens" | "cachedInputTokens" | "cacheCreationInputTokens">,
 ): number | undefined {
-  const pricing = getModelPricing(resolveModelAlias(modelId));
+  const pricing = getModelPricing(lookupModelAlias(modelId));
   if (!pricing) return undefined;
   // The catalog does not yet carry provider cache-write rates. Never label a
   // cache-creation turn exact by silently charging it at the read/input rate.
   if ((usage.cacheCreationInputTokens ?? 0) > 0) return undefined;
   const cachedInputTokens = Math.min(usage.inputTokens, Math.max(0, usage.cachedInputTokens ?? 0));
   const uncachedInputTokens = Math.max(0, usage.inputTokens - cachedInputTokens);
+  const rates = ratesForPrompt(pricing, usage.inputTokens); // long prompts bill at the long-context tier
   return (
-    uncachedInputTokens * pricing.inputPer1M
-    + cachedInputTokens * (pricing.cachedInputPer1M ?? pricing.inputPer1M)
-    + usage.outputTokens * pricing.outputPer1M
+    uncachedInputTokens * rates.inputPer1M
+    + cachedInputTokens * (rates.cachedInputPer1M ?? rates.inputPer1M)
+    + usage.outputTokens * rates.outputPer1M
   ) / 1_000_000;
 }
 
@@ -261,17 +285,18 @@ function convexAttemptCostReservationUsd(
   inputTokenUpperBound: number,
   maxCostUsd?: number,
 ): number {
-  const pricing = getModelPricing(resolveModelAlias(modelId));
+  const pricing = getModelPricing(lookupModelAlias(modelId));
   if (!pricing && Number.isFinite(maxCostUsd)) {
     const budget = Math.max(0, maxCostUsd ?? 0);
     return budget + Math.max(1e-9, Math.max(1, budget) * 1e-9);
   }
-  const inputPer1M = pricing?.inputPer1M ?? UNKNOWN_MODEL_RESERVE_INPUT_PER_1M;
-  const outputPer1M = pricing?.outputPer1M ?? UNKNOWN_MODEL_RESERVE_OUTPUT_PER_1M;
+  const rates = pricing ? ratesForPrompt(pricing, inputTokenUpperBound) : undefined;
+  const inputPer1M = rates?.inputPer1M ?? UNKNOWN_MODEL_RESERVE_INPUT_PER_1M;
+  const outputPer1M = rates?.outputPer1M ?? UNKNOWN_MODEL_RESERVE_OUTPUT_PER_1M;
   if (inputPer1M === 0 && outputPer1M === 0) return 0;
   return (
     inputTokenUpperBound * inputPer1M
-    + modelMaxOutputTokens() * outputPer1M
+    + modelMaxOutputTokens(modelId) * outputPer1M
   ) / 1_000_000;
 }
 
@@ -619,13 +644,14 @@ function hydrateConcreteRouteState(
   persisted?: AgentModelRouteState,
 ): ConcreteRouteState {
   const allowed = [primaryModelId, ...normalizeFallbackModelIds(primaryModelId, fallbackModelIds)];
+  // Saved route state is history (SPEC A.0.6): a retired id is dropped by the allowed filter below, never resolved strictly.
   const preferred = persisted?.preferredModelId
-    ? resolveModelAlias(persisted.preferredModelId)
+    ? lookupModelAlias(persisted.preferredModelId)
     : primaryModelId;
   const now = Date.now();
   const cooldownUntil = new Map<string, number>();
   for (const [candidateId, until] of Object.entries(persisted?.cooldownUntil ?? {})) {
-    const normalized = resolveModelAlias(candidateId);
+    const normalized = lookupModelAlias(candidateId);
     if (allowed.includes(normalized) && Number.isFinite(until) && until > now) {
       cooldownUntil.set(normalized, until);
     }
@@ -840,7 +866,7 @@ async function openAiCompatibleBlockingStep(args: {
     messages: [{ role: "system", content: args.system }, ...toOpenAiMessages(args.messages)],
     tools: args.tools.length ? args.tools.map(openAiTool) : undefined,
     tool_choice: args.tools.length ? openAiCompatibleToolChoice(args.modelId, args.endpoint, args.toolChoice) : undefined,
-    ...openAiCompatibleTokenLimitParam(args.modelId, args.endpoint, modelMaxOutputTokens()),
+    ...openAiCompatibleTokenLimitParam(args.modelId, args.endpoint, modelMaxOutputTokens(args.modelId)),
     ...openAiCompatibleProviderOptions(args.modelId, args.endpoint),
   }, {
     ...args.headers,
@@ -890,7 +916,7 @@ async function openAiCompatibleStreamStep(args: {
       messages: [{ role: "system", content: args.system }, ...toOpenAiMessages(args.messages)],
       tools: args.tools.length ? args.tools.map(openAiTool) : undefined,
       tool_choice: args.tools.length ? openAiCompatibleToolChoice(args.modelId, args.endpoint, args.toolChoice) : undefined,
-      ...openAiCompatibleTokenLimitParam(args.modelId, args.endpoint, modelMaxOutputTokens()),
+      ...openAiCompatibleTokenLimitParam(args.modelId, args.endpoint, modelMaxOutputTokens(args.modelId)),
       ...openAiCompatibleProviderOptions(args.modelId, args.endpoint),
     })),
     signal: args.signal,
@@ -959,7 +985,7 @@ async function anthropicStep(
 ) {
   const res = await postJson<AnthropicResponse>("https://api.anthropic.com/v1/messages", {
     model: modelId,
-    max_tokens: modelMaxOutputTokens(),
+    max_tokens: modelMaxOutputTokens(modelId),
     system,
     messages: toAnthropicMessages(messages),
     tools: tools.length ? tools.map(anthropicTool) : undefined,
@@ -980,9 +1006,14 @@ async function anthropicStep(
       tool: p.name ?? "unknown_tool",
       args: p.input ?? {},
     }));
+  const thinking = parts.flatMap((p): ThinkingBlock[] =>
+    p.type === "thinking" && typeof p.signature === "string" ? [{ type: "thinking", thinking: p.thinking ?? "", signature: p.signature }]
+      : p.type === "redacted_thinking" && typeof p.data === "string" ? [{ type: "redacted_thinking", data: p.data }]
+        : []);
   const usage = anthropicUsage(res.usage);
   return {
     text: text || undefined,
+    ...(thinking.length ? { thinking } : {}),
     toolCalls,
     done: toolCalls.length === 0,
     ...(usage ? { usage } : {}),
@@ -1002,7 +1033,7 @@ async function geminiStep(
     systemInstruction: { parts: [{ text: system }] },
     contents: toGeminiContents(messages),
     tools: tools.length ? [{ functionDeclarations: tools.map(geminiTool) }] : undefined,
-    generationConfig: { maxOutputTokens: modelMaxOutputTokens() },
+    generationConfig: { maxOutputTokens: modelMaxOutputTokens(modelId) },
   }, {}, signal, onProviderRequest);
 
   const parts = res.candidates?.[0]?.content?.parts ?? [];
@@ -1045,7 +1076,7 @@ async function geminiStreamStep(
       systemInstruction: { parts: [{ text: system }] },
       contents: toGeminiContents(messages),
       tools: tools.length ? [{ functionDeclarations: tools.map(geminiTool) }] : undefined,
-      generationConfig: { maxOutputTokens: modelMaxOutputTokens() },
+      generationConfig: { maxOutputTokens: modelMaxOutputTokens(modelId) },
     })),
     signal,
   });
@@ -1120,7 +1151,7 @@ function toOpenAiMessages(messages: AgentMessage[]): OpenAiMessage[] {
 function toAnthropicMessages(messages: AgentMessage[]) {
   return messages.map((m) => {
     if (m.role === "assistant") {
-      const content: unknown[] = [];
+      const content: unknown[] = [...(m.thinking ?? [])]; // thinking blocks go back first, unmodified
       if (m.content) content.push({ type: "text", text: m.content });
       for (const tc of m.toolCalls ?? []) {
         content.push({ type: "tool_use", id: tc.id, name: tc.tool, input: tc.args });
@@ -1802,16 +1833,6 @@ function nebiusBaseUrl(): string {
   return envValue("NEBIUS_BASE_URL") ?? "https://api.tokenfactory.nebius.com/v1";
 }
 
-function modelMaxOutputTokens(): number {
-  return envNumber("AGENT_MODEL_MAX_OUTPUT_TOKENS", DEFAULT_MAX_OUTPUT_TOKENS, 1_024, 32_000);
-}
-
-function envNumber(name: string, fallback: number, min: number, max: number): number {
-  const raw = Number(envValue(name) ?? fallback);
-  if (!Number.isFinite(raw)) return fallback;
-  return Math.max(min, Math.min(max, raw));
-}
-
 function openAiCompatibleProviderOptions(modelId: string, endpoint: string): JsonObject {
   // GLM/Qwen hybrid-thinking models served through OpenRouter/vLLM can spend the entire
   // output cap on hidden thinking, and Qwen rejects required tool_choice while thinking.
@@ -1827,6 +1848,11 @@ function openAiCompatibleToolChoice(modelId: string, endpoint: string, requested
   // NodeAgent still validates required writes/packages after the turn, so provider-level `auto`
   // is the compatible transport hint while the harness remains strict.
   if (choice === "required" && isOpenRouterEndpoint(endpoint) && isOpenRouterQwenHybridThinkingModel(modelId)) {
+    return "auto";
+  }
+  // Claude 5.5 Sonnet/Opus (and Fable 5.1) answer a forced tool_choice with a 400 (SPEC §1.3). Whether
+  // OpenRouter rewrites it is unobserved, so send `auto`; the harness validates required writes after the turn.
+  if (choice === "required" && isOpenRouterEndpoint(endpoint) && forbidsForcedToolChoice(modelId)) {
     return "auto";
   }
   return choice;
@@ -1861,12 +1887,13 @@ export function configuredConvexModelFallbacks(
 ): string[] {
   const raw = env.AGENT_FALLBACK_MODELS?.trim() || env.AGENT_FALLBACK_MODEL?.trim() || "";
   const primary = resolveModelAlias(modelId);
-  const approvedDefaults = modelFallbackChains[primary] ?? modelFallbackChains[modelId] ?? [];
+  const approvedDefaults = [primary, modelId].map(fallbackChainFor).find((chain) => chain.length) ?? [];
   return normalizeFallbackModelIds(modelId, raw ? raw.split(/[\r\n,]+/) : approvedDefaults);
 }
 
 function normalizeFallbackModelIds(modelId: string, values: readonly string[]): string[] {
-  const primary = resolveModelAlias(modelId);
+  // The primary was resolved (or operator-selected) by the caller; only the fallback values are validated here.
+  const primary = lookupModelAlias(modelId);
   const seen = new Set([primary]);
   const result: string[] = [];
   for (const value of values) {

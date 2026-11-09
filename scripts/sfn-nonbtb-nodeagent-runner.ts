@@ -113,7 +113,7 @@ async function runOne(taskId: string) {
   const result = await runAgent({
     rt: stubRoomTools(),
     goal,
-    model: routedModel(MODEL_ID),
+    model: routedModel(MODEL_ID, { operatorSelected: true }),
     tools,
     maxSteps: 8,
   });

@@ -8,7 +8,7 @@ import { z } from "zod";
 const args = process.argv.slice(2);
 const mediaPath = optionValue("--media");
 const outPath = optionValue("--out") ?? join(process.cwd(), "docs", "eval", "agent-improvement-loop", "gemini-ui-review.json");
-const model = optionValue("--model") ?? process.env.GEMINI_UI_REVIEW_MODEL ?? "gemini-3.5-flash";
+const model = optionValue("--model") ?? process.env.GEMINI_UI_REVIEW_MODEL ?? "gemini-3.6-flash";
 
 if (!mediaPath) throw new Error("--media=<screenshot-or-video> is required");
 if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) throw new Error("GOOGLE_GENERATIVE_AI_API_KEY is required");

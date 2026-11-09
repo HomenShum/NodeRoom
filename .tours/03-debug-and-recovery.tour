@@ -27,21 +27,21 @@
     },
     {
       "file": "src/ui/Chat.tsx",
-      "line": 269,
+      "line": 270,
       "pattern": "const MAX_FAILED_SENDS = 50;",
       "title": "Failure 3 — a message fails to post, and the list is bounded",
       "description": "`MAX_FAILED_SENDS = 50`, FIFO. Every in-memory collection on an agent path needs a cap and an eviction rule; agents loop, and an unbounded list fills memory in minutes rather than months."
     },
     {
       "file": "src/ui/Chat.tsx",
-      "line": 1943,
+      "line": 1944,
       "pattern": "const retrySend = \\(cid: string, text: string\\)",
       "title": "Retry that cannot double-post",
       "description": "`retrySend` re-sends with the SAME `clientMsgId`. That id is what makes the retry idempotent at the store, so a user hammering Retry on a flaky connection does not produce five copies of their message."
     },
     {
       "file": "src/ui/Chat.tsx",
-      "line": 935,
+      "line": 936,
       "pattern": "function buildAgentFailureNotice\\(",
       "title": "Failure 4 — the agent fails",
       "description": "`buildAgentFailureNotice` turns a provider error into a sentence a non-engineer can act on, carrying which model selection was used, what was asked, and which job it was. A stack trace on this surface is a defect, not a debug aid — this is a surface where a user decides whether to trust the assistant."

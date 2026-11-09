@@ -1022,7 +1022,7 @@ async function main(): Promise<void> {
   const traceRefs: string[] = [];
 
   for (let run = 1; run <= runs; run++) {
-    const agent = scripted ? scriptedModel(financeModelSolvePlan(gold), `scripted-finance-solver-${run}`) : realModel(route);
+    const agent = scripted ? scriptedModel(financeModelSolvePlan(gold), `scripted-finance-solver-${run}`) : realModel(route, { operatorSelected: true });
     const roomVariant = variantCycle[(run - 1) % variantCycle.length];
     const report = await runFinanceModelLiveSolve({
       gold, pack, agent,

@@ -19,14 +19,23 @@ import { dirname, resolve } from "node:path";
 import { anthropic } from "@ai-sdk/anthropic";
 import { google } from "@ai-sdk/google";
 import { openai, createOpenAI } from "@ai-sdk/openai";
-import type { AgentModel, AgentMessage, AgentTool, AgentToolChoice, ToolCall } from "../core/types";
+import { z } from "zod";
+import type { AgentModel, AgentMessage, AgentTool, AgentToolChoice, ThinkingBlock, ToolCall } from "../core/types";
 import {
+  claudeEffortProviderOptions,
+  forbidsForcedToolChoice,
   getProviderForModel,
   getModelPricing,
+  isFreeModelId,
   isNodeAgentFreeAutoModel,
+  lookupModelAlias,
+  priceAggregateTokens,
+  priceTokens,
   NODEAGENT_FREE_AUTO_MODEL,
   resolveModelAlias,
 } from "./modelCatalog";
+import { modelMaxOutputTokens } from "./outputTokens";
+import { DEFAULT_AGENT_MODEL } from "../../../convex/modelDefaults";
 import {
   OPENROUTER_FREE_AUTO_MODEL,
   isOpenRouterFreeAutoModel,
@@ -79,27 +88,110 @@ function providerFor(modelId: string): LanguageModel {
   }
 }
 
+/**
+ * How many provider requests one logical turn may issue. `withRetry` is the ONLY retry layer (the AI SDK's
+ * own loop is pinned to 0), so every physical request is one attempt carrying its own reservation.
+ * The ladder receipt policy is { maxRetries: 0, crossModelFallback: false }.
+ */
+export type DispatchPolicy = {
+  maxRetries: number;
+  crossModelFallback: boolean;
+  /**
+   * SPEC A.0.10: a free primary never falls back to a paid model unless this is `true` AND the request carries a
+   * `SpendMeter` (`meteredDispatch` reserves the paid model's worst case before the request is issued).
+   */
+  allowPaidFallback?: boolean;
+};
+export const DEFAULT_DISPATCH_POLICY: DispatchPolicy = { maxRetries: 3, crossModelFallback: true };
+
+/**
+ * One provider request as the receipt needs it (SPEC A.0.3): what was asked for, what the adapter chose, the
+ * model string the PROVIDER answered with (`echoedModel`, null when the request threw), its usage, its cost
+ * (the settled price, or the full reservation when usage is unknown) and whether it was a fallback dispatch.
+ */
+export type DispatchRecord = {
+  requestedModel: string;
+  resolvedModel: string;
+  echoedModel: string | null;
+  usage: { inputTokens: number; outputTokens: number } | null;
+  costUsd: number;
+  fallbackUsed: boolean;
+};
+
+/** A paid run issues at most a few hundred requests; the bound only guards a loop that lost its cap. */
+export const MAX_DISPATCH_RECORDS = 4096;
+
+/** Job-wide USD meter for a paid run. Moves at dispatches only (see `meteredDispatch`). */
+export type SpendMeter = {
+  maxUsd: number;
+  spentUsd: number;
+  requests: number;
+  stoppedBy: null | "spend_budget" | "unpriced_model";
+  /** One row per issued request, oldest first, capped at MAX_DISPATCH_RECORDS (`requests` and `spentUsd` keep counting). */
+  dispatches: DispatchRecord[];
+  /** Requests issued past the cap that have no row in `dispatches`; a receipt with a non-zero count is incomplete (A.0.3). */
+  droppedDispatches: number;
+};
+export const createSpendMeter = (maxUsd: number): SpendMeter => ({ maxUsd, spentUsd: 0, requests: 0, stoppedBy: null, dispatches: [], droppedDispatches: 0 });
+
+/** A dispatch the budget cannot cover. `receipt.stopReason` is what runtime.ts turns into a `spend_budget` handoff. */
+export class SpendBudgetError extends Error {
+  readonly receipt = { stopReason: "spend_budget" as const };
+  constructor(message: string) {
+    super(message);
+    this.name = "SpendBudgetError";
+  }
+}
+
+/** An id the adapter can route but the catalog cannot price. Never reserved, never dispatched. */
+export class UnpricedModelError extends SpendBudgetError {
+  constructor(readonly modelId: string) {
+    super(`no pricing row for "${modelId}"; add a verified row to modelCatalog.modelPricing before a paid run`);
+    this.name = "UnpricedModelError";
+  }
+}
+
 export type ModelAdapterOptions = {
   entrypoint?: ProviderRouteEntrypoint;
   artifacts?: ProviderEgressArtifact[];
   freeAutoMode?: OpenRouterFreeModelMode;
+  /** Retry / cross-model-fallback policy. Defaults to today's behaviour (3 retries, fallback allowed). */
+  dispatch?: DispatchPolicy;
+  /** When set, every provider request reserves its worst-case cost here before it is issued. */
+  meter?: SpendMeter;
+  /**
+   * Eval and smoke scripts only (SPEC-v9 D1: operator overrides stay pass-through). The id was typed by an operator (CLI flag,
+   * `*_LIVE_MODEL`) or picked from the live OpenRouter list: the alias table still applies, but an id the catalog does not
+   * know goes to the provider as written - it does not throw and a concrete `:free` id is not rewritten to the auto router,
+   * so a run is measured under the label it was asked for. Server code never sets this; it stays fail-closed (A.0.10).
+   */
+  operatorSelected?: boolean;
 };
 
 /** Any catalog model behind the SAME seam — swap freely in the benchmark + the action. */
 export function model(modelId: string, options: ModelAdapterOptions = {}): AgentModel {
-  const aliasModelId = resolveModelAlias(modelId);
+  const aliasModelId = options.operatorSelected ? lookupModelAlias(modelId) : resolveModelAlias(modelId);
   const entrypoint = options.entrypoint ?? "system";
   const artifacts = options.artifacts ?? [];
   const freeAutoMode = options.freeAutoMode;
+  const dispatchPolicy = options.dispatch ?? DEFAULT_DISPATCH_POLICY;
+  const meter = options.meter;
   // free-auto resolves a concrete free model per call; record the actual one used so the
   // agentRuns audit captures which model produced the cells, not just the "openrouter/free-auto" alias.
   let resolvedModelId = aliasModelId;
   return {
     get name() { return resolvedModelId; },
-    async next({ system, messages, tools, signal, toolChoice }) {
+    async next({ system, messages, tools, signal, toolChoice, maxCostUsd }) {
       assertProviderEgressAllowed({ model: aliasModelId, entrypoint, artifacts, env: process.env });
       const safeSystem = redactPII(system).text;
       const safeMessages = messages.map((m) => (m.role === "user" && m.content ? { ...m, content: redactPII(m.content).text } : m));
+      const dispatch: DispatchContext = {
+        policy: dispatchPolicy,
+        requestedModel: modelId,
+        meter,
+        maxCostUsd,
+        inputTokenUpperBound: meter ? requestInputTokenUpperBound(safeSystem, safeMessages, tools) : 0,
+      };
       const sdkTools = Object.fromEntries(tools.map((t) => [t.name, tool({ description: t.description, inputSchema: t.schema })]));
       const { res, resolvedModel, providerRoute, qualityFailover } = await generateAgentText(
         aliasModelId,
@@ -112,11 +204,14 @@ export function model(modelId: string, options: ModelAdapterOptions = {}): Agent
         toolChoice,
         freeAutoMode,
         { messages: safeMessages, tools },
+        dispatch,
       );
       resolvedModelId = resolvedModel;
       const toolCalls: ToolCall[] = (res.toolCalls ?? []).map((tc: { toolCallId: string; toolName: string; input?: Record<string, unknown>; providerMetadata?: Record<string, unknown> }) => ({ id: tc.toolCallId, tool: tc.toolName, args: tc.input ?? {}, providerMetadata: tc.providerMetadata }));
+      const thinking = anthropicThinkingBlocks(res.reasoning);
       return {
         text: res.text || undefined,
+        ...(thinking.length ? { thinking } : {}),
         toolCalls,
         done: toolCalls.length === 0,
         usage: { inputTokens: res.usage?.inputTokens ?? 0, outputTokens: res.usage?.outputTokens ?? 0, cachedInputTokens: (res.usage as { cachedInputTokens?: number } | undefined)?.cachedInputTokens ?? 0 },
@@ -129,27 +224,163 @@ export function model(modelId: string, options: ModelAdapterOptions = {}): Agent
 }
 
 /** Back-compat alias (Convex action default). */
-export const anthropicModel = (modelId = "claude-haiku-4-5"): AgentModel => model(modelId);
+export const anthropicModel = (modelId = "claude-haiku-5-5"): AgentModel => model(modelId);
 
-/** A plain text/JSON completion (no tools) — used by the eval's LLM-judge. */
-export async function judge(modelId: string, prompt: string): Promise<string> {
+/**
+ * A plain text/JSON completion (no tools) — used by the eval's LLM-judge. `operatorSelected` is for eval callers whose
+ * model id was typed by an operator (CLI flag, env): same meaning as in `ModelAdapterOptions` (SPEC-v9 D1).
+ */
+export async function judge(modelId: string, prompt: string, options: Pick<ModelAdapterOptions, "operatorSelected"> = {}): Promise<string> {
   const safePrompt = redactPII(prompt).text;
-  const res = await generatePromptText(resolveModelAlias(modelId), safePrompt);
+  const res = await generatePromptText(options.operatorSelected ? lookupModelAlias(modelId) : resolveModelAlias(modelId), safePrompt);
   return res.text ?? "";
 }
 
-/** Cost from the catalog's pricing (per 1M tokens) — single source of truth, no parallel table. */
+/**
+ * Cost of usage SUMMED over several requests, from the catalog's pricing (per 1M tokens) — single source of truth,
+ * no parallel table. Base-tier rates only: the long-context tier is a property of one request's prompt, so it is
+ * never inferred from a total. A per-request `priceStep` must use `priceRequest`.
+ */
 export const priceRun = (modelId: string, inTok: number, outTok: number): number => {
-  const p = getModelPricing(resolveModelAlias(modelId));
-  return (inTok * (p?.inputPer1M ?? 1) + outTok * (p?.outputPer1M ?? 5)) / 1_000_000;
+  const p = getModelPricing(lookupModelAlias(modelId));
+  return p ? priceAggregateTokens(p, inTok, outTok) : (inTok * 1 + outTok * 5) / 1_000_000;
 };
+
+/** Cost of ONE provider request (`inTok` is that request's prompt), tier-aware. This is the `priceStep` price. */
+export const priceRequest = (modelId: string, inTok: number, outTok: number): number => {
+  const p = getModelPricing(lookupModelAlias(modelId));
+  return p ? priceTokens(p, inTok, outTok) : (inTok * 1 + outTok * 5) / 1_000_000;
+};
+
+/** Same formula as `priceRequest`, but an id with no pricing row throws instead of costing a guessed $1/$5. */
+export const priceRequestStrict = (modelId: string, inTok: number, outTok: number): number => {
+  const p = getModelPricing(lookupModelAlias(modelId));
+  if (!p) throw new UnpricedModelError(modelId);
+  return priceTokens(p, inTok, outTok);
+};
+
+/**
+ * Worst-case USD for ONE provider request: the whole input upper bound at the input price plus the
+ * output cap the request carries at the output price. A price-less id is refused, never estimated.
+ * Throws `SpendBudgetError` when that exceeds `remainingUsd` (equality is admitted).
+ */
+export function reserveDispatch(modelId: string, inputTokenUpperBound: number, remainingUsd: number): number {
+  const resolved = lookupModelAlias(modelId);
+  const p = getModelPricing(resolved);
+  if (!p) throw new UnpricedModelError(modelId);
+  // The prompt upper bound picks the tier, so a long prompt reserves at the long-context rates.
+  const reserveUsd = priceTokens(p, inputTokenUpperBound, modelMaxOutputTokens(resolved));
+  if (reserveUsd > remainingUsd) {
+    throw new SpendBudgetError(`dispatch to ${modelId} reserves $${reserveUsd.toFixed(6)}, above the $${Math.max(0, remainingUsd).toFixed(6)} left`);
+  }
+  return reserveUsd;
+}
+
+type DispatchContext = {
+  policy: DispatchPolicy;
+  /** The id the caller asked `model()` for; recorded on every dispatch row. */
+  requestedModel?: string;
+  meter?: SpendMeter;
+  /** Remaining dollars the runtime handed to this turn (`next({ maxCostUsd })`). */
+  maxCostUsd?: number;
+  inputTokenUpperBound: number;
+};
+
+/** Bytes bound tokens (>= 1 byte per token); framing allowance mirrors convexModel's. Used only for reservations. */
+export function requestInputTokenUpperBound(system: string, messages: AgentMessage[], tools: AgentTool[]): number {
+  const toolSchemas = tools.map((t) => {
+    try { return { name: t.name, description: t.description, parameters: z.toJSONSchema(t.schema as z.ZodType) }; }
+    catch { return { name: t.name, description: t.description, parameters: "x".repeat(2_048) }; }
+  });
+  const bytes = new TextEncoder().encode(JSON.stringify({ system, messages, tools: toolSchemas })).byteLength;
+  return bytes + 64 * (messages.length + tools.length + 2);
+}
+
+/**
+ * Run one provider request under the meter. Reserve BEFORE the request (so a request that would cross the
+ * cap is never issued), then settle to the priced usage. A request that throws, or answers without usage,
+ * keeps its full reservation: unknown usage is charged at the worst case. No meter = no change.
+ */
+/**
+ * The model string the PROVIDER answered with, read from the raw response body (`modelVersion` for Google,
+ * `model` for Anthropic / OpenAI-compatible). The AI SDK's `response.modelId` is not used: @ai-sdk/google fills it
+ * with the id that was REQUESTED, so it can never show Google serving a request under another model.
+ */
+export function providerEchoedModel(res: { response?: { body?: unknown } }): string | null {
+  const body = res.response?.body;
+  if (typeof body !== "object" || body === null) return null;
+  const { modelVersion, model: model_ } = body as { modelVersion?: unknown; model?: unknown };
+  const echoed = typeof modelVersion === "string" ? modelVersion : typeof model_ === "string" ? model_ : null;
+  return echoed && echoed.trim() ? echoed : null;
+}
+
+/**
+ * True when the provider's OWN usage block carries an output-token count (Google `candidatesTokenCount`, Anthropic
+ * `output_tokens`, OpenAI-compatible `completion_tokens`). The SDK-normalised numbers cannot show this: @ai-sdk/google
+ * turns a missing `candidatesTokenCount` into 0, so an incomplete block looks like a complete one that billed nothing.
+ */
+function providerReportedOutputTokens(raw: unknown): boolean {
+  if (typeof raw !== "object" || raw === null) return false;
+  const r = raw as Record<string, unknown>;
+  return [r.candidatesTokenCount, r.output_tokens, r.completion_tokens].some((n) => typeof n === "number" && Number.isFinite(n));
+}
+
+async function meteredDispatch<T extends { usage?: { inputTokens?: number; outputTokens?: number; raw?: unknown }; response?: { body?: unknown } }>(
+  ctx: DispatchContext,
+  modelId: string,
+  run: () => Promise<T>,
+  fallbackUsed = false,
+): Promise<T> {
+  const meter = ctx.meter;
+  if (!meter) return run();
+  // A refused reservation or an unpriced id is terminal for the job: nothing may dispatch after it, whatever
+  // path (retry, fallback, candidate loop) asks next.
+  if (meter.stoppedBy) {
+    throw new SpendBudgetError(`dispatch to ${modelId} refused: the meter already stopped (${meter.stoppedBy})`);
+  }
+  const remaining = Math.min(meter.maxUsd - meter.spentUsd, ctx.maxCostUsd ?? Number.POSITIVE_INFINITY);
+  let reserveUsd: number;
+  try {
+    reserveUsd = reserveDispatch(modelId, ctx.inputTokenUpperBound, remaining);
+  } catch (error) {
+    meter.stoppedBy = error instanceof UnpricedModelError ? "unpriced_model" : "spend_budget";
+    throw error;
+  }
+  meter.spentUsd += reserveUsd;
+  meter.requests += 1;
+  const record: DispatchRecord = {
+    requestedModel: ctx.requestedModel ?? modelId,
+    resolvedModel: modelId,
+    echoedModel: null,
+    usage: null,
+    costUsd: reserveUsd, // unknown usage is charged at the worst case
+    fallbackUsed,
+  };
+  if (meter.dispatches.length < MAX_DISPATCH_RECORDS) meter.dispatches.push(record);
+  else meter.droppedDispatches += 1;
+  const res = await run();
+  record.echoedModel = providerEchoedModel(res);
+  const input = res.usage?.inputTokens;
+  const output = res.usage?.outputTokens;
+  // A request always has input tokens, so a reported input count of 0 means the provider did not report one
+  // (@ai-sdk/google turns missing usageMetadata fields into 0): treat that as unknown usage and keep the reservation.
+  // The same holds for output: the raw block must carry its own output count (SPEC A.2.9, unreported usage is charged
+  // at the full reservation), because a normalised 0 may only mean "not reported".
+  if (Number.isFinite(input) && (input as number) > 0 && Number.isFinite(output) && providerReportedOutputTokens(res.usage?.raw)) {
+    const settled = priceRequestStrict(modelId, input as number, output as number);
+    meter.spentUsd += settled - reserveUsd;
+    record.usage = { inputTokens: input as number, outputTokens: output as number };
+    record.costUsd = settled;
+  }
+  return res;
+}
 
 // Our AgentMessage[] → the AI SDK's message shape (kept loose; SDK part types are version-specific).
 type SdkToolSet = Record<string, any>;
 type GenerateTextResultAny = any;
 
 const NODEAGENT_PROVIDER_NEUTRAL_POLICY = "nodeagent_provider_neutral_free_first_v1" as const;
-const DEFAULT_NODEAGENT_GOOGLE_FALLBACK_MODEL = "gemini-3.5-flash";
+const DEFAULT_NODEAGENT_GOOGLE_FALLBACK_MODEL = DEFAULT_AGENT_MODEL;
 
 type ProviderNeutralBilling = {
   /** This describes route pricing, not the account's eventual invoice or free-tier entitlement. */
@@ -183,6 +414,7 @@ type ProviderNeutralRouteReceipt = ProviderRouteReceipt & {
 // honoring the deadline AbortSignal, plus an optional cross-model fallback. (async_reliability layer 2)
 const TRANSIENT_RE = /(\b429\b|\b5\d\d\b|rate.?limit|overloaded|temporar|timed?.?out|ECONNRESET|ETIMEDOUT|EAI_AGAIN|ENOTFOUND|fetch failed|socket hang up|service unavailable)/i;
 export function isTransientError(error: unknown): boolean {
+  if (error instanceof SpendBudgetError) return false; // a refused reservation is a decision, not an outage: never retry it
   if (error instanceof Error && (error.name === "AbortError" || /\baborted\b/i.test(error.message))) return false; // deadline abort → never retry
   const m = error instanceof Error ? `${error.name}: ${error.message}` : String(error);
   return TRANSIENT_RE.test(m);
@@ -199,7 +431,7 @@ function abortableSleep(ms: number, signal?: AbortSignal): Promise<void> {
     signal?.addEventListener("abort", () => { clearTimeout(t); reject(new Error("aborted")); }, { once: true });
   });
 }
-async function withRetry<T>(fn: () => Promise<T>, signal?: AbortSignal, maxRetries = 3): Promise<T> {
+async function withRetry<T>(fn: () => Promise<T>, signal?: AbortSignal, maxRetries = DEFAULT_DISPATCH_POLICY.maxRetries): Promise<T> {
   let lastError: unknown;
   for (let attempt = 1; attempt <= maxRetries + 1; attempt++) {
     try { return await fn(); }
@@ -212,9 +444,14 @@ async function withRetry<T>(fn: () => Promise<T>, signal?: AbortSignal, maxRetri
   throw lastError;
 }
 /** Optional cross-model safety net after the primary path's retries exhaust (e.g. free-tier outage). */
-function fallbackModelFor(modelId: string): string | undefined {
+function fallbackModelFor(modelId: string, dispatch: DispatchContext): string | undefined {
+  if (!dispatch.policy.crossModelFallback) return undefined;
   const fb = process.env.AGENT_FALLBACK_MODEL?.trim();
-  return fb && resolveModelAlias(fb) !== modelId ? resolveModelAlias(fb) : undefined;
+  const resolved = fb ? resolveModelAlias(fb) : undefined;
+  if (!resolved || resolved === modelId) return undefined;
+  // Cost class is preserved (A.0.10): free -> paid needs an explicit allowPaidFallback and a meter to reserve against.
+  if (isFreeModelId(modelId) && !isFreeModelId(resolved) && !(dispatch.policy.allowPaidFallback === true && dispatch.meter)) return undefined;
+  return resolved;
 }
 
 async function generateAgentText(
@@ -228,6 +465,7 @@ async function generateAgentText(
   toolChoice?: AgentToolChoice,
   freeAutoMode?: OpenRouterFreeModelMode,
   qualityContext?: { messages: AgentMessage[]; tools: AgentTool[] },
+  dispatch: DispatchContext = { policy: DEFAULT_DISPATCH_POLICY, inputTokenUpperBound: 0 },
 ): Promise<{
   res: GenerateTextResultAny;
   resolvedModel: string;
@@ -245,28 +483,34 @@ async function generateAgentText(
       toolChoice,
       freeAutoMode,
       qualityContext,
+      dispatch,
     });
   }
   if (!isOpenRouterFreeAutoModel(modelId)) {
-    const call = async (id: string) => {
+    const call = async (id: string, fallbackUsed: boolean) => {
       const providerRoute = assertProviderRouteAllowed({ model: id, entrypoint, env: process.env });
       assertProviderEgressAllowed({ model: id, entrypoint, artifacts, env: process.env });
-      const res = await withRetry(() => generateText({
+      const res = await withRetry(() => meteredDispatch(dispatch, id, () => generateText({
         model: providerFor(id),
         system,
         messages,
         tools: sdkTools,
         toolChoice: Object.keys(sdkTools).length ? sdkToolChoiceForModel(id, toolChoice) : undefined,
+        maxOutputTokens: modelMaxOutputTokens(id),
+        maxRetries: 0, // withRetry is the only retry layer: every physical request is one reserved attempt
+        ...claudeEffortProviderOptions(id), // explicit SPEC §1.3 effort: a vendor default change cannot move the lane
         abortSignal: signal,
-      }), signal);
+      }), fallbackUsed), signal, dispatch.policy.maxRetries);
       return { res, providerRoute };
     };
     try {
-      return { ...await call(modelId), resolvedModel: modelId };
+      return { ...await call(modelId, false), resolvedModel: modelId };
     } catch (error) {
-      const fb = fallbackModelFor(modelId);
+      // A refused reservation is the budget's decision, not an outage: no fallback model may be tried after it.
+      if (error instanceof SpendBudgetError) throw error;
+      const fb = fallbackModelFor(modelId, dispatch);
       if (!fb || signal?.aborted) throw error;
-      return { ...await call(fb), resolvedModel: fb }; // primary exhausted retries → cross-model safety net
+      return { ...await call(fb, true), resolvedModel: fb }; // primary exhausted retries → cross-model safety net
     }
   }
   hydrateOpenRouterFreeRouteHealth();
@@ -289,14 +533,16 @@ async function generateAgentText(
     execute: async (candidate, context) => {
       const providerRoute = assertProviderRouteAllowed({ model: candidate.id, entrypoint, env: process.env });
       assertProviderEgressAllowed({ model: candidate.id, entrypoint, artifacts, env: process.env });
-      const res = await withRetry(() => generateText({
+      const res = await withRetry(() => meteredDispatch(dispatch, candidate.id, () => generateText({
         model: openrouter().chat(candidate.id),
         system,
         messages,
         tools: sdkTools,
         toolChoice: Object.keys(sdkTools).length ? sdkToolChoiceForModel(candidate.id, toolChoice) : undefined,
+        maxOutputTokens: modelMaxOutputTokens(candidate.id),
+        maxRetries: 0,
         abortSignal: context.signal,
-      }), context.signal, openRouterFreeCandidateRetries());
+      })), context.signal, Math.min(openRouterFreeCandidateRetries(), dispatch.policy.maxRetries));
       return { res, providerRoute };
     },
     assessResult: ({ res }) => assessAgentToolTurnQuality({
@@ -347,6 +593,7 @@ async function generateProviderNeutralAgentText(args: {
   toolChoice?: AgentToolChoice;
   freeAutoMode?: OpenRouterFreeModelMode;
   qualityContext?: { messages: AgentMessage[]; tools: AgentTool[] };
+  dispatch: DispatchContext;
 }): Promise<{
   res: GenerateTextResultAny;
   resolvedModel: string;
@@ -365,6 +612,7 @@ async function generateProviderNeutralAgentText(args: {
       args.toolChoice,
       args.freeAutoMode,
       args.qualityContext,
+      args.dispatch,
     );
     if (!primary.providerRoute) {
       throw new Error(`${NODEAGENT_FREE_AUTO_MODEL} primary route returned no provider receipt`);
@@ -380,6 +628,12 @@ async function generateProviderNeutralAgentText(args: {
   } catch (primaryError) {
     const unavailable = openRouterPrimaryUnavailable(primaryError);
     if (!unavailable || args.signal?.aborted) throw primaryError;
+    // The direct Google route is a cross-model fallback (free OpenRouter -> paid Gemini): a policy that forbids
+    // cross-model fallback forbids it, and a refused reservation is never recovered from. Cost class is preserved
+    // (A.0.10): the paid leg also needs an explicit allowPaidFallback and a meter to reserve against, exactly the
+    // guard `fallbackModelFor` applies to every other free -> paid fallback.
+    const paidLegAuthorized = args.dispatch.policy.allowPaidFallback === true && !!args.dispatch.meter;
+    if (primaryError instanceof SpendBudgetError || !args.dispatch.policy.crossModelFallback || !paidLegAuthorized) throw primaryError;
 
     const configuredKey = envValue("GOOGLE_GENERATIVE_AI_API_KEY");
     if (!configuredKey) {
@@ -412,14 +666,16 @@ async function generateProviderNeutralAgentText(args: {
     }
 
     try {
-      const res = await withRetry(() => generateText({
+      const res = await withRetry(() => meteredDispatch(args.dispatch, fallbackModel, () => generateText({
         model: google(fallbackModel),
         system: args.system,
         messages: args.messages,
         tools: args.sdkTools,
         toolChoice: Object.keys(args.sdkTools).length ? sdkToolChoiceForModel(fallbackModel, args.toolChoice) : undefined,
+        maxOutputTokens: modelMaxOutputTokens(fallbackModel),
+        maxRetries: 0,
         abortSignal: args.signal,
-      }), args.signal);
+      }), true), args.signal, args.dispatch.policy.maxRetries);
       return {
         res,
         resolvedModel: fallbackModel,
@@ -606,7 +862,7 @@ function adapterQualityFailoverError(
 async function generatePromptText(modelId: string, prompt: string): Promise<GenerateTextResultAny> {
   if (!isOpenRouterFreeAutoModel(modelId)) {
     assertProviderRouteAllowed({ model: modelId, entrypoint: "system", env: process.env });
-    return generateText({ model: providerFor(modelId), prompt });
+    return generateText({ model: providerFor(modelId), prompt, ...claudeEffortProviderOptions(modelId) }); // explicit §1.3 effort, as on the agent path
   }
   hydrateOpenRouterFreeRouteHealth();
   const requestSignal = openRouterFreeRequestSignal();
@@ -638,7 +894,8 @@ async function generatePromptText(modelId: string, prompt: string): Promise<Gene
   throw new Error(`openrouter/free-auto prompt failed for ${attempted.join(", ")}: ${shortProviderError(lastError)}`);
 }
 
-function openRouterFreeAutoLimit(): number {
+/** Candidates one `openrouter/free-auto` request fans out over (OPENROUTER_FREE_AUTO_LIMIT, default 8, max 20). */
+export function openRouterFreeAutoLimit(): number {
   const raw = Number(envValue("OPENROUTER_FREE_AUTO_LIMIT") ?? 8);
   return Number.isFinite(raw) ? Math.max(1, Math.min(20, raw)) : 8;
 }
@@ -701,17 +958,33 @@ function envValue(name: string): string | undefined {
 
 function sdkToolChoiceForModel(modelId: string, requested?: AgentToolChoice): AgentToolChoice {
   const choice = requested ?? "auto";
+  // Claude 5.5 Sonnet/Opus 400 on a forced tool_choice (SPEC §1.3). `auto` is the transport hint; the harness
+  // validates required writes after the turn (convexModel.ts assessConvexTurnQuality / runtime required-tool check).
+  if (choice === "required" && forbidsForcedToolChoice(modelId)) return "auto";
   if (choice === "required" && getProviderForModel(modelId) === "openrouter" && /^(?:qwen\/qwen3(?:[.-]|$)|qwen3(?:[.-]|$))/i.test(modelId)) {
     return "auto";
   }
   return choice;
 }
 
+/** The AI SDK's reasoning parts → Anthropic thinking blocks (the signature / redacted data is what the API checks). */
+function anthropicThinkingBlocks(reasoning: unknown): ThinkingBlock[] {
+  if (!Array.isArray(reasoning)) return [];
+  return reasoning.flatMap((part: { text?: string; providerMetadata?: { anthropic?: { signature?: unknown; redactedData?: unknown } } }): ThinkingBlock[] => {
+    const meta = part?.providerMetadata?.anthropic;
+    if (typeof meta?.signature === "string") return [{ type: "thinking", thinking: part.text ?? "", signature: meta.signature }];
+    if (typeof meta?.redactedData === "string") return [{ type: "redacted_thinking", data: meta.redactedData }];
+    return [];
+  });
+}
+
 function toSdkMessages(messages: AgentMessage[]): ModelMessage[] {
   const out = messages.map((m) => {
     if (m.role === "user") return { role: "user", content: m.content };
     if (m.role === "assistant") {
-      const parts: unknown[] = [];
+      const parts: unknown[] = (m.thinking ?? []).map((b) => b.type === "thinking"
+        ? { type: "reasoning", text: b.thinking, providerOptions: { anthropic: { signature: b.signature } } }
+        : { type: "reasoning", text: "", providerOptions: { anthropic: { redactedData: b.data } } });
       if (m.content) parts.push({ type: "text", text: m.content });
       for (const tc of m.toolCalls ?? []) parts.push({ type: "tool-call", toolCallId: tc.id, toolName: tc.tool, input: tc.args, ...(tc.providerMetadata ? { providerOptions: tc.providerMetadata } : {}) });
       return { role: "assistant", content: parts.length ? parts : m.content };

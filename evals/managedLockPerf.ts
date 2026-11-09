@@ -140,10 +140,10 @@ async function main() {
   const jsonOut = optionValue("--json-out") ?? DEFAULT_JSON_OUT;
   const real = Boolean(realRoute);
   const explicitAgent = real
-    ? realModel(realRoute!)
+    ? realModel(realRoute!, { operatorSelected: true })
     : scriptedModel(recomputeVariancePlan(TARGETS, { lock: true }), "scripted-explicit-lock");
   const managedAgent = real
-    ? realModel(realRoute!)
+    ? realModel(realRoute!, { operatorSelected: true })
     : scriptedModel(managedBatchVariancePlan(TARGETS), "scripted-managed-lock");
 
   const explicit = await runCase({ lane: "explicit_agent_lock", agent: explicitAgent, real });

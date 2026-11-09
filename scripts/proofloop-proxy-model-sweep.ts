@@ -1,6 +1,7 @@
 import { spawnSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
+import { promptTiersOf, type PromptTier } from "./benchmark/pricingAtRun";
 import {
   externalBenchmarkLocalTaskIds,
   loadExternalBenchmarkLocalTasks,
@@ -16,6 +17,7 @@ type OpenRouterModel = {
     prompt?: string;
     completion?: string;
     input_cache_read?: string;
+    overrides?: unknown;
   };
   supported_parameters?: string[];
 };
@@ -31,6 +33,8 @@ type PricingAtRun = {
   inputPer1M: number | null;
   outputPer1M: number | null;
   cachedInputPer1M?: number | null;
+  /** The list's prompt-size tiers (pricing.overrides). A run's summed tokens cannot say which prompts crossed one. */
+  promptTiers?: PromptTier[];
 };
 
 type AdapterReceipt = {
@@ -73,6 +77,8 @@ type SweepRow = {
   measuredTokensIn: number | null;
   measuredTokensOut: number | null;
   estimatedCostUsdAtOpenRouterList: number | null;
+  /** True when the model has prompt-size tiers: the estimate is at base rates over summed tokens, a floor for any run that crossed a tier. */
+  estimatedCostIsBaseRateFloor?: boolean;
   pricingAtRun: PricingAtRun | null;
 };
 
@@ -219,6 +225,7 @@ function rowFromReceipt(modelId: string, adapterId: ExternalBenchmarkAdapterId, 
     measuredTokensIn,
     measuredTokensOut,
     estimatedCostUsdAtOpenRouterList: estimateCost(pricing, measuredTokensIn, measuredTokensOut),
+    ...(pricing?.promptTiers ? { estimatedCostIsBaseRateFloor: true } : {}),
     pricingAtRun: pricing,
   };
 }
@@ -236,6 +243,7 @@ async function fetchOpenRouterCatalog(): Promise<OpenRouterModel[]> {
 }
 
 function pricingFor(model: OpenRouterModel, fetchedAt: string): PricingAtRun {
+  const tiers = promptTiersOf(model.pricing);
   return {
     source: OPENROUTER_MODELS_API,
     fetchedAt,
@@ -247,6 +255,7 @@ function pricingFor(model: OpenRouterModel, fetchedAt: string): PricingAtRun {
     inputPer1M: pricePer1M(model.pricing?.prompt),
     outputPer1M: pricePer1M(model.pricing?.completion),
     cachedInputPer1M: pricePer1M(model.pricing?.input_cache_read),
+    ...(tiers.length ? { promptTiers: tiers } : {}),
   };
 }
 
