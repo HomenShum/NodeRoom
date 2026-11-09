@@ -115,6 +115,8 @@ export function RoomHome({
 }) {
   const hasArtifacts = !!artifacts && artifacts.length > 0;
   const store = useStore();
+  const room = store.getRoom?.(roomId);
+  const isWorkspace = room?.experience === "workspace" || (store.mode === "convex" && room?.experience !== "sample");
   const [command, setCommand] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<"sent" | "error" | null>(null);
@@ -271,9 +273,9 @@ export function RoomHome({
               Audit workbook
             </button>
           )}
-          <button className="r-room-chip" onClick={() => { setCommand("@nodeagent research upscaleX Palo Alto"); inputRef.current?.focus(); }}>
+          {!isWorkspace && <button className="r-room-chip" onClick={() => { setCommand("@nodeagent research upscaleX Palo Alto"); inputRef.current?.focus(); }}>
             Research upscaleX
-          </button>
+          </button>}
           <button className="r-room-chip" onClick={() => { setCommand("@nodeagent organize uploaded files"); inputRef.current?.focus(); }}>
             Organize files
           </button>

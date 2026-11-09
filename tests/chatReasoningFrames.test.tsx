@@ -227,8 +227,9 @@ describe("Chat reasoning-frame job detail", () => {
     expect(store.startLongFreeAgent).not.toHaveBeenCalled();
   });
 
-  it("starts the room agent from the empty public chat CTA when the demo sheet is seeded", async () => {
+  it("lets the host choose a goal from the empty public chat CTA even with a seeded demo sheet", async () => {
     const store = baseStore();
+    store.getRoom = () => ({ experience: "sample" });
     store.lastLongFreeJob = () => null;
     store.listArtifacts = () => [{ id: "sheet1", roomId: "r1", kind: "sheet", title: "Q3 variance", version: 1, order: [], updatedAt: 1, elements: {} }];
     mockStore.current = store;
@@ -238,13 +239,39 @@ describe("Chat reasoning-frame job detail", () => {
     fireEvent.click(screen.getByTestId("chat-empty-agent-cta"));
 
     await waitFor(() => {
-      expect(store.askAgent).toHaveBeenCalledWith(expect.objectContaining({
-        goal: "diligence CardioNova with source-backed product, buyer, funding, hiring, and HIPAA/security gaps",
-      }));
+      expect(document.activeElement).toBe(screen.getByTestId("chat-composer"));
     });
-    expect(store.postMessage).toHaveBeenCalledWith(expect.objectContaining({
-      text: expect.stringContaining("@nodeagent diligence CardioNova"),
-    }));
+    expect((screen.getByTestId("chat-composer") as HTMLTextAreaElement).value).toBe("@nodeagent ");
+    expect(store.askAgent).not.toHaveBeenCalled();
+    expect(store.postMessage).not.toHaveBeenCalled();
+    // Old assertions: askAgent({ goal: "diligence CardioNova with source-backed product, buyer, funding, hiring, and HIPAA/security gaps" });
+    // postMessage({ text: expect.stringContaining("@nodeagent diligence CardioNova") }).
+    // C5.1 now requires a goal chosen by the host; one CTA click must not spend credits.
+  });
+
+  it.each([
+    ["memory", "workspace"],
+    ["convex", "workspace"],
+    ["convex", undefined],
+  ])("host in %s/%s can retry empty directives then submit their own task", async (mode, experience) => {
+    const store = baseStore();
+    store.mode = mode;
+    store.getRoom = () => ({ experience });
+    store.lastLongFreeJob = () => null;
+    mockStore.current = store;
+    render(<Chat roomId="r1" me={me} channel="public" variant="public" agentName="Room NodeAgent" />);
+    const composer = screen.getByTestId("chat-composer");
+    for (const value of ["@nodeagent ", "/ask", "/free", "@nodeagent:"]) {
+      fireEvent.change(composer, { target: { value } });
+      fireEvent.keyDown(composer, { key: "Enter" });
+      expect(screen.getByRole("status").textContent).toMatch(/give NodeAgent a goal/i);
+      expect(store.postMessage).not.toHaveBeenCalled();
+      expect(store.askAgent).not.toHaveBeenCalled();
+    }
+    fireEvent.change(composer, { target: { value: "@nodeagent summarize my room files" } });
+    fireEvent.keyDown(composer, { key: "Enter" });
+    await waitFor(() => expect(store.askAgent).toHaveBeenCalledWith(expect.objectContaining({ goal: "summarize my room files" })));
+    expect(store.postMessage).toHaveBeenCalledTimes(1);
   });
 
   it("renders durable agent job finalText in the chat when no agent message was posted", () => {

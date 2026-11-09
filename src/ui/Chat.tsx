@@ -1163,17 +1163,17 @@ function AgentFailureRecoveryCard({
   );
 }
 
-function parsePublicNodeAgentRequest(text: string): { goal: string; forceFree?: boolean } | null {
+function parsePublicNodeAgentRequest(text: string, fallbackGoal = DEFAULT_NODEAGENT_GOAL): { goal: string; forceFree?: boolean } | null {
   const trimmed = text.trim();
   const mentionMatch = trimmed.match(/^@nodeagent(?:\s+|[:,-]\s*|$)/i);
   if (mentionMatch) {
-    return { goal: trimmed.slice(mentionMatch[0].length).trim() || DEFAULT_NODEAGENT_GOAL };
+    return { goal: trimmed.slice(mentionMatch[0].length).trim() || fallbackGoal };
   }
   if (/^\/ask\b/i.test(trimmed)) {
-    return { goal: trimmed.replace(/^\/ask\s*/i, "").trim() || DEFAULT_NODEAGENT_GOAL };
+    return { goal: trimmed.replace(/^\/ask\s*/i, "").trim() || fallbackGoal };
   }
   if (/^\/free\b/i.test(trimmed)) {
-    return { goal: trimmed.replace(/^\/free\s*/i, "").trim() || DEFAULT_NODEAGENT_GOAL, forceFree: true };
+    return { goal: trimmed.replace(/^\/free\s*/i, "").trim() || fallbackGoal, forceFree: true };
   }
   return null;
 }
@@ -1383,6 +1383,7 @@ type ContextPickerOption = { key: string; label: string; hint: string; ref: Arti
 export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId, style, onOpenArtifact, embedded = false, testId }: ChatProps) {
   const store = useStore();
   const [text, setText] = useState("");
+  const [needsGoal, setNeedsGoal] = useState(false);
   const [refs, setRefs] = useState<ArtifactRef[]>([]);
   const [dropActive, setDropActive] = useState(false);
   const [thinking, setThinking] = useState(false);
@@ -1436,6 +1437,8 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
     };
   }, []);
   const messages = store.listMessages(roomId, channel);
+  const room = store.getRoom?.(roomId);
+  const isWorkspace = room?.experience === "workspace" || (store.mode === "convex" && room?.experience !== "sample");
   const isPrivate = variant === "private";
   const longJob = isPrivate ? null : store.lastLongFreeJob();
   const longJobAttempts = isPrivate ? [] : store.lastLongFreeJobAttempts();
@@ -1453,8 +1456,9 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
   const showDecisionCard = !!decisionState;
   const pinnedAgentResearchReceipt = isPrivate ? null : buildAgentResearchReceipt(activeArtifact);
   const contextualPrompts = useMemo(() => {
+    const fallback = isWorkspace ? [] : NODEAGENT_PROMPTS;
     if (decisionState) return decisionState.prompts;
-    if (!activeArtifact) return NODEAGENT_PROMPTS;
+    if (!activeArtifact) return fallback;
     const title = activeArtifact.title ?? "";
     const kind = activeArtifact.kind;
     if (kind === "sheet" && /runway|milestone/i.test(title)) {
@@ -1481,9 +1485,10 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
         { label: "@nodeagent diligence CardioNova", insert: "@nodeagent diligence CardioNova with source-backed product, buyer, funding, hiring, and HIPAA/security gaps" },
       ];
     }
-    return NODEAGENT_PROMPTS;
-  }, [activeArtifact, decisionState]);
+    return fallback;
+  }, [activeArtifact, decisionState, isWorkspace]);
   const emptyStateHint = useMemo(() => {
+    if (isWorkspace) return "Tell NodeAgent what this room is for: a company, a question, or a file to read.";
     if (!activeArtifact) return "Ask the room agent to work on the seeded model.";
     const title = activeArtifact.title ?? "";
     const kind = activeArtifact.kind;
@@ -1492,7 +1497,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
     if (kind === "note" && /diligence|memo/i.test(title)) return "Ask NodeAgent to draft or review the diligence memo.";
     if (kind === "wall") return "Pick an artifact or ask NodeAgent to organize the wall.";
     return "Ask the room agent to work on the seeded model.";
-  }, [activeArtifact]);
+  }, [activeArtifact, isWorkspace]);
   const showModelSelection = !isPrivate && store.mode === "convex";
   const specificModelGroups = useMemo(() => AGENT_MODEL_PROVIDER_ORDER
     .map((provider) => ({
@@ -1878,6 +1883,14 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
   const send = (raw?: string, overrideModelSelection?: AgentModelSelection, disposition?: "start" | "queue" | "redirect") => {
     const t = (raw ?? text).trim();
     if (!t && refs.length === 0) return;
+    const publicNodeAgentRequest = !isPrivate ? parsePublicNodeAgentRequest(t, isWorkspace ? "" : DEFAULT_NODEAGENT_GOAL) : null;
+    // Validate the user's goal before posting under their name or starting paid work.
+    if (publicNodeAgentRequest && !publicNodeAgentRequest.goal) {
+      setNeedsGoal(true);
+      taRef.current?.focus();
+      return;
+    }
+    setNeedsGoal(false);
     const messageRefs = refs;
     const messageText = refs.length ? `${encodeArtifactRefLine(refs)}${t ? "\n\n" + t : ""}` : t;
     const cid = crypto.randomUUID();
@@ -1886,7 +1899,6 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
     setText(""); setRefs([]); setMention(null); setMentionIndex(0); setContextPickerOpen(false); setContextQuery("");
     requestAnimationFrame(grow);
 
-    const publicNodeAgentRequest = !isPrivate ? parsePublicNodeAgentRequest(t) : null;
     if (publicNodeAgentRequest) {
       const modelSelection = composerModelSelection(publicNodeAgentRequest.forceFree, overrideModelSelection);
       beginThinking();
@@ -2280,7 +2292,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
           <div className="r-chat-empty" data-testid={isPrivate ? "private-chat-empty" : "public-chat-empty"}>
             <span>{isPrivate ? "Ask your NodeAgent privately, or switch it to Room mode." : emptyStateHint}</span>
             {!isPrivate && (
-              <button className="r-mini-btn primary" type="button" data-testid="chat-empty-agent-cta" onClick={() => send(contextualPrompts[0]?.insert ?? NODEAGENT_PROMPTS[0].insert)}>
+              <button className="r-mini-btn primary" type="button" data-testid="chat-empty-agent-cta" onClick={() => applyComposerPrompt("@nodeagent ")}>
                 <Sparkles size={12} /> Ask NodeAgent
               </button>
             )}
@@ -2390,6 +2402,7 @@ export function Chat({ roomId, me, channel, variant, agentName, activeArtifactId
         )}
         {refOpenErr && <div className="r-upload-error" role="alert" data-testid="artifact-ref-open-error">{refOpenErr}</div>}
         {uploadingFiles && <div className="r-upload-status" role="status" data-testid="chat-upload-status">Uploading files...</div>}
+        {needsGoal && <div role="status">Give NodeAgent a goal: name a company, ask a question, or describe a file to read.</div>}
         {uploadError && <div className="r-upload-error" role="alert" data-testid="chat-upload-error">{uploadError}</div>}
         {voiceListening && <div className="r-voice-status" role="status" data-testid="chat-voice-status"><Mic size={12} /> {voiceTranscript || "Listening"}</div>}
         {voiceErr && <div className="r-upload-error r-voice-error" role="alert" data-testid="chat-voice-error">{voiceErr}</div>}

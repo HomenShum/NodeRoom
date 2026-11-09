@@ -72,6 +72,7 @@ export function useEngineRev(): number {
 
 export function createFreshRoom(title: string, hostName: string): { roomId: string; me: Actor } {
   const { room, host } = engine.createRoom({ title: title || "Untitled room", hostName: hostName || "Host", autoAllow: true });
+  room.experience = "workspace";
   const me: Actor = { kind: "user", id: host.id, name: host.name };
   // Seed a starter variance sheet. engine.createRoom() creates a BARE room, so
   // without this the StoryLab playground (its only caller) has no sheet — the
